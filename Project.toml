@@ -1,0 +1,16 @@
+name = "DMFT"
+uuid = "a6c836f4-75b2-4167-a711-17703ee59b5f"
+authors = ["Frank Ebel <frank.ebel@student.tuwien.ac.at> and contributors"]
+version = "0.0.1"
+
+[compat]
+Aqua = "0.8"
+Test = "1.10"
+julia = "1.10"
+
+[extras]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Aqua", "Test"]
