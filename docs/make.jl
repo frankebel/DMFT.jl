@@ -13,4 +13,5 @@ makedocs(;
     pages=["Home" => "index.md"],
 )
 
-deploydocs(; repo="github.com/frankebel/DMFT.jl", devbranch="main")
+# only works for public repos, see <https://github.com/frankebel/DMFT.jl/settings/pages>
+# deploydocs(; repo="github.com/frankebel/DMFT.jl", devbranch="main")

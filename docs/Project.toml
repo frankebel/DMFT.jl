@@ -1,3 +1,7 @@
 [deps]
 DMFT = "a6c836f4-75b2-4167-a711-17703ee59b5f"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+
+[compat]
+Documenter = "1"
+julia = "1"
