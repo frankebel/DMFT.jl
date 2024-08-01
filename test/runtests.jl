@@ -6,4 +6,5 @@ include("./aqua.jl")
 @testset "DMFT.jl" begin
     include("./combinatorics.jl")
     include("./mask.jl")
+    include("./wavefunctions.jl")
 end
