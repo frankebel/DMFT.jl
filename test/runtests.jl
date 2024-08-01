@@ -7,4 +7,5 @@ include("./aqua.jl")
     include("./combinatorics.jl")
     include("./mask.jl")
     include("./wavefunctions.jl")
+    include("./greensfunction.jl")
 end

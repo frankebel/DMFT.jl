@@ -3,9 +3,13 @@ module DMFT
 using Fermions
 using Fermions.Bits
 using Fermions.Wavefunctions
+using HDF5
 using LinearAlgebra
 
 export
+    # Types
+    Greensfunction,
+
     # Functions
     get_excitation,
     mask_fe,
@@ -24,5 +28,6 @@ export
 include("./combinatorics.jl")
 include("./mask.jl")
 include("./wavefunctions.jl")
+include("./greensfunction.jl")
 
 end
