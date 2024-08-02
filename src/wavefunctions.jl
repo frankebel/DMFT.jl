@@ -35,7 +35,6 @@ end
 function diffkeys(ϕ1::Wavefunction{T}, ϕ2::Wavefunction{T}) where {T}
     length(ϕ1) >= length(ϕ2)
     result = keytype(T)[]
-    @show ϕ1
     for k in keys(ϕ1)
         haskey(ϕ2, k) || push!(result, k)
     end
