@@ -1,8 +1,8 @@
 using DMFT
 using Test
 
-@testset "greensfunction" begin
-    @testset "Green's function" begin
+@testset "Green's function" begin
+    @testset "constructor" begin
         V = Vector{Float64}
         a = sort(rand(10))
         b = rand(10)
@@ -16,7 +16,7 @@ using Test
         # outer constructor
         G = Greensfunction(a, b)
         @test typeof(G) === Greensfunction{V,V}
-    end # Green's function
+    end # constructor
 
     @testset "evaluate GF" begin
         @testset "single point" begin
@@ -51,27 +51,27 @@ using Test
             G = Greensfunction(a, b)
             @test G(z) == [G(z[1]), G(z[2])]
         end # multiple points
-
-        @testset "IO" begin
-            # write
-            a = sort(rand(10))
-            b = rand(10)
-            G = Greensfunction(a, b)
-            @test write("test.h5", G) === nothing
-
-            # read
-            V = Vector{Float64}
-            foo = Greensfunction{V,V}("test.h5")
-            @test typeof(foo) == Greensfunction{V,V}
-            @test foo.a == G.a
-            @test foo.b == G.b
-            # fallback default type
-            foo = Greensfunction("test.h5")
-            @test typeof(foo) == Greensfunction{V,V}
-            @test foo.a == G.a
-            @test foo.b == G.b
-
-            rm("test.h5")
-        end # IO
     end # evaluate GF
-end # greensfunction
+
+    @testset "IO" begin
+        # write
+        a = sort(rand(10))
+        b = rand(10)
+        G = Greensfunction(a, b)
+        @test write("test.h5", G) === nothing
+
+        # read
+        V = Vector{Float64}
+        foo = Greensfunction{V,V}("test.h5")
+        @test typeof(foo) == Greensfunction{V,V}
+        @test foo.a == G.a
+        @test foo.b == G.b
+        # fallback default type
+        foo = Greensfunction("test.h5")
+        @test typeof(foo) == Greensfunction{V,V}
+        @test foo.a == G.a
+        @test foo.b == G.b
+
+        rm("test.h5")
+    end # IO
+end # Green's function
