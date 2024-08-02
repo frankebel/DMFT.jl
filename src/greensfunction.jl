@@ -74,10 +74,6 @@ end
 
 # default Vector{Float64}
 function Greensfunction(s::AbstractString)
-    return h5open(s, "r") do fid
-        V = Vector{Float64}
-        a = read(fid, "a")
-        b = read(fid, "b")
-        return Greensfunction{V,V}(V(a), V(b))
-    end
+    V = Vector{Float64}
+    return Greensfunction{V,V}(s)
 end
