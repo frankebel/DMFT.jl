@@ -4,12 +4,14 @@ authors = ["Frank Ebel <frank.ebel@student.tuwien.ac.at> and contributors"]
 version = "0.0.1"
 
 [deps]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 Fermions = "5323e9fa-b7db-5fd3-973f-d33ddadd0ada"
 HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [compat]
 Aqua = "0.8"
+Distributions = "0.25"
 Fermions = "0.11"
 HDF5 = "0.17"
 LinearAlgebra = "1.10"

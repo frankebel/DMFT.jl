@@ -1,5 +1,6 @@
 module DMFT
 
+using Distributions
 using Fermions
 using Fermions.Bits
 using Fermions.Wavefunctions
@@ -9,9 +10,12 @@ using LinearAlgebra
 export
     # Types
     Greensfunction,
+    Hybridizationfunction,
 
     # Functions
     get_excitation,
+    get_hyb,
+    get_hyb_equal,
     mask_fe,
     mul_excitation,
     ndet,
