@@ -163,4 +163,31 @@ end # Green's function
             @test length(Δ.pos.a) === length(Δ.neg.a) === 50
         end # get_hyb_equal
     end # generation
+
+    @testset "Matrix" begin
+        a_p = collect(1:2)
+        a_n = collect(3:4)
+        b_p = collect(5:6)
+        b_n = collect(7:8)
+        V0 = 9
+        G_p = Greensfunction(a_p, b_p)
+        G_n = Greensfunction(a_n, b_n)
+        Δ = Hybridizationfunction(V0, G_p, G_n)
+        m = Matrix(Δ)
+        @test m isa Matrix{Int}
+        @test m == [
+            0 7 8 9 5 6
+            7 3 0 0 0 0
+            8 0 4 0 0 0
+            9 0 0 0 0 0
+            5 0 0 0 1 0
+            6 0 0 0 0 2
+        ]
+
+        # complex does not work
+        foo = rand(ComplexF64, 2)
+        G = Greensfunction(foo, foo)
+        Δ = Hybridizationfunction(V0, G, G)
+        @test_throws MethodError Matrix(Δ)
+    end # Matrix
 end # Hybridization function

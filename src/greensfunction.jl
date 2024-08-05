@@ -232,3 +232,14 @@ function get_hyb_equal(n_bath::Int, t::Real=1.0)
     neg = Greensfunction(a, b)
     return Hybridizationfunction(V, pos, neg)
 end
+
+function Base.Matrix(
+    Δ::Hybridizationfunction{
+        M,<:Greensfunction{<:AbstractVector{<:Real},<:AbstractVector{<:Real}}
+    },
+) where {M<:Number}
+    result = Matrix(Diagonal([zero(M); Δ.neg.a; zero(M); Δ.pos.a]))
+    result[1, 2:end] .= [Δ.neg.b; Δ.V0; Δ.pos.b]
+    result[2:end, 1] .= [Δ.neg.b; Δ.V0; Δ.pos.b]
+    return result
+end
