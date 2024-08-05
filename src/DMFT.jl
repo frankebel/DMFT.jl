@@ -26,12 +26,15 @@ export
     ndet2,
     ndet2_bit,
     ndet_bit,
+    orgtr!,
     slater_start,
-    starting_wf
+    starting_wf,
+    sytrd!
 
-include("./combinatorics.jl")
-include("./mask.jl")
-include("./wavefunctions.jl")
-include("./greensfunction.jl")
+include("combinatorics.jl")
+include("mask.jl")
+include("wavefunctions.jl")
+include("greensfunction.jl")
+include("sytrd.jl")
 
 end
