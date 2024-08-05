@@ -29,12 +29,14 @@ export
     orgtr!,
     slater_start,
     starting_wf,
-    sytrd!
+    sytrd!,
+    to_natural_orbitals
 
 include("combinatorics.jl")
 include("mask.jl")
 include("wavefunctions.jl")
 include("greensfunction.jl")
 include("sytrd.jl")
+include("nat_orbs.jl")
 
 end

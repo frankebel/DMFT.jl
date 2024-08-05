@@ -9,4 +9,5 @@ include("aqua.jl")
     include("wavefunctions.jl")
     include("greensfunction.jl")
     include("sytrd.jl")
+    include("nat_orbs.jl")
 end
