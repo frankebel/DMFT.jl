@@ -164,7 +164,7 @@ end # Green's function
         end # get_hyb_equal
     end # generation
 
-    @testset "Matrix" begin
+    @testset "Array" begin
         a_p = collect(1:2)
         a_n = collect(3:4)
         b_p = collect(5:6)
@@ -173,7 +173,7 @@ end # Green's function
         G_p = Greensfunction(a_p, b_p)
         G_n = Greensfunction(a_n, b_n)
         Δ = Hybridizationfunction(V0, G_p, G_n)
-        m = Matrix(Δ)
+        m = Array(Δ)
         @test m isa Matrix{Int}
         @test m == [
             0 7 8 9 5 6
@@ -184,10 +184,13 @@ end # Green's function
             6 0 0 0 0 2
         ]
 
+        # Base.Matrix
+        @test Matrix(Δ) == Array(Δ)
+
         # complex does not work
         foo = rand(ComplexF64, 2)
         G = Greensfunction(foo, foo)
         Δ = Hybridizationfunction(V0, G, G)
-        @test_throws MethodError Matrix(Δ)
-    end # Matrix
+        @test_throws MethodError Array(Δ)
+    end # Array
 end # Hybridization function

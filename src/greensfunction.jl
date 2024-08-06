@@ -233,13 +233,21 @@ function get_hyb_equal(n_bath::Int, t::Real=1.0)
     return Hybridizationfunction(V, pos, neg)
 end
 
-function Base.Matrix(
+function Core.Array(
     Δ::Hybridizationfunction{
-        M,<:Greensfunction{<:AbstractVector{<:Real},<:AbstractVector{<:Real}}
+        T,<:Greensfunction{<:AbstractVector{<:T},<:AbstractVector{<:T}}
     },
-) where {M<:Number}
-    result = Matrix(Diagonal([zero(M); Δ.neg.a; zero(M); Δ.pos.a]))
+) where {T<:Real}
+    result = Matrix(Diagonal([zero(T); Δ.neg.a; zero(T); Δ.pos.a]))
     result[1, 2:end] .= [Δ.neg.b; Δ.V0; Δ.pos.b]
     result[2:end, 1] .= [Δ.neg.b; Δ.V0; Δ.pos.b]
     return result
+end
+
+function Base.Matrix(
+    Δ::Hybridizationfunction{
+        T,<:Greensfunction{<:AbstractVector{<:T},<:AbstractVector{<:T}}
+    },
+) where {T<:Real}
+    return Array(Δ)
 end
