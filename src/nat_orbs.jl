@@ -82,5 +82,6 @@ function to_natural_orbitals(H::AbstractMatrix, ϵ::Real=1E-8)
     T[:, 1] = v1
     T[:, n_occ + 1] = v2
     H_trafo = T' * H_tri * T
+    H_trafo = 0.5 * (H_trafo' + H_trafo)
     return H_trafo, n_occ
 end
