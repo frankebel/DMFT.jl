@@ -15,12 +15,14 @@ Distributions = "0.25"
 Fermions = "0.11"
 HDF5 = "0.17"
 LinearAlgebra = "1.10"
+SparseArrays = "1.10"
 Test = "1.10"
 julia = "1.10"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "Test"]
+test = ["Aqua", "SparseArrays", "Test"]

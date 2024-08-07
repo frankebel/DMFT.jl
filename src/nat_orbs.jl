@@ -196,3 +196,126 @@ function natural_orbital_operator(
     end
     return H
 end
+
+"""
+    natural_orbital_ci_operator(
+        H_nat::Matrix{T},
+        U::T,
+        ϵ_imp::T,
+        fock_space::FockSpace,
+        n_occ::Int,
+        n_v_bit::Int=1,
+        n_c_bit::Int=1,
+        excitation::Int=1,
+    ) where {T<:Real}
+
+
+Convert natural orbital Hamiltonian `H_nat` to `CIOperator`.
+
+# Arguments:
+- `H_nat::Matrix{T}`: natural orbital Hamiltonian
+- `U::T`: Coulomb repulsion on impurity
+- `ϵ_imp::T`: on-site energy of impurity
+- `fock_space::FockSpace`: Fock Space used for the system
+- `n_occ::Int`: number of occupied sites
+- `n_v_bit::Int=1`: number of valence bath sites in bit component
+- `n_c_bit::Int=1`: number of conduction bath sites in bit component
+- `excitation::Int=1`: maximum excitation in bit component
+
+See also: `CIOperator`
+"""
+function natural_orbital_ci_operator(
+    H_nat::Matrix{T},
+    U::T,
+    ϵ_imp::T,
+    fock_space::FockSpace,
+    n_occ::Int,
+    n_v_bit::Int=1,
+    n_c_bit::Int=1,
+    excitation::Int=1,
+) where {T<:Real}
+    ishermitian(H_nat) || throw(ArgumentError("H_nat not hermitian"))
+    nflavours(fock_space) >= 2 + n_v_bit + n_c_bit ||
+        throw(ArgumentError("fock_space too small"))
+    n_v_bit >= 1 || throw(ArgumentError("invalid n_v_bit"))
+    n_c_bit >= 1 || throw(ArgumentError("invalid n_c_bit"))
+    excitation >= 0 || throw(ArgumentError("negative excitation"))
+    n = size(H_nat)[1]
+    n_emp = n - n_occ
+    n_bit = 2 + n_v_bit + n_c_bit
+    n_v = n_occ - 1
+    n_c = n_emp - 1
+    n_v_bit < n_v || throw(ArgumentError("n_v_bit too big"))
+    n_c_bit < n_c || throw(ArgumentError("n_c_bit too big"))
+    c = annihilators(fock_space)
+
+    # Create Bitperator H_bit.
+    # impurity i
+    H_bit = U * c[1, -1//2]' * c[1, -1//2] * c[1, 1//2]' * c[1, 1//2]
+    H_bit += ϵ_imp * c[1, -1//2]' * c[1, -1//2]
+    H_bit += ϵ_imp * c[1, 1//2]' * c[1, 1//2]
+    for σ in axes(c, 2)
+        # mirror bath site b
+        H_bit += H_nat[n_occ + 1, n_occ + 1] * c[2, σ]' * c[2, σ]
+        # hopping i <-> b
+        H_bit += H_nat[1, n_occ + 1] * c[1, σ]' * c[2, σ]
+        H_bit += H_nat[1, n_occ + 1] * c[2, σ]' * c[1, σ]
+        # valence bath sites
+        for i in 1:n_v_bit
+            j = 1 + i # Index in H_nat.
+            k = 2 + i # Index in bit componet.
+            # bath site
+            H_bit += H_nat[j, j] * c[k, σ]' * c[k, σ]
+            if i == 1
+                # hopping v_1 <-> i
+                H_bit += H_nat[j, 1] * c[1, σ]' * c[k, σ]
+                H_bit += H_nat[j, 1] * c[k, σ]' * c[1, σ]
+                # hopping v_1 <-> b
+                H_bit += H_nat[j, n_occ + 1] * c[2, σ]' * c[k, σ]
+                H_bit += H_nat[j, n_occ + 1] * c[k, σ]' * c[2, σ]
+            else
+                # Hopping to previous neighbor.
+                H_bit += H_nat[j - 1, j] * c[k - 1, σ]' * c[k, σ]
+                H_bit += H_nat[j - 1, j] * c[k, σ]' * c[k - 1, σ]
+            end
+        end
+        # conduction bath sites
+        for i in 1:n_c_bit
+            j = n_occ + 1 + i # Index in H_nat.
+            k = 2 + n_v_bit + i  # Index in bit component.
+            # bath site
+            H_bit += H_nat[j, j] * c[k, σ]' * c[k, σ]
+            if i == 1
+                # hopping c_1 <-> i
+                H_bit += H_nat[j, 1] * c[1, σ]' * c[k, σ]
+                H_bit += H_nat[j, 1] * c[k, σ]' * c[1, σ]
+                # hopping c_1 <-> b
+                H_bit += H_nat[j, n_occ + 1] * c[2, σ]' * c[k, σ]
+                H_bit += H_nat[j, n_occ + 1] * c[k, σ]' * c[2, σ]
+            else
+                # Hopping to previous neighbor.
+                H_bit += H_nat[j - 1, j] * c[k - 1, σ]' * c[k, σ]
+                H_bit += H_nat[j - 1, j] * c[k, σ]' * c[k - 1, σ]
+            end
+        end
+    end
+
+    # Create VectorOperator
+    n_v_vector = n_v - n_v_bit
+    n_c_vector = n_c - n_c_bit
+    foo = diag(H_nat)
+    esite = [foo[(2 + n_v_bit):n_occ]; foo[(n_occ + n_c_bit + 2):end]]
+    foo = diag(H_nat, 1)
+    ehop = [foo[(2 + n_v_bit):(n_occ)]; foo[(n_occ + n_c_bit + 2):end]]
+
+    # Create MixedOperator
+    # (i, j, amp)
+    mixed = (
+        # valence bath site
+        (2 + n_v_bit, 1, foo[1 + n_v_bit]),
+        # conduction bath site
+        (2 + n_v_bit + n_c_bit, n_v_vector + 1, foo[n_occ + n_c_bit + 1]),
+    )
+
+    return CIOperator(H_bit, mixed, esite, ehop, n_bit, n_v_vector, n_c_vector, excitation)
+end

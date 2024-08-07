@@ -1,6 +1,8 @@
 using DMFT
 using Fermions
+using Fermions.Wavefunctions
 using LinearAlgebra
+using SparseArrays
 using Test
 
 @testset "natural orbitals" begin
@@ -60,8 +62,8 @@ using Test
         H_nat2 = [
             1 2 3 4 5 6
             2 8 9 10 11 12
-            3 9 15 16 17 18
-            4 10 16 22 23 24
+            3 9 15 0 17 18
+            4 10 0 22 23 24
             5 11 17 23 29 30
             6 12 18 24 30 36
         ]
@@ -191,5 +193,239 @@ using Test
                 rand(Int, 6, 6), U, -μ, fs, n_occ, 1, 1
             )
         end # Operator
+
+        @testset "CIOperator" begin
+            fs = FockSpace(Orbitals(4), FermionicSpin(1//2))
+            H1 = natural_orbital_ci_operator(H_nat1, U, -μ, fs, n_occ, 1, 1, 0)
+            H2 = natural_orbital_ci_operator(H_nat2, U, -μ, fs, n_occ, 1, 1, 0)
+            @test typeof(H1) == typeof(H2)
+            @test H1 == H2
+
+            c = annihilators(fs)
+            n = occupations(fs)
+            H_bit =
+            # impurity
+                U * n[1, 1//2] * n[1, -1//2] +
+                -38 * n[1, -1//2] +
+                -38 * n[1, 1//2] +
+                # mirror site
+                22 * n[2, -1//2] +
+                22 * n[2, 1//2] +
+                # bit component
+                8 * n[3, -1//2] +
+                8 * n[3, 1//2] +
+                29 * n[4, -1//2] +
+                29 * n[4, 1//2] +
+                # hopping i <-> b
+                4 * c[1, -1//2]' * c[2, -1//2] +
+                4 * c[2, -1//2]' * c[1, -1//2] +
+                4 * c[1, 1//2]' * c[2, 1//2] +
+                4 * c[2, 1//2]' * c[1, 1//2] +
+                # hopping i <-> other
+                2 * c[1, -1//2]' * c[3, -1//2] +
+                2 * c[3, -1//2]' * c[1, -1//2] +
+                2 * c[1, 1//2]' * c[3, 1//2] +
+                2 * c[3, 1//2]' * c[1, 1//2] +
+                5 * c[1, -1//2]' * c[4, -1//2] +
+                5 * c[4, -1//2]' * c[1, -1//2] +
+                5 * c[1, 1//2]' * c[4, 1//2] +
+                5 * c[4, 1//2]' * c[1, 1//2] +
+                # hopping b <-> other
+                10 * c[2, -1//2]' * c[3, -1//2] +
+                10 * c[3, -1//2]' * c[2, -1//2] +
+                10 * c[2, 1//2]' * c[3, 1//2] +
+                10 * c[3, 1//2]' * c[2, 1//2] +
+                23 * c[2, -1//2]' * c[4, -1//2] +
+                23 * c[4, -1//2]' * c[2, -1//2] +
+                23 * c[2, 1//2]' * c[4, 1//2] +
+                23 * c[4, 1//2]' * c[2, 1//2]
+            H_mix = [
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[3, -1//2]'.terms), 0x0000000000000008, 1, false, 9
+                ),
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[3, -1//2].terms), 0x0000000000000008, 1, true, 9
+                ),
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[3, 1//2]'.terms), 0x0000000000000080, 3, false, 9
+                ),
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[3, 1//2].terms), 0x0000000000000080, 3, true, 9
+                ),
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[4, -1//2]'.terms), 0x0000000000000000, 2, true, 30
+                ),
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[4, -1//2].terms), 0x0000000000000000, 2, false, 30
+                ),
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[4, 1//2]'.terms), 0x0000000000000000, 4, true, 30
+                ),
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[4, 1//2].terms), 0x0000000000000000, 4, false, 30
+                ),
+            ]
+            @test H1.opbit == H_bit
+            @test H1.opmix == H_mix
+            @test H1.zero == 2 * 15
+            @test H1.one == SymTridiagonal(Int[], Int[])
+            @test H1.two == sparse(Int[], Int[], Int[])
+            @test H1.nbit == 4
+            @test H1.nfilled == 1
+            @test H1.nempty == 1
+            @test H1.excitation == 0
+
+            # single excitation
+            a = repeat([30 - 15, 30 + 36], 2)
+            b = zeros(Int, 3)
+            one = SymTridiagonal(a, b)
+            H1 = natural_orbital_ci_operator(H_nat1, U, -μ, fs, n_occ, 1, 1, 1)
+            H2 = natural_orbital_ci_operator(H_nat2, U, -μ, fs, n_occ, 1, 1, 1)
+            @test typeof(H1) == typeof(H2)
+            @test H1 == H2
+            @test H1.opbit == H_bit
+            @test H1.opmix == H_mix
+            @test H1.zero == 2 * 15
+            @test H1.one == one
+            @test H1.two == sparse(Int[], Int[], Int[])
+            @test H1.nbit == 4
+            @test H1.nfilled == 1
+            @test H1.nempty == 1
+            @test H1.excitation == 1
+
+            # double excitation
+            two = sparse(
+                Diagonal([
+                    30 - 15 + 36,
+                    30 - 15 - 15,
+                    30 - 15 + 36,
+                    30 - 15 + 36,
+                    30 + 36 + 36,
+                    30 - 15 + 36,
+                ]),
+            )
+            H1 = natural_orbital_ci_operator(H_nat1, U, -μ, fs, n_occ, 1, 1, 2)
+            H2 = natural_orbital_ci_operator(H_nat2, U, -μ, fs, n_occ, 1, 1, 2)
+            @test typeof(H1) == typeof(H2)
+            @test H1 == H2
+            @test H1.opbit == H_bit
+            @test H1.opmix == H_mix
+            @test H1.zero == 2 * 15
+            @test H1.one == one
+            @test H1.two == two
+            @test H1.nbit == 4
+            @test H1.nfilled == 1
+            @test H1.nempty == 1
+            @test H1.excitation == 2
+
+            # more sites in bit component
+            U = 4.0
+            μ = U / 2
+            fs = FockSpace(Orbitals(6), FermionicSpin(1//2))
+            Δ = get_hyb(11)
+            H_nat, n_occ = to_natural_orbitals(Array(Δ))
+            H = natural_orbital_ci_operator(H_nat, U, -μ, fs, n_occ, 2, 2, 2)
+            @test length(H.opbit.terms) == 1 + 2 * 6 + 4 * 7
+            @test length(H.opmix) == 8
+            @test H.zero isa Float64
+            @test size(H.one) == (2 * 6, 2 * 6)
+            @test size(H.two) == (binomial(2 * 6, 2), binomial(2 * 6, 2))
+        end # CIOperator
     end # operator
+
+    @testset "operator comparison" begin
+        # Compare results between "Wavefunction", "CIWavefunction".
+        # Create single determinant state and run H*ψ for both methods.
+        # Convert to Wavefunction and show that both have numerically the same result.
+        # Use symbol "ϕ" for Wavefunction, "ψ" for CIWavefunction.
+
+        function Base.isapprox(
+            ϕ1::Wavefunction{T}, ϕ2::Wavefunction{T}; kwargs...
+        ) where {T}
+            length(ϕ1) == length(ϕ2) || throw(ArgumentError("Wavefunction length mismatch"))
+            for (k, v) in ϕ1
+                try
+                    # check if values are similar
+                    isapprox(v, ϕ2[k]; kwargs...) || return false
+                catch err
+                    isa(err, KeyError) && return KeyError(k)
+                end
+            end
+            return true
+        end
+
+        n_bath = 41
+        U = 4.0
+        μ = U / 2
+        n_v_bit = 1 # Amount of valence bath sites in bit component of CIWF
+        n_c_bit = 1 # Amount of conduction bath sites in bit component of CIWF
+        n_sites = 1 + n_bath
+        M_ciwf = UInt64
+        M_wf = BigMask{cld(2 * n_sites, 64),UInt64} # bitmask for Wavefunction
+        e = 2
+        niter = 20
+        n_bit = 2 + n_v_bit + n_c_bit
+
+        # Single particle part of the Hamiltonian as a Matrix H0.
+        Δ = get_hyb(n_bath)
+        H_nat, n_occ = to_natural_orbitals(Array(Δ))
+        n_emp = n_sites - n_occ
+        n_v_vector = n_occ - 1 - n_v_bit
+        n_c_vector = n_emp - 1 - n_c_bit
+
+        # Using Wavefunction.
+        fock_space_wf = FockSpace(M_wf, M_wf, Orbitals(n_sites), FermionicSpin(1//2))
+        # Create Hamiltonian.
+        H_wf = natural_orbital_operator(
+            H_nat, U, -μ, fock_space_wf, n_occ, n_v_bit, n_c_bit
+        )
+        # Create starting Wavefunction. Impurity filled with 10, bath b 01 accordingly.
+        s_start = slater_start(M_wf, 0b0110, n_v_bit, n_c_bit, n_v_vector, n_c_vector)
+        @assert count_ones(s_start) == n_sites # Half filling
+        ϕ_start = Wavefunction(Dict(s_start => 1.0))
+
+        # Using CIWavefunction.
+        fock_space_ciwf = FockSpace(M_ciwf, M_ciwf, Orbitals(n_bit), FermionicSpin(1//2))
+        # Create Hamiltonian.
+        H_ciwf = natural_orbital_ci_operator(
+            H_nat, U, -μ, fock_space_ciwf, n_occ, n_v_bit, n_c_bit, e
+        )
+        # Create starting CIWavefunction. Impurity filled with 10, bath b 01 accordingly.
+        s_start = slater_start(M_ciwf, 0b0110, n_v_bit, n_c_bit, 0, 0)
+        @assert count_ones(s_start) + 2 * n_v_vector == n_sites
+        n_vector = n_v_vector + n_c_vector
+        v_start = zeros(sum(i -> binomial(2 * n_vector, i), 0:e))
+        v_start[1] = one(eltype(v_start))
+        ψ_start = CIWavefunction(Dict(s_start => v_start), n_bit, n_v_vector, n_c_vector, e)
+
+        # Masks for valence/conduction bath sites which are in vector.
+        m_valence, m_conduction = mask_fe(M_wf, n_bit, n_v_vector, n_c_vector)
+
+        # Compare Wavefunction, CIWavefunction
+        ϕ = deepcopy(ϕ_start)
+        ψ = deepcopy(ψ_start)
+        for _ in 1:niter
+            ϕ = mul_excitation(H_wf, ϕ, m_valence, m_conduction, e)
+            ψ = H_ciwf * ψ
+            # normalize
+            normalize!(ϕ)
+            normalize!(ψ)
+        end
+
+        # Convert CIWavefunction to Wavefunction
+        ϕ_ciwf = Wavefunction(ψ)
+        # Remove all weights smaller than machine epsilon.
+        Fermions.Wavefunctions.chop!(ϕ_ciwf, eps())
+        Fermions.Wavefunctions.chop!(ϕ, eps())
+
+        @test ϕ ≈ ϕ_ciwf rtol = 1e-11
+        @test ϕ ≈ ϕ_ciwf atol = 2 * eps()
+        @test norm(ϕ - ϕ_ciwf) < 3 * eps()
+
+        # Convert Wavefunction to CIWavefunction
+        ψ_wf = CIWavefunction{Dict{M_ciwf,Vector{Float64}}}(
+            ϕ, n_bit, n_v_vector, n_c_vector, e
+        )
+        @test norm(ψ - ψ_wf) < 20 * eps()
+    end # operator comparison
 end # natural orbitals
