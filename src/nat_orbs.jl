@@ -86,3 +86,113 @@ function to_natural_orbitals(H::AbstractMatrix{<:Real}, ϵ::Real=1E-8)
     H_trafo = 0.5 * (H_trafo' + H_trafo) # hermitize
     return H_trafo, n_occ
 end
+
+"""
+    natural_orbital_operator(
+        H_nat::Matrix{T},
+        U::T,
+        ϵ_imp::T,
+        fock_space::FockSpace,
+        n_occ::Int,
+        n_v_bit::Int=1,
+        n_c_bit::Int=1,
+    ) where {T<:Real}
+
+
+Convert natural orbital Hamiltonian `H_nat` to `Operator`.
+
+# Arguments:
+- `H_nat::Matrix{T}`: natural orbital Hamiltonian
+- `U::T`: Coulomb repulsion on impurity
+- `ϵ_imp::T`: on-site energy of impurity
+- `fock_space::FockSpace`: Fock Space used for the system
+- `n_occ::Int`: number of occupied sites
+- `n_v_bit::Int=1`: number of valence bath sites in bit component
+- `n_c_bit::Int=1`: number of conduction bath sites in bit component
+"""
+function natural_orbital_operator(
+    H_nat::Matrix{T},
+    U::T,
+    ϵ_imp::T,
+    fock_space::FockSpace,
+    n_occ::Int,
+    n_v_bit::Int=1,
+    n_c_bit::Int=1,
+) where {T<:Real}
+    ishermitian(H_nat) || throw(ArgumentError("H_nat not hermitian"))
+    n = size(H_nat)[1]
+    n_emp = n - n_occ
+    n_v = n_occ - 1
+    n_c = n_emp - 1
+    0 < n_v_bit <= n_v || throw(ArgumentError(lazy"violating 0 < $(n_v_bit) <= $(n_v)"))
+    0 < n_c_bit <= n_c || throw(ArgumentError(lazy"violating 0 < $(n_c_bit) <= $(n_c)"))
+    c = annihilators(fock_space)
+    # impurity i
+    H = U * c[1, -1//2]' * c[1, -1//2] * c[1, 1//2]' * c[1, 1//2]
+    H += ϵ_imp * c[1, -1//2]' * c[1, -1//2]
+    H += ϵ_imp * c[1, 1//2]' * c[1, 1//2]
+    for σ in axes(c, 2)
+        # mirror bath site b
+        H += H_nat[n_occ + 1, n_occ + 1] * c[2, σ]' * c[2, σ]
+        # hopping i <-> b
+        H += H_nat[n_occ + 1, 1] * c[1, σ]' * c[2, σ]
+        H += H_nat[n_occ + 1, 1] * c[2, σ]' * c[1, σ]
+        # valence bath sites
+        for i in 1:n_v
+            j = 1 + i # Index in H_nat.
+            # Let `k` be the index in the bit component.
+            if i <= n_v_bit
+                k = 2 + i
+            else
+                k = 2 + n_c_bit + i
+            end
+            # bath site
+            H += H_nat[j, j] * c[k, σ]' * c[k, σ]
+            if i == 1
+                # hopping v_1 <-> i
+                H += H_nat[j, 1] * c[1, σ]' * c[k, σ]
+                H += H_nat[j, 1] * c[k, σ]' * c[1, σ]
+                # hopping v_1 <-> b
+                H += H_nat[j, n_occ + 1] * c[2, σ]' * c[k, σ]
+                H += H_nat[j, n_occ + 1] * c[k, σ]' * c[2, σ]
+            elseif i == n_v_bit + 1
+                # hopping v_(n_v_bit + 1) <-> v_(n_v_bit)
+                H += H_nat[j, j - 1] * c[k, σ]' * c[2 + n_v_bit, σ]
+                H += H_nat[j, j - 1] * c[2 + n_v_bit, σ]' * c[k, σ]
+            else
+                # hopping to previous neighbor
+                H += H_nat[j - 1, j] * c[k - 1, σ]' * c[k, σ]
+                H += H_nat[j - 1, j] * c[k, σ]' * c[k - 1, σ]
+            end
+        end
+        # conduction bath sites
+        for i in 1:n_c
+            j = n_occ + 1 + i # Index in H_nat.
+            # Let k be the index in the bit component.
+            if i <= n_c_bit
+                k = 2 + n_v_bit + i
+            else
+                k = j
+            end
+            # bath site
+            H += H_nat[j, j] * c[k, σ]' * c[k, σ]
+            if i == 1
+                # hopping c_1 <-> i
+                H += H_nat[j, 1] * c[1, σ]' * c[k, σ]
+                H += H_nat[j, 1] * c[k, σ]' * c[1, σ]
+                # hopping c_1 <-> b
+                H += H_nat[j, n_occ + 1] * c[2, σ]' * c[k, σ]
+                H += H_nat[j, n_occ + 1] * c[k, σ]' * c[2, σ]
+            elseif i == n_c_bit + 1
+                # hopping c_(n_c_bit + 1) <-> c_(n_c_bit)
+                H += H_nat[j, j - 1] * c[k, σ]' * c[2 + n_v_bit + n_c_bit, σ]
+                H += H_nat[j, j - 1] * c[2 + n_v_bit + n_c_bit, σ]' * c[k, σ]
+            else
+                # hopping to previous neighbor
+                H += H_nat[j - 1, j] * c[k - 1, σ]' * c[k, σ]
+                H += H_nat[j - 1, j] * c[k, σ]' * c[k - 1, σ]
+            end
+        end
+    end
+    return H
+end

@@ -18,6 +18,7 @@ export
     get_hyb_equal,
     mask_fe,
     mul_excitation,
+    natural_orbital_operator,
     ndet,
     ndet0,
     ndet0_bit,
