@@ -33,4 +33,13 @@ using Test
     @test n_occ === 151
     E = eigvals(H)
     @test norm(E[1:151] + reverse(E[152:end])) < 8E-8
+
+    # non-hermitian matrix
+    m = rand(10, 10)
+    @test_throws ArgumentError to_natural_orbitals(m)
+
+    # complex matrix
+    m = rand(ComplexF64, 10, 10)
+    m = 0.5 * (m + m')
+    @test_throws MethodError to_natural_orbitals(m)
 end # natural orbitals

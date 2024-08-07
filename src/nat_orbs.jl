@@ -6,7 +6,8 @@ Transforms a single particle Hamiltonian `H` to natural orbital basis.
 `H[1,1]` is the onsite energy of the impurity.
 States with energies `E ∈ (-ϵ, ϵ)` are considered degenerate.
 """
-function to_natural_orbitals(H::AbstractMatrix, ϵ::Real=1E-8)
+function to_natural_orbitals(H::AbstractMatrix{<:Real}, ϵ::Real=1E-8)
+    ishermitian(H) || throw(ArgumentError("`H` not hermitian"))
     E, T = LAPACK.syev!('V', 'U', copy(H))
     n_lower = count(x -> x <= -ϵ, E)
     n_zero = count(x -> abs(x) < ϵ, E)
@@ -82,6 +83,6 @@ function to_natural_orbitals(H::AbstractMatrix, ϵ::Real=1E-8)
     T[:, 1] = v1
     T[:, n_occ + 1] = v2
     H_trafo = T' * H_tri * T
-    H_trafo = 0.5 * (H_trafo' + H_trafo)
+    H_trafo = 0.5 * (H_trafo' + H_trafo) # hermitize
     return H_trafo, n_occ
 end
