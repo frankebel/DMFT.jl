@@ -3,7 +3,7 @@ using Fermions
 using Fermions.Wavefunctions
 using Test
 
-@testset "wavefunctions" begin
+@testset "util" begin
     @testset "mul_excitation" begin
         f, e = mask_fe(UInt64, 2, 3, 4) # bi in bit component
         fs = FockSpace(Orbitals(9), FermionicSpin(1//2)) # 2+3+4 sites
@@ -69,4 +69,4 @@ using Test
         ϕ = Wavefunction(d)
         @test ψ == ϕ
     end # starting_wf
-end # wavefunctions
+end # util

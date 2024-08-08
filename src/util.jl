@@ -1,4 +1,4 @@
-# Helper functions for `Wavefunction`
+# utility functions
 
 """
     mul_excitation(

@@ -36,9 +36,9 @@ export
 
 include("combinatorics.jl")
 include("mask.jl")
-include("wavefunctions.jl")
 include("greensfunction.jl")
 include("sytrd.jl")
 include("nat_orbs.jl")
+include("util.jl")
 
 end
