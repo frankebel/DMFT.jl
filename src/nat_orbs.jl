@@ -101,7 +101,7 @@ end
 
 Convert natural orbital Hamiltonian `H_nat` to `Operator`.
 
-# Arguments:
+# Arguments
 - `H_nat::Matrix{T}`: natural orbital Hamiltonian
 - `U::T`: Coulomb repulsion on impurity
 - `ϵ_imp::T`: on-site energy of impurity
@@ -212,7 +212,7 @@ end
 
 Convert natural orbital Hamiltonian `H_nat` to `CIOperator`.
 
-# Arguments:
+# Arguments
 - `H_nat::Matrix{T}`: natural orbital Hamiltonian
 - `U::T`: Coulomb repulsion on impurity
 - `ϵ_imp::T`: on-site energy of impurity

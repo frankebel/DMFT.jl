@@ -148,3 +148,16 @@ end
 #     @warn "ground state not converged"
 #     return E0, ψ
 # end
+
+"""
+    get_CI_parameters(n_sites::Int, n_occ::Int, n_v_bit::Int, n_c_bit::Int)
+
+Return `n_bit`, `n_v_vector`, `n_c_vector`.
+"""
+function get_CI_parameters(n_sites::Int, n_occ::Int, n_v_bit::Int, n_c_bit::Int)
+    n_bit = 2 + n_v_bit + n_c_bit
+    n_emp = n_sites - n_occ
+    n_v_vector = n_occ - 1 - n_v_bit
+    n_c_vector = n_emp - 1 - n_c_bit
+    return n_bit, n_v_vector, n_c_vector
+end

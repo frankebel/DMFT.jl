@@ -13,6 +13,7 @@ export
     Hybridizationfunction,
 
     # Functions
+    get_CI_parameters,
     get_excitation,
     get_hyb,
     get_hyb_equal,
