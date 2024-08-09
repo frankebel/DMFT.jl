@@ -31,7 +31,8 @@ export
     ndet_bit,
     orgtr!,
     slater_start,
-    starting_wf,
+    starting_CIWavefunction,
+    starting_Wavefunction,
     sytrd!,
     to_natural_orbitals
 

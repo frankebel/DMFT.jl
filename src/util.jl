@@ -67,11 +67,16 @@ end
 # end
 
 """
-    starting_wf(D::Type, n_v_bit::Int, n_c_bit::Int, n_v_vector::Int, n_c_vector::Int)
+    starting_Wavefunction(
+        D::Type, n_v_bit::Int, n_c_bit::Int, n_v_vector::Int, n_c_vector::Int
+    )
 
-Return starting wave function with opposite filling in impurity, mirror bath site.
+Return 2-determinant-state `Wavefunction` with
+opposite filling in impurity, mirror bath site.
 """
-function starting_wf(D::Type, n_v_bit::Int, n_c_bit::Int, n_v_vector::Int, n_c_vector::Int)
+function starting_Wavefunction(
+    D::Type, n_v_bit::Int, n_c_bit::Int, n_v_vector::Int, n_c_vector::Int
+)
     K, V = keytype(D), valtype(D)
     s1 = slater_start(K, 0b0110, n_v_bit, n_c_bit, n_v_vector, n_c_vector)
     s2 = slater_start(K, 0b1001, n_v_bit, n_c_bit, n_v_vector, n_c_vector)
@@ -80,21 +85,41 @@ function starting_wf(D::Type, n_v_bit::Int, n_c_bit::Int, n_v_vector::Int, n_c_v
     return result
 end
 
-# function starting_ciwf(
-#     D::Type, n_v_bit::Int, n_c_bit::Int, n_v_vector::Int, n_c_vector::Int, e::Int
-# )
-#     K, V = keytype(D), valtype(D)
-#     s1 = slater_start(K, 0b0110, n_v_bit, n_c_bit, 0, 0)
-#     s2 = slater_start(K, 0b1001, n_v_bit, n_c_bit, 0, 0)
-#     v_dim = sum(i -> binomial(2 * (n_v_vector + n_c_vector), i), 0:e)
-#     v = zeros(V, v_dim)
-#     v[1] = one(V)
-#     result = CIWavefunction{2 + n_v_bit + n_c_bit,n_v_vector,n_c_vector,e}(
-#         Dict(s1 => copy(v), s2 => copy(v))
-#     )
-#     normalize!(result)
-#     return result
-# end
+"""
+    starting_CIWavefunction(
+        D::Type,
+        n_v_bit::Int,
+        n_c_bit::Int,
+        n_v_vector::Int,
+        n_c_vector::Int,
+        excitation::Int,
+    )
+
+Return 2-determinant-state `CIWavefunction` with
+opposite filling in impurity, mirror bath site.
+
+E.g. `D = Dict{UInt64,Float64}` for bit component `UInt64`
+and vector component `Vector{Float64}`.
+"""
+function starting_CIWavefunction(
+    D::Type, n_v_bit::Int, n_c_bit::Int, n_v_vector::Int, n_c_vector::Int, excitation::Int
+)
+    K, V = keytype(D), valtype(D)
+    s1 = slater_start(K, 0b0110, n_v_bit, n_c_bit, 0, 0)
+    s2 = slater_start(K, 0b1001, n_v_bit, n_c_bit, 0, 0)
+    v_dim = sum(i -> binomial(2 * (n_v_vector + n_c_vector), i), 0:excitation)
+    v = zeros(V, v_dim)
+    v[1] = one(V)
+    result = CIWavefunction(
+        Dict(s1 => copy(v), s2 => copy(v)),
+        2 + n_v_bit + n_c_bit,
+        n_v_vector,
+        n_c_vector,
+        excitation,
+    )
+    normalize!(result)
+    return result
+end
 
 # function ground_state(
 #     H::CIOperator,

@@ -60,15 +60,48 @@ using Test
         @test DMFT.diffkeys(ϕ2, ϕ1) == Set{UInt64}()
     end # diffkeys
 
-    @testset "starting_wf" begin
-        ψ = starting_wf(Dict{UInt64,Float64}, 1, 2, 3, 4)
-        d = Dict(
-            UInt64(0b0000_111_00_1_01_0000_111_00_1_10) => 1 / sqrt(2),
-            UInt64(0b0000_111_00_1_10_0000_111_00_1_01) => 1 / sqrt(2),
-        )
-        ϕ = Wavefunction(d)
-        @test ψ == ϕ
-    end # starting_wf
+    @testset "starting wave function" begin
+        @testset "starting_Wavefunction" begin
+            ψ = starting_Wavefunction(Dict{UInt64,Float64}, 1, 2, 3, 4)
+            d = Dict(
+                UInt64(0b0000_111_00_1_01_0000_111_00_1_10) => 1 / sqrt(2),
+                UInt64(0b0000_111_00_1_10_0000_111_00_1_01) => 1 / sqrt(2),
+            )
+            ϕ = Wavefunction(d)
+            @test ψ == ϕ
+        end # starting_Wavefunction
+
+        @testset "starting_CIWavefunction" begin
+            # e = 0
+            ψ = starting_CIWavefunction(Dict{UInt64,Float64}, 1, 2, 3, 4, 0)
+            v = [1 / sqrt(2)]
+            d = Dict(
+                UInt64(0b00_1_01_00_1_10) => copy(v), UInt64(0b00_1_10_00_1_01) => copy(v)
+            )
+            ϕ = CIWavefunction(d, 5, 3, 4, 0)
+            @test ψ == ϕ
+
+            # e = 1
+            ψ = starting_CIWavefunction(Dict{UInt64,Float64}, 1, 2, 3, 4, 1)
+            v = zeros(1 + 2 * (3 + 4))
+            v[1] = 1 / sqrt(2)
+            d = Dict(
+                UInt64(0b00_1_01_00_1_10) => copy(v), UInt64(0b00_1_10_00_1_01) => copy(v)
+            )
+            ϕ = CIWavefunction(d, 5, 3, 4, 1)
+            @test ψ == ϕ
+
+            # e = 2
+            ψ = starting_CIWavefunction(Dict{UInt64,Float64}, 1, 2, 3, 4, 2)
+            v = zeros(1 + 14 + 14 * 13 ÷ 2)
+            v[1] = 1 / sqrt(2)
+            d = Dict(
+                UInt64(0b00_1_01_00_1_10) => copy(v), UInt64(0b00_1_10_00_1_01) => copy(v)
+            )
+            ϕ = CIWavefunction(d, 5, 3, 4, 2)
+            @test ψ == ϕ
+        end # starting_CIWavefunction
+    end # starting wave function
 
     @testset "get_CI_parameters" begin
         @test get_CI_parameters(10, 5, 1, 1) == (4, 3, 3)
