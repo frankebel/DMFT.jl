@@ -1,6 +1,8 @@
 using DMFT
 using Fermions
+using Fermions.Lanczos
 using Fermions.Wavefunctions
+using LinearAlgebra
 using Test
 
 @testset "util" begin
@@ -115,4 +117,64 @@ using Test
         @test get_CI_parameters(10, 10, 1, 1) == (4, 8, -2)
         @test get_CI_parameters(10, 0, 1, 1) == (4, -2, 8)
     end # get_CI_parameters
+
+    @testset "ground state" begin
+        # parameters
+        n_bath = 31
+        U = 4.0
+        μ = U / 2
+        n_v_bit = 1
+        n_c_bit = 1
+        e = 2
+        n_kryl = 10
+        n_sites = 1 + n_bath
+
+        # applicable to both methods
+        Δ = get_hyb(n_bath)
+        H_nat, n_occ = to_natural_orbitals(Array(Δ))
+        n_bit, n_v_vector, n_c_vector = get_CI_parameters(
+            n_sites, n_sites ÷ 2, n_c_bit, n_v_bit
+        )
+
+        @testset "Wavefunction" begin
+            M = 2 * n_sites <= 64 ? UInt64 : BigMask{cld(2 * n_sites, 64),UInt64}
+            fs = FockSpace(M, M, Orbitals(n_sites), FermionicSpin(1//2))
+            H = natural_orbital_operator(H_nat, U, -μ, fs, n_occ, n_v_bit, n_c_bit)
+            ϕ_start = starting_Wavefunction(
+                Dict{M,Float64}, n_v_bit, n_c_bit, n_v_vector, n_c_vector
+            )
+            E0, ψ0 = DMFT.ground_state(H, ϕ_start, n_kryl)
+
+            Hψ = H * ψ0
+            H_avg = dot(ψ0, Hψ)
+            H_sqr = dot(Hψ, Hψ)
+            var_rel = H_sqr / H_avg^2 - 1
+            @test abs(E0 / -41.338736133386504 - 1) < 1E-4
+            @test abs(H_avg / E0 - 1) < 1E-14
+            @test var_rel < 5E-8
+        end # Wavefunction
+
+        @testset "CIWavefunction" begin
+            fs = FockSpace(Orbitals(n_bit), FermionicSpin(1//2))
+            H = natural_orbital_ci_operator(H_nat, U, -μ, fs, n_occ, n_v_bit, n_c_bit, e)
+            ψ_start = starting_CIWavefunction(
+                Dict{UInt64,Float64}, n_v_bit, n_c_bit, n_v_vector, n_c_vector, e
+            )
+            _, _, states = lanczos_with_states(H, ψ_start, n_kryl)
+            S = Matrix{Float64}(undef, n_kryl, n_kryl) # overlap matrix
+            @inbounds for i in 1:n_kryl, j in 1:n_kryl
+                S[i, j] = states[i] ⋅ states[j]
+            end
+            E0, ψ0 = DMFT.ground_state(H, ψ_start, n_kryl)
+
+            Hψ = H * ψ0
+            H_avg = dot(ψ0, Hψ)
+            H_sqr = dot(Hψ, Hψ)
+            var_rel = H_sqr / H_avg^2 - 1
+            @test norm(S - I) < 5E-13 # S_ij = δ_ij
+            @test abs(E0 / -41.33867543081087 - 1) < 1E-4
+            @test abs(H_avg / E0 - 1) < 1E-14
+            @test var_rel < 4E-8
+        end # CIWavefunction
+    end # ground state
 end # util

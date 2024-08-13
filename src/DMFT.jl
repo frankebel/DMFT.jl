@@ -3,6 +3,7 @@ module DMFT
 using Distributions
 using Fermions
 using Fermions.Bits
+using Fermions.Lanczos
 using Fermions.Wavefunctions
 using HDF5
 using LinearAlgebra
@@ -17,6 +18,7 @@ export
     get_excitation,
     get_hyb,
     get_hyb_equal,
+    ground_state,
     mask_fe,
     mul_excitation,
     natural_orbital_ci_operator,

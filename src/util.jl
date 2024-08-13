@@ -121,58 +121,36 @@ function starting_CIWavefunction(
     return result
 end
 
-# function ground_state(
-#     H::CIOperator,
-#     ψ_start::CIWavefunction;
-#     n_kryl::Int=50,
-#     precision::Real=1E-8,
-#     n_iter::Int=100,
-#     verbose::Bool=true,
-# )
-#     E0 = 0
-#     ψ = deepcopy(ψ_start)
-#     for i in 1:n_iter
-#         α, β = lanczos(H, ψ, n_kryl)
-#         E, T = LAPACK.stev!('V', α, β)
-#         E0 = E[1]
-#         ψ_new = similar(ψ)
-#         v = ψ
-#         w = ψ
-#         for (i, amp) in enumerate(T[:, 1])
-#             if i == 1
-#                 w = H * v
-#                 α = dot(w, v)
-#                 Fermions.Wavefunctions.add!(w, v, -α)
-#                 Fermions.Wavefunctions.add!(ψ_new, normalize(w), amp)
-#             else
-#                 v_old = v
-#                 β = norm(w)
-#                 Fermions.Wavefunctions.rmul!(w, inv(β))
-#                 v = w
-#                 w = H * v
-#                 α = dot(w, v)
-#                 Fermions.Wavefunctions.add!(w, v, -α)
-#                 Fermions.Wavefunctions.add!(w, v_old, -β)
-#                 Fermions.Wavefunctions.add!(ψ_new, normalize(w), amp)
-#             end
-#         end
-#         # Normaliztion is neccessary since Lanczos is unstable.
-#         # verbose && @info "Lanczos without normalization $(norm(ψ_new))"
-#         normalize!(ψ_new)
-#         foo = H * ψ_new
-#         bar = dot(ψ_new, foo)
-#         baz = dot(foo, foo)
-#         prc = baz / bar^2 - 1
-#         verbose && @info "iteration $i with var = $prc"
-#         if abs(prc) < precision # sometimes negative variance
-#             verbose && @info "ground state converged at E0 = $E0"
-#             return E0, ψ_new
-#         end
-#         ψ = ψ_new
-#     end
-#     @warn "ground state not converged"
-#     return E0, ψ
-# end
+"""
+    ground_state(H::Operator, ψ_start::Wavefunction, n_kryl::Int)
+    ground_state(H::CIOperator, ψ_start::CIWavefunction, n_kryl::Int)
+
+Get approximate ground state and energy using `n_kryl` Krylov cycles.
+"""
+function ground_state(H::Operator, ψ_start::Wavefunction, n_kryl::Int)
+    ψ0, E0 = Fermions.ground_state(H, ψ_start; n_kryl=n_kryl, precision=5E-8, verbose=false)
+    return E0, ψ0
+end
+
+function ground_state(H::CIOperator, ψ_start::CIWavefunction, n_kryl::Int)
+    α, β, states = lanczos_with_states(H, ψ_start, n_kryl)
+    E, T = LAPACK.stev!('V', α, β)
+    E0 = E[1]
+    ψ0 = similar(ψ_start)
+    @inbounds for i in eachindex(E)
+        axpy!(T[i, 1], states[i], ψ0)
+    end
+    normalize!(ψ0) # possible orthogonality loss in Lanczos
+    Hψ = H * ψ0
+    H_avg = dot(ψ0, Hψ)
+    H_sqr = dot(Hψ, Hψ)
+    var_rel = H_sqr / H_avg^2 - 1
+    # compare eigenvalue with expectation value
+    rdiff = H_avg / E0 - 1
+    abs(rdiff) < 1E-14 || @warn "discrepancy eigenvalue to eigenstate"
+    @info "ground state" E0 var_rel length(ψ0)
+    return E0, ψ0
+end
 
 """
     get_CI_parameters(n_sites::Int, n_occ::Int, n_v_bit::Int, n_c_bit::Int)
