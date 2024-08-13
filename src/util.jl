@@ -164,3 +164,42 @@ function get_CI_parameters(n_sites::Int, n_occ::Int, n_v_bit::Int, n_c_bit::Int)
     n_c_vector = n_emp - 1 - n_c_bit
     return n_bit, n_v_vector, n_c_vector
 end
+
+"""
+    init_system(
+        U::T,
+        ϵ_imp::T,
+        Δ::Hybridizationfunction{
+            <:T,<:Greensfunction{<:AbstractVector{<:T},<:AbstractVector{<:T}}
+        },
+        n_v_bit::Int,
+        n_c_bit::Int,
+        e::Int,
+        n_kryl::Int,
+    ) where {T<:Real}
+
+Return Hamiltonian, ground state energy, and ground state.
+"""
+function init_system(
+    U::T,
+    ϵ_imp::T,
+    Δ::Hybridizationfunction{
+        <:T,<:Greensfunction{<:AbstractVector{<:T},<:AbstractVector{<:T}}
+    },
+    n_v_bit::Int,
+    n_c_bit::Int,
+    e::Int,
+    n_kryl::Int,
+) where {T<:Real}
+    arr = Array(Δ)
+    n_sites = size(arr)[1]
+    H_nat, n_occ = to_natural_orbitals(arr)
+    n_bit, n_v_vector, n_c_vector = get_CI_parameters(n_sites, n_occ, n_c_bit, n_v_bit)
+    fs = FockSpace(Orbitals(n_bit), FermionicSpin(1//2))
+    H = natural_orbital_ci_operator(H_nat, U, ϵ_imp, fs, n_occ, n_v_bit, n_c_bit, e)
+    ψ_start = starting_CIWavefunction(
+        Dict{UInt64,Float64}, n_v_bit, n_c_bit, n_v_vector, n_c_vector, e
+    )
+    E0, ψ0 = DMFT.ground_state(H, ψ_start, n_kryl)
+    return H, E0, ψ0
+end

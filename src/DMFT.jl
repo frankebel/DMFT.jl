@@ -19,6 +19,7 @@ export
     get_hyb,
     get_hyb_equal,
     ground_state,
+    init_system,
     mask_fe,
     mul_excitation,
     natural_orbital_ci_operator,

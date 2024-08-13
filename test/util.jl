@@ -132,9 +132,7 @@ using Test
         # applicable to both methods
         Δ = get_hyb(n_bath)
         H_nat, n_occ = to_natural_orbitals(Array(Δ))
-        n_bit, n_v_vector, n_c_vector = get_CI_parameters(
-            n_sites, n_sites ÷ 2, n_c_bit, n_v_bit
-        )
+        n_bit, n_v_vector, n_c_vector = get_CI_parameters(n_sites, n_occ, n_c_bit, n_v_bit)
 
         @testset "Wavefunction" begin
             M = 2 * n_sites <= 64 ? UInt64 : BigMask{cld(2 * n_sites, 64),UInt64}
@@ -177,4 +175,25 @@ using Test
             @test var_rel < 4E-8
         end # CIWavefunction
     end # ground state
+
+    @testset "init_system" begin
+        # parameters
+        n_bath = 31
+        U = 4.0
+        μ = U / 2
+        n_v_bit = 1
+        n_c_bit = 1
+        e = 2
+        n_kryl = 10
+        Δ = get_hyb(n_bath)
+        H, E0, ψ0 = init_system(U, -μ, Δ, n_v_bit, n_c_bit, e, n_kryl)
+        Hψ = H * ψ0
+        H_avg = dot(ψ0, Hψ)
+        H_sqr = dot(Hψ, Hψ)
+        var_rel = H_sqr / H_avg^2 - 1
+        @test H isa CIOperator
+        @test abs(E0 / -41.33867543081087 - 1) < 1E-4
+        @test abs(H_avg / E0 - 1) < 1E-14
+        @test var_rel < 4E-8
+    end # init system
 end # util
