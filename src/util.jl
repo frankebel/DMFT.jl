@@ -136,7 +136,7 @@ function ground_state(H::CIOperator, ψ_start::CIWavefunction, n_kryl::Int)
     α, β, states = lanczos_with_states(H, ψ_start, n_kryl)
     E, T = LAPACK.stev!('V', α, β)
     E0 = E[1]
-    ψ0 = similar(ψ_start)
+    ψ0 = zero(ψ_start)
     @inbounds for i in eachindex(E)
         axpy!(T[i, 1], states[i], ψ0)
     end
