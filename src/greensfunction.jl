@@ -13,13 +13,6 @@ In the most general case `α` and `β` are matrices.
 ``(z𝟏 - α)^{-1}`` denotes the resolvent.
 
 Can be evaluated at any complex number ``z``.
-
-Currently limited to `α`, `β` being numbers (single orbital case)
-which simplifies the calculation to:
-
-```math
-G(z) = ∑_i \\frac{|β_i|^2}{z - α_i}
-```
 """
 struct Greensfunction{A,B<:AbstractVecOrMat}
     a::Vector{A}
@@ -27,7 +20,13 @@ struct Greensfunction{A,B<:AbstractVecOrMat}
 
     # both contain scalars
     function Greensfunction{A,B}(a, b) where {A<:Real,B<:AbstractVector{<:Number}}
-        length(a) == length(b) || throw(ArgumentError("length mismatch"))
+        length(a) == length(b) || throw(DimensionMismatch("length mismatch"))
+        return new{A,B}(a, b)
+    end
+
+    # `a` contains scalars, `b` is a matrix
+    function Greensfunction{A,B}(a, b) where {A<:Real,B<:AbstractMatrix{<:Number}}
+        axes(a, 1) == axes(b, 2) || throw(DimensionMismatch("length mismatch"))
         return new{A,B}(a, b)
     end
 end
@@ -42,11 +41,20 @@ function (G::Greensfunction{<:Real,<:AbstractVector{<:Number}})(z::Complex)
     return result
 end
 
-function (G::Greensfunction{<:Number,<:AbstractVector{<:Number}})(
-    Z::AbstractVector{<:Complex}
-)
-    return map(z -> G(z), Z)
+# interpret each column in `b` as a row vector $v_i = [b_1i b_2i …]$.
+# Then $G_i(z) = v_i^† (z - a_i)^{-1} v_i$ which is a matrix.
+# or interpret each column in `b` as a column vector $v_i = [b_1i, b_2i …]$.
+# Then $G_i(z) = v_i (z - a_i)^{-1} v_i^†$.
+function (G::Greensfunction{<:Real,<:AbstractMatrix{<:Number}})(z::Complex)
+    d = size(G.b, 1)
+    res = zeros(ComplexF64, d, d)
+    for m in axes(G.b, 2), i in axes(G.b, 1), j in axes(G.b, 1)
+        res[i, j] += G.b[i, m] * conj(G.b[j, m]) / (z - G.a[m])
+    end
+    return res
 end
+
+(G::Greensfunction)(Z::AbstractVector{<:Complex}) = map(G, Z)
 
 # write to a filepath, overwriting contents
 function Base.write(

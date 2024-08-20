@@ -12,11 +12,17 @@ using Test
         G = Greensfunction{Float64,V}(a, b)
         @test G.a === a
         @test G.b === b
-        @test_throws ArgumentError Greensfunction{Float64,V}(a, rand(9))
+        @test_throws DimensionMismatch Greensfunction{Float64,V}(a, rand(9))
 
         # outer constructor
         G = Greensfunction(a, b)
         @test typeof(G) === Greensfunction{Float64,V}
+
+        b = rand(2, 10)
+        G = Greensfunction(a, b)
+        @test G.a === a
+        @test G.b === b
+        @test_throws DimensionMismatch Greensfunction(a, rand(10, 2))
     end # constructor
 
     @testset "evaluate" begin
@@ -34,6 +40,16 @@ using Test
             b = rand(10)
             G = Greensfunction(a, b)
             @test G(z) === sum(map((i, j) -> abs2(j) / (z - i), a, b))
+
+            # b::Matrix
+            b = rand(2, 10)
+            G = Greensfunction(a, b)
+            foo = zeros(ComplexF64, 2, 2)
+            for i in eachindex(a)
+                v = b[:, i]
+                foo += v * v' ./ (z - a[i])
+            end
+            @test foo == G(z)
         end # single point
 
         @testset "multiple points" begin
