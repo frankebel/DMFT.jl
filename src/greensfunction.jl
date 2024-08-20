@@ -1,5 +1,5 @@
 """
-    Greensfunction(a::A, b::B) where {A<:AbstractVecOrMat,B<:AbstractVecOrMat}
+    Greensfunction(a::Vector{A}, b::B) where {A,B<:AbstractVecOrMat}
 
 Green's function `G` represented by a sum over poles `G.a` and "residues" `G.b`.
 
@@ -21,29 +21,28 @@ which simplifies the calculation to:
 G(z) = ∑_i \\frac{|β_i|^2}{z - α_i}
 ```
 """
-struct Greensfunction{A<:AbstractVecOrMat,B<:AbstractVecOrMat}
-    a::A
+struct Greensfunction{A,B<:AbstractVecOrMat}
+    a::Vector{A}
     b::B
 
-    function Greensfunction{A,B}(a, b) where {A,B}
+    # both contain scalars
+    function Greensfunction{A,B}(a, b) where {A<:Real,B<:AbstractVector{<:Number}}
         length(a) == length(b) || throw(ArgumentError("length mismatch"))
         return new{A,B}(a, b)
     end
 end
 
-Greensfunction(a::A, b::B) where {A,B} = Greensfunction{A,B}(a, b)
+Greensfunction(a::Vector{A}, b::B) where {A,B} = Greensfunction{A,B}(a, b)
 
-function (G::Greensfunction{<:AbstractVector{<:Number},<:AbstractVector{<:Number}})(
-    z::C
-) where {C<:Complex}
-    result = zero(C)
+function (G::Greensfunction{<:Real,<:AbstractVector{<:Number}})(z::Complex)
+    result = zero(z)
     for i in eachindex(G.a)
         result += abs2(G.b[i]) / (z - G.a[i])
     end
     return result
 end
 
-function (G::Greensfunction{<:AbstractVector{<:Number},<:AbstractVector{<:Number}})(
+function (G::Greensfunction{<:Number,<:AbstractVector{<:Number}})(
     Z::AbstractVector{<:Complex}
 )
     return map(z -> G(z), Z)
@@ -51,8 +50,7 @@ end
 
 # write to a filepath, overwriting contents
 function Base.write(
-    s::AbstractString,
-    G::Greensfunction{<:AbstractVector{<:Number},<:AbstractVector{<:Number}},
+    s::AbstractString, G::Greensfunction{<:Number,<:AbstractVector{<:Number}}
 )
     h5open(s, "w") do fid
         fid["a"] = G.a
@@ -64,18 +62,17 @@ end
 # read from a filepath
 function Greensfunction{A,B}(
     s::AbstractString
-) where {A<:AbstractVector{<:Number},B<:AbstractVector{<:Number}}
+) where {A<:Number,B<:AbstractVector{<:Number}}
     return h5open(s, "r") do fid
         a = read(fid, "a")
         b = read(fid, "b")
-        return Greensfunction{A,B}(A(a), B(b))
+        return Greensfunction{A,B}(Vector{A}(a), B(b))
     end
 end
 
-# default Vector{Float64}
+# default
 function Greensfunction(s::AbstractString)
-    V = Vector{Float64}
-    return Greensfunction{V,V}(s)
+    return Greensfunction{Float64,Vector{Float64}}(s)
 end
 
 """
@@ -109,7 +106,7 @@ end
 function Base.write(
     s::AbstractString,
     Δ::Hybridizationfunction{
-        <:Number,<:Greensfunction{<:AbstractVector{<:Number},<:AbstractVector{<:Number}}
+        <:Number,<:Greensfunction{<:Number,<:AbstractVector{<:Number}}
     },
 )
     h5open(s, "w") do fid
@@ -137,11 +134,11 @@ function Hybridizationfunction{M,G}(s::AbstractString) where {M,G<:Greensfunctio
     end
 end
 
-# default Float64, Vector{Float64}
+# default
 function Hybridizationfunction(s::AbstractString)
     M = Float64
     V = Vector{Float64}
-    G = Greensfunction{V,V}
+    G = Greensfunction{M,V}
     return Hybridizationfunction{M,G}(s)
 end
 
@@ -234,9 +231,7 @@ function get_hyb_equal(n_bath::Int, t::Real=1.0)
 end
 
 function Core.Array(
-    Δ::Hybridizationfunction{
-        T,<:Greensfunction{<:AbstractVector{<:T},<:AbstractVector{<:T}}
-    },
+    Δ::Hybridizationfunction{T,<:Greensfunction{<:T,<:AbstractVector{<:T}}}
 ) where {T<:Real}
     result = Matrix(Diagonal([zero(T); Δ.neg.a; zero(T); Δ.pos.a]))
     result[1, 2:end] .= [Δ.neg.b; Δ.V0; Δ.pos.b]
@@ -245,9 +240,7 @@ function Core.Array(
 end
 
 function Base.Matrix(
-    Δ::Hybridizationfunction{
-        T,<:Greensfunction{<:AbstractVector{<:T},<:AbstractVector{<:T}}
-    },
+    Δ::Hybridizationfunction{<:T,<:Greensfunction{<:T,<:AbstractVector{<:T}}}
 ) where {T<:Real}
     return Array(Δ)
 end

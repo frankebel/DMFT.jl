@@ -9,14 +9,14 @@ using Test
         b = rand(10)
 
         # inner constructor
-        G = Greensfunction{V,V}(a, b)
+        G = Greensfunction{Float64,V}(a, b)
         @test G.a === a
         @test G.b === b
-        @test_throws ArgumentError Greensfunction{V,V}(a, rand(9))
+        @test_throws ArgumentError Greensfunction{Float64,V}(a, rand(9))
 
         # outer constructor
         G = Greensfunction(a, b)
-        @test typeof(G) === Greensfunction{V,V}
+        @test typeof(G) === Greensfunction{Float64,V}
     end # constructor
 
     @testset "evaluate" begin
@@ -62,14 +62,13 @@ using Test
         @test write("test.h5", G) === nothing
 
         # read
-        V = Vector{Float64}
-        foo = Greensfunction{V,V}("test.h5")
-        @test typeof(foo) == Greensfunction{V,V}
+        foo = Greensfunction{Float64,Vector{Float64}}("test.h5")
+        @test typeof(foo) == Greensfunction{Float64,Vector{Float64}}
         @test foo.a == G.a
         @test foo.b == G.b
         # fallback default type
         foo = Greensfunction("test.h5")
-        @test typeof(foo) == Greensfunction{V,V}
+        @test typeof(foo) == Greensfunction{Float64,Vector{Float64}}
         @test foo.a == G.a
         @test foo.b == G.b
 
@@ -88,8 +87,8 @@ end # Green's function
 
     @testset "constructor" begin
         Δ = Hybridizationfunction(V0, G_p, G_n)
-        V = Vector{Float64}
-        @test typeof(Δ) == Hybridizationfunction{Float64,Greensfunction{V,V}}
+        @test typeof(Δ) ==
+            Hybridizationfunction{Float64,Greensfunction{Float64,Vector{Float64}}}
         @test Δ.V0 === V0
         @test Δ.pos === G_p
         @test Δ.neg === G_n
@@ -119,7 +118,7 @@ end # Green's function
         # read
         M = Float64
         V = Vector{Float64}
-        G = Greensfunction{V,V}
+        G = Greensfunction{M,V}
         foo = Hybridizationfunction{M,G}("test.h5")
         @test typeof(foo) == Hybridizationfunction{M,G}
         @test foo.V0 === V0
@@ -140,11 +139,13 @@ end # Green's function
     end # IO
 
     @testset "generation" begin
+        M = Float64
+        V = Vector{Float64}
+
         @testset "get_hyb" begin
             @test_throws ArgumentError get_hyb(2)
             Δ = get_hyb(101)
-            V = Vector{Float64}
-            @test typeof(Δ) == Hybridizationfunction{Float64,Greensfunction{V,V}}
+            @test typeof(Δ) == Hybridizationfunction{M,Greensfunction{M,V}}
             @test abs2(Δ.V0) + sum(abs2.(Δ.pos.b)) + sum(abs2.(Δ.neg.b)) ≈ 1.0 rtol = 1E-14
             @test norm(Δ.pos.a + reverse(Δ.neg.a)) < 1E-14
             @test norm(abs2.(Δ.pos.b) - reverse(abs2.(Δ.neg.b))) < 1E-14
@@ -154,8 +155,7 @@ end # Green's function
         @testset "get_hyb_equal" begin
             @test_throws ArgumentError get_hyb_equal(2)
             Δ = get_hyb_equal(101)
-            V = Vector{Float64}
-            @test typeof(Δ) == Hybridizationfunction{Float64,Greensfunction{V,V}}
+            @test typeof(Δ) == Hybridizationfunction{M,Greensfunction{M,V}}
             @test Δ.V0 == 1 / sqrt(101)
             @test abs2(Δ.V0) + sum(abs2.(Δ.pos.b)) + sum(abs2.(Δ.neg.b)) ≈ 1.0 rtol = 1E-14
             @test norm(Δ.pos.a + reverse(Δ.neg.a)) === 0.0
@@ -186,11 +186,5 @@ end # Green's function
 
         # Base.Matrix
         @test Matrix(Δ) == Array(Δ)
-
-        # complex does not work
-        foo = rand(ComplexF64, 2)
-        G = Greensfunction(foo, foo)
-        Δ = Hybridizationfunction(V0, G, G)
-        @test_throws MethodError Array(Δ)
     end # Array
 end # Hybridization function

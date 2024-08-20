@@ -120,7 +120,7 @@ function natural_orbital_operator(
     n_c_bit::Int=1,
 ) where {T<:Real}
     ishermitian(H_nat) || throw(ArgumentError("H_nat not hermitian"))
-    n = size(H_nat)[1]
+    n = size(H_nat, 1)
     n_emp = n - n_occ
     n_v = n_occ - 1
     n_c = n_emp - 1
@@ -240,7 +240,7 @@ function natural_orbital_ci_operator(
     n_v_bit >= 1 || throw(ArgumentError("invalid n_v_bit"))
     n_c_bit >= 1 || throw(ArgumentError("invalid n_c_bit"))
     excitation >= 0 || throw(ArgumentError("negative excitation"))
-    n = size(H_nat)[1]
+    n = size(H_nat, 1)
     n_emp = n - n_occ
     n_bit = 2 + n_v_bit + n_c_bit
     n_v = n_occ - 1

@@ -6,7 +6,6 @@
 Return masks of filled/empty sites in vector of `CIWavefunction`.
 
 # Arguments
-
 - `slaterdet`: Type of the mask.
 - `nbit`: Number of sites in bit component of `CIWavefunction`.
 - `nfilled`: Number of filled sites in vector of `CIWavefunction`.
