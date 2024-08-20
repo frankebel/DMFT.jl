@@ -10,4 +10,5 @@ include("aqua.jl")
     include("sytrd.jl")
     include("nat_orbs.jl")
     include("util.jl")
+    include("block_lanczos.jl")
 end

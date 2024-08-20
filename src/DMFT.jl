@@ -14,6 +14,7 @@ export
     Hybridizationfunction,
 
     # Functions
+    block_lanczos,
     get_CI_parameters,
     get_excitation,
     get_hyb,
@@ -46,5 +47,6 @@ include("greensfunction.jl")
 include("sytrd.jl")
 include("nat_orbs.jl")
 include("util.jl")
+include("block_lanczos.jl")
 
 end
