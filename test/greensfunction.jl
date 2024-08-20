@@ -23,6 +23,18 @@ using Test
         @test G.a === a
         @test G.b === b
         @test_throws DimensionMismatch Greensfunction(a, rand(10, 2))
+
+        @testset "blockdiagonal" begin
+            A = [rand(2, 2) for _ in 1:5]
+            B = [rand(2, 2) for _ in 1:4]
+            E0 = rand(Float64)
+            S_sqrt = rand(2, 2)
+            G = Greensfunction(A, B, E0, S_sqrt)
+            @test typeof(G.a) == Vector{Float64}
+            @test length(G.a) == 10
+            @test typeof(G.b) == Matrix{Float64}
+            @test size(G.b) == (2, 10)
+        end # blockdiagonal
     end # constructor
 
     @testset "evaluate" begin

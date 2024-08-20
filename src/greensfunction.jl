@@ -33,6 +33,36 @@ end
 
 Greensfunction(a::Vector{A}, b::B) where {A,B} = Greensfunction{A,B}(a, b)
 
+"""
+    Greensfunction(
+        A::AbstractVector{AbstractMatrix{<:Real}},
+        B::AbstractVector{AbstractMatrix{<:T}},
+        E0::Real,
+        S_sqrt::AbstractMatrix{<:T},
+    ) where {T<:Number}
+
+Diagonalize blocktridiagonal matrix given by `A`, `B` and convert to `Greensfunction`.
+
+`E0` is the ground state energy which is subtracted from each eigenvalue.
+`S_sqrt` is the transformation matrix to go back to the original basis.
+"""
+function Greensfunction(
+    A::AbstractVector{<:AbstractMatrix{<:Real}},
+    B::AbstractVector{<:AbstractMatrix{<:T}},
+    E0::Real,
+    S_sqrt::AbstractMatrix{<:T},
+) where {T<:Number}
+    # NOTE: change once compatibility is set to >= Julia 1.11
+    # X = Array(BlockTridiagonal(B, A, map(adjoint, B)))
+    X = Array(BlockTridiagonal(B, A, Matrix.(adjoint.(B))))
+    E, V = LAPACK.syev!('V', 'U', X)
+    poles = E .- E0
+    R = S_sqrt * V[1:size(S_sqrt, 1), :]
+    return Greensfunction(poles, R)
+end
+
+# evaluate at point `z`
+
 function (G::Greensfunction{<:Real,<:AbstractVector{<:Number}})(z::Complex)
     result = zero(z)
     for i in eachindex(G.a)
