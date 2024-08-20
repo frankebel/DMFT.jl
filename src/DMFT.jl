@@ -33,6 +33,7 @@ export
     ndet2_bit,
     ndet_bit,
     orgtr!,
+    orthogonalize_states,
     slater_start,
     starting_CIWavefunction,
     starting_Wavefunction,

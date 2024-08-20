@@ -201,3 +201,42 @@ function init_system(
     E0, ψ0 = DMFT.ground_state(H, ψ_start, n_kryl)
     return H, E0, ψ0
 end
+
+"""
+    orthogonalize_states(V::AbstractMatrix{<:C}) where {C<:CIWavefunction}
+
+Löwdin orthogonalization for given states in `V`.
+
+Calulate overlap matrix ``S``
+
+```math
+\\begin{aligned}
+S_{ij} &= ⟨v_i|v_j⟩ \\\\
+S    &= V^†V,
+\\end{aligned}
+```
+
+and diagonalize
+
+```math
+\\begin{aligned}
+S        &= T Λ T^† \\\\
+S^{1/2}  &= T Λ^{1/2} T^† \\\\
+S^{-1/2} &= T Λ^{-1/2} T^†.
+\\end{aligned}
+```
+
+Returns ``W = V S^{-1/2}`` and ``S^{1/2}``.
+"""
+function orthogonalize_states(V::AbstractMatrix{<:C}) where {C<:CIWavefunction}
+    n = size(V, 2)
+    T = scalartype(C)
+    S = Matrix{T}(undef, n, n)
+    mul!(S, V', V)
+    E, T = LAPACK.syev!('V', 'U', S)
+    S_sqrt_inv = T * Diagonal([1 / sqrt(x) for x in E]) * T'
+    S_sqrt = T * Diagonal([sqrt(x) for x in E]) * T'
+    W = zero(V)
+    mul!(W, V, S_sqrt_inv)
+    return W, S_sqrt
+end
