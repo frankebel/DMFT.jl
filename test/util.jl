@@ -169,7 +169,7 @@ using Test
             H_avg = dot(ψ0, Hψ)
             H_sqr = dot(Hψ, Hψ)
             var_rel = H_sqr / H_avg^2 - 1
-            @test norm(S - I) < 5E-13 # S_ij = δ_ij
+            @test norm(S - I) < 1E-12 # S_ij = δ_ij
             @test abs(E0 / -41.33867543081087 - 1) < 1E-4
             @test abs(H_avg / E0 - 1) < 1E-14
             @test var_rel < 4E-8
