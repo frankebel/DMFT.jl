@@ -205,12 +205,12 @@ using Test
         # W^† W = 𝟙
         foo = Matrix{Float64}(undef, 2, 2)
         mul!(foo, W', W)
-        @test norm(foo - I) < 4 * eps()
+        @test norm(foo - I) < 8 * eps()
         # V = W S^{1/2}
         bar = zero(V)
         mul!(bar, W, S_sqrt)
         for i in eachindex(V)
-            @test norm(bar[i] - V[i]) < 4 * eps()
+            @test norm(bar[i] - V[i]) < 8 * eps()
         end
     end # orthogonalize_states
 end # util

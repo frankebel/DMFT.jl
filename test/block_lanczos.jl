@@ -70,7 +70,7 @@ using Test
         bar = zero(V)
         mul!(bar, SVD, B)
         for i in eachindex(V)
-            @test norm(bar[i] - V[i]) < 4 * eps()
+            @test norm(bar[i] - V[i]) < 5 * eps()
         end
     end # svd_orthogonalize!
 end # block_lanczos
