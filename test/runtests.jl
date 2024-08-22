@@ -1,5 +1,8 @@
 using DMFT
+using Logging
 using Test
+
+Logging.disable_logging(Logging.Info)
 
 include("aqua.jl")
 
