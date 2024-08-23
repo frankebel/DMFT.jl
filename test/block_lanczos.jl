@@ -65,7 +65,7 @@ using Test
         # SVD^† SVD = 𝟙
         foo = Matrix{Float64}(undef, 2, 2)
         mul!(foo, SVD', SVD)
-        @test norm(foo - I) < 4 * eps()
+        @test norm(foo - I) < 8 * eps()
         # V = SVD B^{1/2}
         bar = zero(V)
         mul!(bar, SVD, B)

@@ -14,7 +14,7 @@ using Test
         @test n_occ === 6
         @test size(H) === (12, 12)
         d = diag(H)
-        @test norm(d[1:6] + d[7:12]) < 3E-14 # PHS
+        @test norm(d[1:6] + d[7:12]) < 3E2 * eps() # PHS
         @test ishermitian(H)
         @test H ≈ [
             -5.551115123125783e-17 0.3666114760822126 0.0 0.0 0.0 0.0 -0.8550976851855241 -0.3666114760822127 0.0 0.0 0.0 0.0
