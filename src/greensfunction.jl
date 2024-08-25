@@ -33,6 +33,10 @@ end
 
 Greensfunction(a::Vector{A}, b::B) where {A,B} = Greensfunction{A,B}(a, b)
 
+function Greensfunction{A,B}(G::Greensfunction{A,B}) where {A,B}
+    return Greensfunction(deepcopy(G.a), deepcopy(G.b))
+end
+
 """
     Greensfunction(
         A::AbstractVector{AbstractMatrix{<:Real}},

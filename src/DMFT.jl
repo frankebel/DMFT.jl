@@ -36,6 +36,7 @@ export
     orgtr!,
     orthogonalize_states,
     slater_start,
+    solve_impurity,
     starting_CIWavefunction,
     starting_Wavefunction,
     sytrd!,
@@ -48,5 +49,6 @@ include("sytrd.jl")
 include("nat_orbs.jl")
 include("util.jl")
 include("block_lanczos.jl")
+include("impurity_solver.jl")
 
 end

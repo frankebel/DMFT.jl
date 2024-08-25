@@ -18,6 +18,12 @@ using Test
         G = Greensfunction(a, b)
         @test typeof(G) === Greensfunction{Float64,V}
 
+        G_new = Greensfunction{Float64,V}(G)
+        @test typeof(G_new) === typeof(G)
+        @test G_new !== G
+        @test G_new.a == G.a
+        @test G_new.b == G.b
+
         b = rand(2, 10)
         G = Greensfunction(a, b)
         @test G.a === a
