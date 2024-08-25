@@ -73,8 +73,10 @@ using Test
 
         @testset "Operator" begin
             fs = FockSpace(Orbitals(12), FermionicSpin(1//2))
-            H1 = natural_orbital_operator(H_nat1, U, -μ, fs, n_occ, 1, 1)
-            H2 = natural_orbital_operator(H_nat2, U, -μ, fs, n_occ, 1, 1)
+            n = occupations(fs)
+            H_int = U * n[1, -1//2] * n[1, 1//2]
+            H1 = natural_orbital_operator(H_nat1, H_int, -μ, fs, n_occ, 1, 1)
+            H2 = natural_orbital_operator(H_nat2, H_int, -μ, fs, n_occ, 1, 1)
             @test H1 == H2
 
             c = annihilators(fs)
@@ -133,8 +135,8 @@ using Test
             @test H1 == H3
 
             # raise sites in bit component
-            H1 = natural_orbital_operator(H_nat1, U, -μ, fs, n_occ, 2, 2)
-            H2 = natural_orbital_operator(H_nat2, U, -μ, fs, n_occ, 2, 2)
+            H1 = natural_orbital_operator(H_nat1, H_int, -μ, fs, n_occ, 2, 2)
+            H2 = natural_orbital_operator(H_nat2, H_int, -μ, fs, n_occ, 2, 2)
             @test H1 == H2
             H3 =
             # impurity
@@ -190,14 +192,16 @@ using Test
 
             # non-hermitian
             @test_throws ArgumentError natural_orbital_operator(
-                rand(Int, 6, 6), U, -μ, fs, n_occ, 1, 1
+                rand(Int, 6, 6), H_int, -μ, fs, n_occ, 1, 1
             )
         end # Operator
 
         @testset "CIOperator" begin
             fs = FockSpace(Orbitals(4), FermionicSpin(1//2))
-            H1 = natural_orbital_ci_operator(H_nat1, U, -μ, fs, n_occ, 1, 1, 0)
-            H2 = natural_orbital_ci_operator(H_nat2, U, -μ, fs, n_occ, 1, 1, 0)
+            n = occupations(fs)
+            H_int = U * n[1, -1//2] * n[1, 1//2]
+            H1 = natural_orbital_ci_operator(H_nat1, H_int, -μ, fs, n_occ, 1, 1, 0)
+            H2 = natural_orbital_ci_operator(H_nat2, H_int, -μ, fs, n_occ, 1, 1, 0)
             @test typeof(H1) == typeof(H2)
             @test H1 == H2
 
@@ -279,8 +283,8 @@ using Test
             a = repeat([30 - 15, 30 + 36], 2)
             b = zeros(Int, 3)
             one = SymTridiagonal(a, b)
-            H1 = natural_orbital_ci_operator(H_nat1, U, -μ, fs, n_occ, 1, 1, 1)
-            H2 = natural_orbital_ci_operator(H_nat2, U, -μ, fs, n_occ, 1, 1, 1)
+            H1 = natural_orbital_ci_operator(H_nat1, H_int, -μ, fs, n_occ, 1, 1, 1)
+            H2 = natural_orbital_ci_operator(H_nat2, H_int, -μ, fs, n_occ, 1, 1, 1)
             @test typeof(H1) == typeof(H2)
             @test H1 == H2
             @test H1.opbit == H_bit
@@ -304,8 +308,8 @@ using Test
                     30 - 15 + 36,
                 ]),
             )
-            H1 = natural_orbital_ci_operator(H_nat1, U, -μ, fs, n_occ, 1, 1, 2)
-            H2 = natural_orbital_ci_operator(H_nat2, U, -μ, fs, n_occ, 1, 1, 2)
+            H1 = natural_orbital_ci_operator(H_nat1, H_int, -μ, fs, n_occ, 1, 1, 2)
+            H2 = natural_orbital_ci_operator(H_nat2, H_int, -μ, fs, n_occ, 1, 1, 2)
             @test typeof(H1) == typeof(H2)
             @test H1 == H2
             @test H1.opbit == H_bit
@@ -322,9 +326,11 @@ using Test
             U = 4.0
             μ = U / 2
             fs = FockSpace(Orbitals(6), FermionicSpin(1//2))
+            n = occupations(fs)
+            H_int = U * n[1, -1//2] * n[1, 1//2]
             Δ = get_hyb(11)
             H_nat, n_occ = to_natural_orbitals(Array(Δ))
-            H = natural_orbital_ci_operator(H_nat, U, -μ, fs, n_occ, 2, 2, 2)
+            H = natural_orbital_ci_operator(H_nat, H_int, -μ, fs, n_occ, 2, 2, 2)
             @test length(H.opbit.terms) == 1 + 2 * 6 + 4 * 7
             @test length(H.opmix) == 8
             @test H.zero isa Float64
@@ -375,9 +381,11 @@ using Test
 
         # Using Wavefunction.
         fock_space_wf = FockSpace(M_wf, M_wf, Orbitals(n_sites), FermionicSpin(1//2))
+        n_wf = occupations(fock_space_wf)
+        H_int_wf = U * n_wf[1, -1//2] * n_wf[1, 1//2]
         # Create Hamiltonian.
         H_wf = natural_orbital_operator(
-            H_nat, U, -μ, fock_space_wf, n_occ, n_v_bit, n_c_bit
+            H_nat, H_int_wf, -μ, fock_space_wf, n_occ, n_v_bit, n_c_bit
         )
         # Create starting Wavefunction. Impurity filled with 10, bath b 01 accordingly.
         s_start = slater_start(M_wf, 0b0110, n_v_bit, n_c_bit, n_v_vector, n_c_vector)
@@ -386,9 +394,11 @@ using Test
 
         # Using CIWavefunction.
         fock_space_ciwf = FockSpace(M_ciwf, M_ciwf, Orbitals(n_bit), FermionicSpin(1//2))
+        n_ciwf = occupations(fock_space_ciwf)
+        H_int_ciwf = U * n_ciwf[1, -1//2] * n_ciwf[1, 1//2]
         # Create Hamiltonian.
         H_ciwf = natural_orbital_ci_operator(
-            H_nat, U, -μ, fock_space_ciwf, n_occ, n_v_bit, n_c_bit, e
+            H_nat, H_int_ciwf, -μ, fock_space_ciwf, n_occ, n_v_bit, n_c_bit, e
         )
         # Create starting CIWavefunction. Impurity filled with 10, bath b 01 accordingly.
         s_start = slater_start(M_ciwf, 0b0110, n_v_bit, n_c_bit, 0, 0)

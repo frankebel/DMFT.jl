@@ -167,9 +167,9 @@ end
 
 """
     init_system(
-        U::T,
-        ϵ_imp::T,
         Δ::Greensfunction{<:T,<:AbstractVector{<:T}},
+        H_int::Operator,
+        ϵ_imp::T,
         n_v_bit::Int,
         n_c_bit::Int,
         e::Int,
@@ -179,9 +179,9 @@ end
 Return Hamiltonian, ground state energy, and ground state.
 """
 function init_system(
-    U::T,
-    ϵ_imp::T,
     Δ::Greensfunction{<:T,<:AbstractVector{<:T}},
+    H_int::Operator,
+    ϵ_imp::T,
     n_v_bit::Int,
     n_c_bit::Int,
     e::Int,
@@ -192,7 +192,7 @@ function init_system(
     H_nat, n_occ = to_natural_orbitals(arr)
     n_bit, n_v_vector, n_c_vector = get_CI_parameters(n_sites, n_occ, n_c_bit, n_v_bit)
     fs = FockSpace(Orbitals(n_bit), FermionicSpin(1//2))
-    H = natural_orbital_ci_operator(H_nat, U, ϵ_imp, fs, n_occ, n_v_bit, n_c_bit, e)
+    H = natural_orbital_ci_operator(H_nat, H_int, ϵ_imp, fs, n_occ, n_v_bit, n_c_bit, e)
     ψ_start = starting_CIWavefunction(
         Dict{UInt64,Float64}, n_v_bit, n_c_bit, n_v_vector, n_c_vector, e
     )

@@ -137,7 +137,9 @@ using Test
         @testset "Wavefunction" begin
             M = 2 * n_sites <= 64 ? UInt64 : BigMask{cld(2 * n_sites, 64),UInt64}
             fs = FockSpace(M, M, Orbitals(n_sites), FermionicSpin(1//2))
-            H = natural_orbital_operator(H_nat, U, -μ, fs, n_occ, n_v_bit, n_c_bit)
+            n = occupations(fs)
+            H_int = U * n[1, -1//2] * n[1, 1//2]
+            H = natural_orbital_operator(H_nat, H_int, -μ, fs, n_occ, n_v_bit, n_c_bit)
             ϕ_start = starting_Wavefunction(
                 Dict{M,Float64}, n_v_bit, n_c_bit, n_v_vector, n_c_vector
             )
@@ -154,7 +156,11 @@ using Test
 
         @testset "CIWavefunction" begin
             fs = FockSpace(Orbitals(n_bit), FermionicSpin(1//2))
-            H = natural_orbital_ci_operator(H_nat, U, -μ, fs, n_occ, n_v_bit, n_c_bit, e)
+            n = occupations(fs)
+            H_int = U * n[1, -1//2] * n[1, 1//2]
+            H = natural_orbital_ci_operator(
+                H_nat, H_int, -μ, fs, n_occ, n_v_bit, n_c_bit, e
+            )
             ψ_start = starting_CIWavefunction(
                 Dict{UInt64,Float64}, n_v_bit, n_c_bit, n_v_vector, n_c_vector, e
             )
@@ -186,7 +192,10 @@ using Test
         e = 2
         n_kryl = 10
         Δ = get_hyb(n_bath)
-        H, E0, ψ0 = init_system(U, -μ, Δ, n_v_bit, n_c_bit, e, n_kryl)
+        fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1//2))
+        n = occupations(fs)
+        H_int = U * n[1, -1//2] * n[1, 1//2]
+        H, E0, ψ0 = init_system(Δ, H_int, -μ, n_v_bit, n_c_bit, e, n_kryl)
         Hψ = H * ψ0
         H_avg = dot(ψ0, Hψ)
         H_sqr = dot(Hψ, Hψ)

@@ -18,7 +18,10 @@ using Test
         n_kryl_gs = 20
         # initial system
         Δ = get_hyb(n_bath)
-        H, E0, ψ0 = init_system(U, -μ, Δ, n_v_bit, n_c_bit, e, n_kryl_gs)
+        fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1//2))
+        n = occupations(fs)
+        H_int = U * n[1, -1//2] * n[1, 1//2]
+        H, E0, ψ0 = init_system(Δ, H_int, -μ, n_v_bit, n_c_bit, e, n_kryl_gs)
         # operators A, B
         fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1//2))
         c = annihilators(fs)

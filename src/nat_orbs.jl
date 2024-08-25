@@ -90,7 +90,7 @@ end
 """
     natural_orbital_operator(
         H_nat::Matrix{T},
-        U::T,
+        H_int::Operator,
         ϵ_imp::T,
         fock_space::FockSpace,
         n_occ::Int,
@@ -103,6 +103,7 @@ Convert natural orbital Hamiltonian `H_nat` to `Operator`.
 
 # Arguments
 - `H_nat::Matrix{T}`: natural orbital Hamiltonian
+- `H_int::Operator`: interacting Hamiltonian
 - `U::T`: Coulomb repulsion on impurity
 - `ϵ_imp::T`: on-site energy of impurity
 - `fock_space::FockSpace`: Fock Space used for the system
@@ -112,7 +113,7 @@ Convert natural orbital Hamiltonian `H_nat` to `Operator`.
 """
 function natural_orbital_operator(
     H_nat::Matrix{T},
-    U::T,
+    H_int::Operator,
     ϵ_imp::T,
     fock_space::FockSpace,
     n_occ::Int,
@@ -128,7 +129,7 @@ function natural_orbital_operator(
     0 < n_c_bit <= n_c || throw(ArgumentError(lazy"violating 0 < $(n_c_bit) <= $(n_c)"))
     c = annihilators(fock_space)
     # impurity i
-    H = U * c[1, -1//2]' * c[1, -1//2] * c[1, 1//2]' * c[1, 1//2]
+    H = H_int
     H += ϵ_imp * c[1, -1//2]' * c[1, -1//2]
     H += ϵ_imp * c[1, 1//2]' * c[1, 1//2]
     for σ in axes(c, 2)
@@ -200,7 +201,7 @@ end
 """
     natural_orbital_ci_operator(
         H_nat::Matrix{T},
-        U::T,
+        H_int::Operator,
         ϵ_imp::T,
         fock_space::FockSpace,
         n_occ::Int,
@@ -214,6 +215,7 @@ Convert natural orbital Hamiltonian `H_nat` to `CIOperator`.
 
 # Arguments
 - `H_nat::Matrix{T}`: natural orbital Hamiltonian
+- `H_int::Operator`: interacting Hamiltonian
 - `U::T`: Coulomb repulsion on impurity
 - `ϵ_imp::T`: on-site energy of impurity
 - `fock_space::FockSpace`: Fock Space used for the system
@@ -226,7 +228,7 @@ See also: `CIOperator`
 """
 function natural_orbital_ci_operator(
     H_nat::Matrix{T},
-    U::T,
+    H_int::Operator,
     ϵ_imp::T,
     fock_space::FockSpace,
     n_occ::Int,
@@ -249,9 +251,9 @@ function natural_orbital_ci_operator(
     n_c_bit < n_c || throw(ArgumentError("n_c_bit too big"))
     c = annihilators(fock_space)
 
-    # Create Bitperator H_bit.
+    # Create Bitoperator H_bit.
+    H_bit = H_int
     # impurity i
-    H_bit = U * c[1, -1//2]' * c[1, -1//2] * c[1, 1//2]' * c[1, 1//2]
     H_bit += ϵ_imp * c[1, -1//2]' * c[1, -1//2]
     H_bit += ϵ_imp * c[1, 1//2]' * c[1, 1//2]
     for σ in axes(c, 2)
