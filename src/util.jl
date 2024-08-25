@@ -169,9 +169,7 @@ end
     init_system(
         U::T,
         ϵ_imp::T,
-        Δ::Hybridizationfunction{
-            <:T,<:Greensfunction{<:AbstractVector{<:T},<:AbstractVector{<:T}}
-        },
+        Δ::Greensfunction{<:T,<:AbstractVector{<:T}},
         n_v_bit::Int,
         n_c_bit::Int,
         e::Int,
@@ -183,7 +181,7 @@ Return Hamiltonian, ground state energy, and ground state.
 function init_system(
     U::T,
     ϵ_imp::T,
-    Δ::Hybridizationfunction{<:T,<:Greensfunction{<:T,<:AbstractVector{<:T}}},
+    Δ::Greensfunction{<:T,<:AbstractVector{<:T}},
     n_v_bit::Int,
     n_c_bit::Int,
     e::Int,

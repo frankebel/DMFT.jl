@@ -104,115 +104,45 @@ using Test
     end # IO
 end # Green's function
 
-@testset "Hybridization function" begin
-    a_p = sort(rand(10))
-    a_n = sort(-rand(10))
-    b_p = rand(10)
-    b_n = rand(10)
-    V0 = rand()
-    G_p = Greensfunction(a_p, b_p)
-    G_n = Greensfunction(a_n, b_n)
+@testset "hybridization" begin
+    A = Float64
+    B = Vector{Float64}
 
-    @testset "constructor" begin
-        Δ = Hybridizationfunction(V0, G_p, G_n)
-        @test typeof(Δ) ==
-            Hybridizationfunction{Float64,Greensfunction{Float64,Vector{Float64}}}
-        @test Δ.V0 === V0
-        @test Δ.pos === G_p
-        @test Δ.neg === G_n
-    end # constructor
+    @testset "get_hyb" begin
+        @test_throws ArgumentError get_hyb(2)
+        Δ = get_hyb(101)
+        @test typeof(Δ) === Greensfunction{A,B}
+        @test length(Δ.a) === 101
+        @test length(Δ.b) === 101
+        @test sum(abs2.(Δ.b)) ≈ 1.0 rtol = eps()
+        @test all(b -> b > 0, Δ.b)
+        @test norm(Δ.a + reverse(Δ.a)) < 50 * eps()
+        @test norm(abs2.(Δ.b) - reverse(abs2.(Δ.b))) < 600 * eps()
+    end # get_hyb
 
-    @testset "evaluate" begin
-        @testset "single point" begin
-            z = rand(ComplexF64)
-            Δ = Hybridizationfunction(V0, G_p, G_n)
-
-            @test Δ(z) === G_p(z) + G_n(z) + abs2(V0) / z
-        end # single point
-
-        @testset "multiple points" begin
-            z = rand(ComplexF64, 2)
-            Δ = Hybridizationfunction(V0, G_p, G_n)
-
-            @test Δ(z) == [Δ(z[1]), Δ(z[2])]
-        end # multiple points
-    end # evaluate
-
-    @testset "IO" begin
-        # write
-        Δ = Hybridizationfunction(V0, G_p, G_n)
-        @test write("test.h5", Δ) === nothing
-
-        # read
-        M = Float64
-        V = Vector{Float64}
-        G = Greensfunction{M,V}
-        foo = Hybridizationfunction{M,G}("test.h5")
-        @test typeof(foo) == Hybridizationfunction{M,G}
-        @test foo.V0 === V0
-        @test foo.pos.a == a_p
-        @test foo.pos.b == b_p
-        @test foo.neg.a == a_n
-        @test foo.neg.b == b_n
-        # # fallback default type
-        foo = Hybridizationfunction("test.h5")
-        @test typeof(foo) == Hybridizationfunction{M,G}
-        @test foo.V0 === V0
-        @test foo.pos.a == a_p
-        @test foo.pos.b == b_p
-        @test foo.neg.a == a_n
-        @test foo.neg.b == b_n
-
-        rm("test.h5")
-    end # IO
-
-    @testset "generation" begin
-        M = Float64
-        V = Vector{Float64}
-
-        @testset "get_hyb" begin
-            @test_throws ArgumentError get_hyb(2)
-            Δ = get_hyb(101)
-            @test typeof(Δ) == Hybridizationfunction{M,Greensfunction{M,V}}
-            @test abs2(Δ.V0) + sum(abs2.(Δ.pos.b)) + sum(abs2.(Δ.neg.b)) ≈ 1.0 rtol = 1E-14
-            @test norm(Δ.pos.a + reverse(Δ.neg.a)) < 1E-14
-            @test norm(abs2.(Δ.pos.b) - reverse(abs2.(Δ.neg.b))) < 1E-14
-            @test length(Δ.pos.a) === length(Δ.neg.a) === 50
-        end # get_hyb
-
-        @testset "get_hyb_equal" begin
-            @test_throws ArgumentError get_hyb_equal(2)
-            Δ = get_hyb_equal(101)
-            @test typeof(Δ) == Hybridizationfunction{M,Greensfunction{M,V}}
-            @test Δ.V0 == 1 / sqrt(101)
-            @test abs2(Δ.V0) + sum(abs2.(Δ.pos.b)) + sum(abs2.(Δ.neg.b)) ≈ 1.0 rtol = 1E-14
-            @test norm(Δ.pos.a + reverse(Δ.neg.a)) === 0.0
-            @test norm(abs2.(Δ.pos.b) - reverse(abs2.(Δ.neg.b))) === 0.0
-            @test length(Δ.pos.a) === length(Δ.neg.a) === 50
-        end # get_hyb_equal
-    end # generation
+    @testset "get_hyb_equal" begin
+        @test_throws ArgumentError get_hyb_equal(2)
+        Δ = get_hyb_equal(101)
+        @test typeof(Δ) === Greensfunction{A,B}
+        @test length(Δ.a) === 101
+        @test length(Δ.b) === 101
+        @test all(i -> i === 1 / sqrt(101), Δ.b)
+        @test norm(Δ.a + reverse(Δ.a)) === 0.0
+    end # get_hyb_equal
 
     @testset "Array" begin
-        a_p = collect(1:2)
-        a_n = collect(3:4)
-        b_p = collect(5:6)
-        b_n = collect(7:8)
-        V0 = 9
-        G_p = Greensfunction(a_p, b_p)
-        G_n = Greensfunction(a_n, b_n)
-        Δ = Hybridizationfunction(V0, G_p, G_n)
+        a = collect(1:5)
+        b = collect(6:10)
+        Δ = Greensfunction(a, b)
         m = Array(Δ)
-        @test m isa Matrix{Int}
+        @test typeof(m) === Matrix{Int}
         @test m == [
-            0 7 8 9 5 6
-            7 3 0 0 0 0
-            8 0 4 0 0 0
-            9 0 0 0 0 0
-            5 0 0 0 1 0
-            6 0 0 0 0 2
+            0 6 7 8 9 10
+            6 1 0 0 0 0
+            7 0 2 0 0 0
+            8 0 0 3 0 0
+            9 0 0 0 4 0
+            10 0 0 0 0 5
         ]
-
-        # Base.Matrix
-        @test Matrix(Δ) == Array(Δ)
     end # Array
-end # Hybridization function
+end # hybridization

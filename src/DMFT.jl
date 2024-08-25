@@ -12,7 +12,6 @@ using LinearAlgebra
 export
     # Types
     Greensfunction,
-    Hybridizationfunction,
 
     # Functions
     block_lanczos,
