@@ -83,20 +83,27 @@ using Test
     end # evaluate
 
     @testset "IO" begin
+        # b::Vector
         # write
         a = sort(rand(10))
         b = rand(10)
         G = Greensfunction(a, b)
         @test write("test.h5", G) === nothing
-
         # read
         foo = Greensfunction{Float64,Vector{Float64}}("test.h5")
         @test typeof(foo) == Greensfunction{Float64,Vector{Float64}}
         @test foo.a == G.a
         @test foo.b == G.b
-        # fallback default type
-        foo = Greensfunction("test.h5")
-        @test typeof(foo) == Greensfunction{Float64,Vector{Float64}}
+
+        # b::Matrix
+        # write
+        a = sort(rand(10))
+        b = rand(10, 10)
+        G = Greensfunction(a, b)
+        @test write("test.h5", G) === nothing
+        # read
+        foo = Greensfunction{Float64,Matrix{Float64}}("test.h5")
+        @test typeof(foo) == Greensfunction{Float64,Matrix{Float64}}
         @test foo.a == G.a
         @test foo.b == G.b
 

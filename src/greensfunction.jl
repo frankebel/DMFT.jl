@@ -88,7 +88,7 @@ end
 
 # write to a filepath, overwriting contents
 function Base.write(
-    s::AbstractString, G::Greensfunction{<:Number,<:AbstractVector{<:Number}}
+    s::AbstractString, G::Greensfunction{<:Number,<:AbstractArray{<:Number}}
 )
     h5open(s, "w") do fid
         fid["a"] = G.a
@@ -98,19 +98,12 @@ function Base.write(
 end
 
 # read from a filepath
-function Greensfunction{A,B}(
-    s::AbstractString
-) where {A<:Number,B<:AbstractVector{<:Number}}
+function Greensfunction{A,B}(s::AbstractString) where {A<:Number,B<:AbstractArray{<:Number}}
     return h5open(s, "r") do fid
         a = read(fid, "a")
         b = read(fid, "b")
         return Greensfunction{A,B}(Vector{A}(a), B(b))
     end
-end
-
-# default
-function Greensfunction(s::AbstractString)
-    return Greensfunction{Float64,Vector{Float64}}(s)
 end
 
 """
