@@ -15,6 +15,8 @@ export
 
     # Functions
     block_lanczos,
+    dmft_step,
+    equal_weight_discretization,
     get_CI_parameters,
     get_excitation,
     get_hyb,
@@ -35,12 +37,15 @@ export
     ndet_bit,
     orgtr!,
     orthogonalize_states,
+    self_energy,
+    self_energy_improved,
     slater_start,
     solve_impurity,
     starting_CIWavefunction,
     starting_Wavefunction,
     sytrd!,
-    to_natural_orbitals
+    to_natural_orbitals,
+    update_weiss_field
 
 include("combinatorics.jl")
 include("mask.jl")
@@ -50,5 +55,6 @@ include("nat_orbs.jl")
 include("util.jl")
 include("block_lanczos.jl")
 include("impurity_solver.jl")
+include("dmft_step.jl")
 
 end

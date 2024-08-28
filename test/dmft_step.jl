@@ -1,0 +1,69 @@
+using DMFT
+using Fermions
+using Fermions.Wavefunctions
+using LinearAlgebra
+using Test
+
+@testset "DMFT step" begin
+    n_bath = 31
+    U = 4.0
+    μ = U / 2
+    n_v_bit = 1
+    n_c_bit = 1
+    e = 2
+    n_kryl = 100
+    n_kryl_gs = 20
+    w = collect(-10:0.0002:10)
+    η = 0.08
+    # do not change parameters below
+    n_sites = 1 + n_bath
+    Z = w .+ im * η
+
+    Δ0 = get_hyb(n_bath)
+    # Operators for positive frequencies. Negative ones are calculated by adjoint.
+    fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1//2))
+    c = annihilators(fs)
+    H_int = U * c[1, 1//2]' * c[1, 1//2] * c[1, -1//2]' * c[1, -1//2]
+    A = c[1, -1//2]' # f_↓^†
+    B = A' * H_int - H_int * A' # [f_↓, H_int]
+    B = B' # need to apply to ket
+    O = [A, B]
+
+    # self-energy
+    G_plus, G_minus, Δ_new, Δ_grid = dmft_step(
+        Δ0, Δ0, H_int, μ, -μ, Z, n_v_bit, n_c_bit, e, O, n_kryl, n_kryl_gs, n_bath, η, false
+    )
+    @test typeof(Δ_new) === Greensfunction{Float64,Vector{Float64}}
+    @test typeof(Δ_grid) === Vector{ComplexF64}
+    @test length(Δ_new.a) == n_bath
+    @test length(Δ_new.b) == n_bath
+    @test all(b -> isapprox(b, 1 / sqrt(n_bath); rtol=3E-3), Δ_new.b)
+    # small weight loss due to truncated interval
+    @test 0.99 <= sum(abs2.(Δ_new.b)) <= 1.0
+    # PHS
+    @test abs(sum(abs2.(Δ_new.b) .* Δ_new.a)) < 200 * eps()
+
+    # improved self-energy
+    G_plus2, G_minus2, Δ_new2, Δ_grid2 = dmft_step(
+        Δ0, Δ0, H_int, μ, -μ, Z, n_v_bit, n_c_bit, e, O, n_kryl, n_kryl_gs, n_bath, η, true
+    )
+    @test typeof(Δ_new2) === Greensfunction{Float64,Vector{Float64}}
+    @test typeof(Δ_grid2) === Vector{ComplexF64}
+    @test length(Δ_new2.a) == n_bath
+    @test length(Δ_new2.b) == n_bath
+    @test all(b -> isapprox(b, 1 / sqrt(n_bath); rtol=3E-3), Δ_new2.b)
+    # small weight loss due to truncated interval
+    @test 0.99 <= sum(abs2.(Δ_new2.b)) <= 1.0
+    # PHS
+    @test abs(sum(abs2.(Δ_new2.b) .* Δ_new2.a)) < 200 * eps()
+
+    # test equality
+    @test G_plus.a == G_plus2.a
+    @test G_plus.a == G_plus2.a
+    @test G_minus.b == G_minus2.b
+    @test G_minus.b == G_minus2.b
+    # they are not the same
+    @test Δ_new.a != Δ_new2.a
+    @test Δ_new.b != Δ_new2.b
+    @test Δ_grid != Δ_grid2
+end # DMFT step
