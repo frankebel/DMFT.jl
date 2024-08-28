@@ -34,6 +34,7 @@ using Test
         a, b = block_lanczos(H, W, n_kryl)
         @test length(a) === n_kryl
         @test length(b) === n_kryl - 1
+        @test all(ishermitian, b)
 
         # NOTE: change once compatibility is set to >= Julia 1.11
         # X = BlockTridiagonal(b, a, map(adjoint, b))
