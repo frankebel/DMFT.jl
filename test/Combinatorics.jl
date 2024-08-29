@@ -1,7 +1,7 @@
-using DMFT
+using DMFT.Combinatorics
 using Test
 
-@testset "combinatorics" begin
+@testset "Combinatorics" begin
     @testset "bit component" begin
         # 0 excitation
         @test ndet0_bit(4, 2, 2) == 6 * 6
@@ -32,4 +32,4 @@ using Test
         @test ndet(4, 2, 2, 2, 10, 11) == 36 + 1008 + 16160
         @test_throws DomainError ndet(4, 2, 2, 3, 10, 11)
     end # wave function
-end # combinatorics
+end # Combinatorics

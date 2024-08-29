@@ -27,14 +27,6 @@ export
     mul_excitation,
     natural_orbital_ci_operator,
     natural_orbital_operator,
-    ndet,
-    ndet0,
-    ndet0_bit,
-    ndet1,
-    ndet1_bit,
-    ndet2,
-    ndet2_bit,
-    ndet_bit,
     orgtr!,
     orthogonalize_states,
     self_energy,
@@ -47,7 +39,6 @@ export
     to_natural_orbitals,
     update_weiss_field
 
-include("combinatorics.jl")
 include("mask.jl")
 include("greensfunction.jl")
 include("sytrd.jl")
@@ -56,6 +47,7 @@ include("util.jl")
 include("block_lanczos.jl")
 include("impurity_solver.jl")
 include("dmft_step.jl")
+include("Combinatorics.jl")
 include("ED.jl")
 
 end

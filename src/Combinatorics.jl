@@ -1,5 +1,18 @@
 # Combinatorics to calculate possible number of determinants.
 
+module Combinatorics
+
+export
+    # Functions
+    ndet,
+    ndet0,
+    ndet0_bit,
+    ndet1,
+    ndet1_bit,
+    ndet2,
+    ndet2_bit,
+    ndet_bit
+
 """
     ndet0_bit(nbit::Int, nup::Int, ndown::Int)
 
@@ -112,4 +125,6 @@ function ndet(nbit::Int, nup::Int, ndown::Int, excitation::Int, nfilled::Int, ne
     excitation >= 2 && (result += ndet2(nbit, nup, ndown, nfilled, nempty))
     excitation >= 3 && throw(DomainError("excitation >= 3 not implemented"))
     return result
+end
+
 end
