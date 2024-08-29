@@ -15,4 +15,5 @@ include("aqua.jl")
     include("util.jl")
     include("block_lanczos.jl")
     include("dmft_step.jl")
+    include("ED.jl")
 end

@@ -56,5 +56,6 @@ include("util.jl")
 include("block_lanczos.jl")
 include("impurity_solver.jl")
 include("dmft_step.jl")
+include("ED.jl")
 
 end
