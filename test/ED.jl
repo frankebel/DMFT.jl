@@ -1,8 +1,8 @@
 using DMFT
-using LinearAlgebra
-using Test
 using DMFT.ED
 using Fermions
+using LinearAlgebra
+using Test
 
 @testset "ED" begin
     n_bath = 3
