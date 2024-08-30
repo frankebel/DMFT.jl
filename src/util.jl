@@ -238,3 +238,27 @@ function orthogonalize_states(V::AbstractMatrix{<:C}) where {C<:CIWavefunction}
     mul!(W, V, S_sqrt_inv)
     return W, S_sqrt
 end
+
+"""
+    write_vector(s::AbstractString, V::AbstractVector{<:Number})
+
+Write `V` to the given filepath `s`.
+"""
+function write_vector(s::AbstractString, V::AbstractVector{<:Number})
+    h5open(s, "w") do fid
+        fid["V"] = V
+    end
+    return nothing
+end
+
+"""
+    read_vector(::Type{T}, s::AbstractString) where {T<:Number}
+
+Read `Vector{T}` from filepath `s`.
+"""
+function read_vector(::Type{T}, s::AbstractString) where {T<:Number}
+    h5open(s, "r") do fid
+        V::Vector{T} = read(fid, "V")
+        return V
+    end
+end

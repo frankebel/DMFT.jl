@@ -29,6 +29,7 @@ export
     natural_orbital_operator,
     orgtr!,
     orthogonalize_states,
+    read_vector,
     self_energy,
     self_energy_improved,
     slater_start,
@@ -37,7 +38,8 @@ export
     starting_Wavefunction,
     sytrd!,
     to_natural_orbitals,
-    update_weiss_field
+    update_weiss_field,
+    write_vector
 
 include("mask.jl")
 include("greensfunction.jl")

@@ -222,4 +222,13 @@ using Test
             @test norm(bar[i] - V[i]) < 8 * eps()
         end
     end # orthogonalize_states
+
+    @testset "vector IO" begin
+        v = rand(10)
+        @test write_vector("test.h5", v) === nothing
+        foo = read_vector(Float64, "test.h5")
+        @test typeof(foo) === Vector{Float64}
+        @test foo == v
+        rm("test.h5")
+    end # vector IO
 end # util

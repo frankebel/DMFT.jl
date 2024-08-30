@@ -104,9 +104,9 @@ end
 # read from a filepath
 function Greensfunction{A,B}(s::AbstractString) where {A<:Number,B<:AbstractArray{<:Number}}
     return h5open(s, "r") do fid
-        a = read(fid, "a")
-        b = read(fid, "b")
-        return Greensfunction{A,B}(Vector{A}(a), B(b))
+        a::Vector{A} = read(fid, "a")
+        b::B = read(fid, "b")
+        return Greensfunction(a, b)
     end
 end
 
