@@ -166,7 +166,7 @@ function get_hyb_equal(n_bath::Int, t::Real=1.0)
     end
     a .*= n_bath # a .*= 1/V_sqr
 
-    a = [-reverse(a); 0; a]
+    a = [a; 0; -reverse(a)]
     b = fill(V, n_bath)
     return Greensfunction(a, b)
 end

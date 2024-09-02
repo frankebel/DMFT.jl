@@ -141,6 +141,7 @@ end # Green's function
         @test length(Δ.b) === 101
         @test all(i -> i === 1 / sqrt(101), Δ.b)
         @test norm(Δ.a + reverse(Δ.a)) === 0.0
+        @test issorted(Δ.a)
     end # get_hyb_equal
 
     @testset "Array" begin
