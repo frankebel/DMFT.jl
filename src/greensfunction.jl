@@ -116,15 +116,10 @@ end
 Return non-interacting `Greensfunction` for hybridization with hopping `t`.
 """
 function get_hyb(n_bath::Int, t::Real=1.0)
-    isodd(n_bath) || throw(ArgumentError("n_bath must be odd"))
-
     α = zeros(n_bath)
     β = fill(t, n_bath - 1)
     H0 = SymTridiagonal(α, β)
     E, T = eigen(H0)
-
-    # overwrite 0-peak energy
-    E[n_bath ÷ 2 + 1] = 0
 
     return Greensfunction(E, abs.(T[:, 1]))
 end

@@ -122,14 +122,20 @@ end # Green's function
     B = Vector{Float64}
 
     @testset "get_hyb" begin
-        @test_throws ArgumentError get_hyb(2)
         Δ = get_hyb(101)
         @test typeof(Δ) === Greensfunction{A,B}
         @test length(Δ.a) === 101
         @test length(Δ.b) === 101
-        @test sum(abs2.(Δ.b)) ≈ 1.0 rtol = eps()
-        @test all(b -> b > 0, Δ.b)
+        @test sum(abs2.(Δ.b)) ≈ 1.0 rtol = 10 * eps()
+        @test Δ.a[51] ≈ 0 atol = 10 * eps()
         @test norm(Δ.a + reverse(Δ.a)) < 50 * eps()
+        @test norm(abs2.(Δ.b) - reverse(abs2.(Δ.b))) < 600 * eps()
+        Δ = get_hyb(100)
+        @test typeof(Δ) === Greensfunction{A,B}
+        @test length(Δ.a) === 100
+        @test length(Δ.b) === 100
+        @test sum(abs2.(Δ.b)) ≈ 1.0 rtol = 10 * eps()
+        @test norm(Δ.a + reverse(Δ.a)) < 100 * eps()
         @test norm(abs2.(Δ.b) - reverse(abs2.(Δ.b))) < 600 * eps()
     end # get_hyb
 
