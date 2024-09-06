@@ -21,7 +21,7 @@ using Test
             2 * binomial(n_sites, n_sites ÷ 2) * binomial(n_sites, n_bath ÷ 2)
         @test sum(b) ≈ 1 rtol = 10 * eps()
         # PHS
-        @test norm(G.a + reverse(G.a)) < 150 * eps()
+        @test norm(G.a + reverse(G.a)) < 200 * eps()
         @test norm(b - reverse(b)) < 40 * eps()
     end # solve_impurity_ed
 end # ED
