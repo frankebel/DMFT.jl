@@ -39,7 +39,8 @@ export
     sytrd!,
     to_natural_orbitals,
     update_weiss_field,
-    write_vector
+    write_vector,
+    η_gaussian
 
 include("mask.jl")
 include("greensfunction.jl")

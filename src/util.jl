@@ -262,3 +262,18 @@ function read_vector(::Type{T}, s::AbstractString) where {T<:Number}
         return V
     end
 end
+
+"""
+    η_gaussian(η_0::R, η_∞::R, σ::R, ω::AbstractVector{<:R}) where {R<:Real}
+
+Return
+
+```math
+η(ω) = η_∞ + (η_0 - η_∞) \\exp\\left(-\\frac{ω^2}{2σ^2}\\right)
+```
+
+evaluated on a grid `ω`.
+"""
+function η_gaussian(η_0::R, η_∞::R, σ::R, ω::AbstractVector{<:R}) where {R<:Real}
+    return map(i -> η_∞ .+ (η_0 - η_∞) .* exp.(-i^2 / (2 * σ^2)), ω)
+end

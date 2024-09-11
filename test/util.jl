@@ -231,4 +231,19 @@ using Test
         @test foo == v
         rm("test.h5")
     end # vector IO
+
+    @testset "η_gaussian" begin
+        η_0 = 0.01
+        η_∞ = 0.04
+        w = collect(-10:0.08:10)
+        η1 = η_gaussian(η_0, η_∞, 1.0, w)
+        @test typeof(η1) === typeof(w)
+        @test length(η1) === length(w)
+        @test norm(η1 - reverse(η1)) === 0.0 # symmetric
+        @test η1[126] ≈ η_0 rtol = 5 * eps() # w = 0
+        @test η1[1] == η_∞
+        # smaller broadening
+        η2 = η_gaussian(η_0, η_∞, 0.5, w)
+        @test all(η2 .>= η1)
+    end # η_gaussian
 end # util
