@@ -6,9 +6,20 @@ CurrentModule = DMFT
 
 Documentation for [DMFT](https://github.com/frankebel/DMFT.jl).
 
-```@index
-```
+## DMFT
 
 ```@autodocs
 Modules = [DMFT]
+```
+
+## Combinatorics
+
+```@autodocs
+Modules = [DMFT.Combinatorics]
+```
+
+## ED
+
+```@autodocs
+Modules = [DMFT.ED]
 ```

@@ -9,6 +9,13 @@ export
 # Functions
     solve_impurity_ed
 
+"""
+    solve_impurity_ed(
+        Δ::Greensfunction{<:T,<:AbstractVector{<:T}}, H_int::Operator, ϵ_imp::T
+    ) where {T<:Real}
+
+Solve AIM in exact diagonalization.
+"""
 function solve_impurity_ed(
     Δ::Greensfunction{<:T,<:AbstractVector{<:T}}, H_int::Operator, ϵ_imp::T
 ) where {T<:Real}
@@ -54,4 +61,5 @@ function solve_impurity_ed(
     # impurity GF
     return Greensfunction([a_minus; a_plus], [b_minus; b_plus])
 end
+
 end
