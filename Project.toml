@@ -1,7 +1,7 @@
 name = "DMFT"
 uuid = "a6c836f4-75b2-4167-a711-17703ee59b5f"
 authors = ["Frank Ebel <frank.ebel@student.tuwien.ac.at> and contributors"]
-version = "0.0.1"
+version = "0.1.0"
 
 [deps]
 BlockBandedMatrices = "ffab5731-97b5-5995-9138-79e8c1846df0"
