@@ -67,7 +67,7 @@ end
 
 # evaluate at point `z`
 
-function (G::Greensfunction{<:Real,<:AbstractVector{<:Number}})(z::Complex)
+function (G::Greensfunction{<:Any,<:AbstractVector})(z::Complex)
     result = zero(z)
     for i in eachindex(G.a)
         result += abs2(G.b[i]) / (z - G.a[i])
@@ -79,7 +79,7 @@ end
 # Then $G_i(z) = v_i^† (z - a_i)^{-1} v_i$ which is a matrix.
 # or interpret each column in `b` as a column vector $v_i = [b_1i, b_2i …]$.
 # Then $G_i(z) = v_i (z - a_i)^{-1} v_i^†$.
-function (G::Greensfunction{<:Real,<:AbstractMatrix{<:Number}})(z::Complex)
+function (G::Greensfunction{<:Any,<:AbstractMatrix})(z::Complex)
     d = size(G.b, 1)
     res = zeros(ComplexF64, d, d)
     for m in axes(G.b, 2), i in axes(G.b, 1), j in axes(G.b, 1)

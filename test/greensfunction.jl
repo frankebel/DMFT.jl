@@ -44,21 +44,14 @@ using Test
     end # constructor
 
     @testset "evaluate" begin
-        @testset "single point" begin
+        @testset "Lorentzian" begin
+            # single point
             z = rand(ComplexF64)
-
-            # single pole
-            a = rand(1)
-            b = rand(1)
-            G = Greensfunction(a, b)
-            @test G(z) === abs2(only(b)) / (z - only(a))
-
-            # multiple poles
-            a = sort(rand(10))
+            # b::Vector
+            a = sort!(rand(10))
             b = rand(10)
             G = Greensfunction(a, b)
             @test G(z) === sum(map((i, j) -> abs2(j) / (z - i), a, b))
-
             # b::Matrix
             b = rand(2, 10)
             G = Greensfunction(a, b)
@@ -68,24 +61,15 @@ using Test
                 foo += v * v' ./ (z - a[i])
             end
             @test foo == G(z)
-        end # single point
 
-        @testset "multiple points" begin
+            # grid
             z = rand(ComplexF64, 2)
-
-            # single pole
-            a = rand(1)
-            b = rand(1)
-            G = Greensfunction(a, b)
-            @test G(z) ==
-                [abs2(only(b)) / (z[1] - only(a)), abs2(only(b)) / (z[2] - only(a))]
-
             # multiple poles
-            a = sort(rand(10))
+            a = sort!(rand(10))
             b = rand(10)
             G = Greensfunction(a, b)
             @test G(z) == [G(z[1]), G(z[2])]
-        end # multiple points
+        end # Lorentzian
     end # evaluate
 
     @testset "IO" begin
