@@ -10,6 +10,7 @@ Fermions = "5323e9fa-b7db-5fd3-973f-d33ddadd0ada"
 HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
 [compat]
 Aqua = "0.8"
@@ -20,6 +21,7 @@ HDF5 = "0.17"
 LinearAlgebra = "1.10"
 Logging = "1.10"
 SparseArrays = "1.10"
+SpecialFunctions = "2.4.0"
 Test = "1.10"
 julia = "1.10"
 

@@ -8,6 +8,7 @@ using Fermions.Lanczos
 using Fermions.Wavefunctions
 using HDF5
 using LinearAlgebra
+using SpecialFunctions
 
 export
     # Types

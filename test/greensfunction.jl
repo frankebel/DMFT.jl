@@ -1,4 +1,5 @@
 using DMFT
+using Distributions
 using LinearAlgebra
 using Test
 
@@ -70,6 +71,50 @@ using Test
             G = Greensfunction(a, b)
             @test G(z) == [G(z[1]), G(z[2])]
         end # Lorentzian
+
+        @testset "Gaussian" begin
+            ω = 0.5
+            σ = 0.04
+            # b::Matrix
+            a = sort!(rand(2))
+            b = rand(2, 2)
+            G = Greensfunction(a, b)
+            w1 =
+                abs2(b[1, 1]) * pdf(Normal(a[1], σ), ω) +
+                abs2(b[1, 2]) * pdf(Normal(a[2], σ), ω)
+            w2 =
+                b[1, 1] * b[2, 1] * pdf(Normal(a[1], σ), ω) +
+                b[1, 2] * b[2, 2] * pdf(Normal(a[2], σ), ω)
+            w3 = w2 # symmetry
+            w4 =
+                abs2(b[2, 1]) * pdf(Normal(a[1], σ), ω) +
+                abs2(b[2, 2]) * pdf(Normal(a[2], σ), ω)
+            @test imag(G(ω, σ)) == -π * [w1 w2; w3 w4]
+
+            # semicircular DOS
+            Δ = get_hyb(301)
+            ω = collect(-3:0.01:3)
+            σ = 0.04
+            # constant broadening
+            h = Δ(ω, σ)
+            ex = π .* pdf.(Semicircle(2), ω) # exact solution
+            @test norm(ex + imag(h)) < 0.2
+            @test maximum(abs.(ex + imag(h))) < 0.1
+            @test findmin(imag(h))[2] == cld(length(ω), 2) # symmetric
+            # variable broadening
+            hv = Δ(ω, fill(σ, length(ω)))
+            @test h == hv
+            foo = map(i -> abs(i) < 2.0 ? 0.04 : 0.08, ω)
+            hv = Δ(ω, foo)
+            @test h != hv
+            @test imag(h) >= imag(hv) # bigger broadening → pdf closer to zero
+            @test_throws ArgumentError Δ(ω, [σ])
+            # b::Matrix
+            a = sort!(rand(2))
+            b = rand(2, 2)
+            G = Greensfunction(a, b)
+            @test @inferred(G(ω, fill(σ, length(ω)))) isa Vector{Matrix{ComplexF64}}
+        end # Gaussian
     end # evaluate
 
     @testset "IO" begin

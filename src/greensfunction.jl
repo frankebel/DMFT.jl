@@ -65,7 +65,7 @@ function Greensfunction(
     return Greensfunction(poles, R)
 end
 
-# evaluate at point `z`
+# evaluate with Lorentzian broadening at complex value `z`
 
 function (G::Greensfunction{<:Any,<:AbstractVector})(z::Complex)
     result = zero(z)
@@ -89,6 +89,58 @@ function (G::Greensfunction{<:Any,<:AbstractMatrix})(z::Complex)
 end
 
 (G::Greensfunction)(Z::AbstractVector{<:Complex}) = map(G, Z)
+
+# evaluate with Gaussian broadening `σ`
+
+function (G::Greensfunction{<:Any,<:AbstractVector})(ω::R, σ::R) where {R<:Real}
+    real = zero(R)
+    imag = zero(R)
+    for i in eachindex(G.a)
+        real += abs2(G.b[i]) * sqrt(2) / (π * σ) * dawson((ω - G.a[i]) / (sqrt(2) * σ))
+        imag += abs2(G.b[i]) * pdf(Normal(G.a[i], σ), ω)
+    end
+    result = real - im * imag
+    return π .* result # not spectral function
+end
+
+function (G::Greensfunction{<:Any,<:AbstractMatrix})(ω::R, σ::R) where {R<:Real}
+    d = size(G.b, 1)
+    real = zeros(R, d, d)
+    imag = zeros(R, d, d)
+    for m in eachindex(G.a), i in axes(G.b, 1), j in axes(G.b, 1)
+        real[i, j] +=
+            G.b[i, m] * conj(G.b[j, m]) * sqrt(2) / (π * σ) *
+            dawson((ω - G.a[m]) / (sqrt(2) * σ))
+        imag[i, j] += G.b[i, m] * conj(G.b[j, m]) * pdf(Normal(G.a[m], σ), ω)
+    end
+    result = real - im * imag
+    return π .* result # not spectral function
+end
+
+(G::Greensfunction)(ω::AbstractVector{<:R}, σ::R) where {R<:Real} = map(w -> G(w, σ), ω)
+
+# variable broadening
+function (G::Greensfunction{<:Any,<:AbstractVector})(
+    ω::AbstractVector{<:R}, σ::AbstractVector{<:R}
+) where {R<:Real}
+    length(ω) == length(σ) || throw(ArgumentError("length mismatch"))
+    result = similar(ω, Complex{R})
+    for i in eachindex(ω)
+        result[i] = G(ω[i], σ[i])
+    end
+    return result
+end
+
+function (G::Greensfunction{<:Any,<:AbstractMatrix})(
+    ω::AbstractVector{<:R}, σ::AbstractVector{<:R}
+) where {R<:Real}
+    length(ω) == length(σ) || throw(ArgumentError("length mismatch"))
+    result = similar(ω, Matrix{Complex{R}})
+    for i in eachindex(ω)
+        result[i] = G(ω[i], σ[i])
+    end
+    return result
+end
 
 # write to a filepath, overwriting contents
 function Base.write(
