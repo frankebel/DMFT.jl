@@ -55,6 +55,31 @@ function dmft_step(
     return G_plus, G_minus, Δ_new, Δ_grid
 end
 
+function dmft_step_gauss(
+    Δ0::Greensfunction{<:T,<:AbstractVector{<:T}},
+    Δ::Greensfunction{<:T,<:AbstractVector{<:T}},
+    H_int::Op,
+    μ::T,
+    ϵ_imp::T,
+    ω::AbstractVector{<:T},
+    n_v_bit::Int,
+    n_c_bit::Int,
+    e::Int,
+    O::AbstractVector{<:Op},
+    n_kryl::Int,
+    n_kryl_gs::Int,
+    n_dis::Int,
+    σ::T,
+) where {T<:Real,Op<:Operator}
+    G_plus, G_minus, Σ_H = solve_impurity(
+        Δ, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs, n_kryl, O
+    )
+    Σ = self_energy_improved_gauss(G_plus, G_minus, ω, σ, Σ_H)
+    Δ_grid = update_weiss_field(Δ0, μ, ω, Σ)
+    Δ_new = equal_weight_discretization(-imag(Δ_grid), real(ω), σ, n_dis)
+    return G_plus, G_minus, Δ_new, Δ_grid
+end
+
 """
     self_energy(
         G_plus::GF, G_minus::GF, Z::AbstractVector{<:Complex}
@@ -92,18 +117,41 @@ function self_energy_improved(
 end
 
 """
+    self_energy_improved_gauss(
+        G_plus::GF, G_minus::GF, Z::AbstractVector{<:Complex}, Σ_H::Real
+    ) where {GF<:Greensfunction{<:Real,<:AbstractMatrix{<:Number}}}
+
+Calculate self-energy as ``Σ(Z) = Σ^H + I(Z) - F^L(Z) G^{-1}(Z) F^R(Z)``
+with Gaussian broadening.
+
+Real part is obtained by Kramers-Kronig relation.
+"""
+function self_energy_improved_gauss(
+    G_plus::GF, G_minus::GF, ω::AbstractVector{<:Real}, σ::Real, Σ_H::Real
+) where {GF<:Greensfunction{<:Real,<:AbstractMatrix{<:Number}}}
+    # get imaginary part
+    gp = G_plus(ω, σ)
+    gm = G_minus(ω, σ)
+    G = map(g -> g[1, 1], gm) .+ map(g -> g[1, 1], gp)
+    F_R = map(g -> g[1, 2], gm) .+ map(g -> g[2, 1], gp)
+    F_L = map(g -> g[1, 2], gm) .+ map(g -> g[2, 1], gp)
+    I = map(g -> g[2, 2], gm) .+ map(g -> g[2, 2], gp)
+    return Σ_H .+ I - F_L ./ G .* F_R
+end
+
+"""
     update_weiss_field(
         Δ0::Greensfunction,
         μ::Real,
-        Z::AbstractVector{<:Complex},
+        Z::AbstractVector{<:Number},
         Σ::AbstractVector{<:Complex},
     )
 
 Calculate the new Weiss field from the lattice hybridization `Δ0` and
-the impurity self energy `Σ` on grid `Z` (with small imaginary part).
+the impurity self energy `Σ` on grid `Z`.
 """
 update_weiss_field(
-    Δ0::Greensfunction, μ::Real, Z::AbstractVector{<:Complex}, Σ::AbstractVector{<:Complex}
+    Δ0::Greensfunction, μ::Real, Z::AbstractVector{<:Number}, Σ::AbstractVector{<:Complex}
 ) = Δ0(Z .+ μ - Σ)
 
 """

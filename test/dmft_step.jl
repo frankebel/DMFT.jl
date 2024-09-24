@@ -35,8 +35,7 @@ using Test
     )
     @test typeof(Δ_new) === Greensfunction{Float64,Vector{Float64}}
     @test typeof(Δ_grid) === Vector{ComplexF64}
-    @test length(Δ_new.a) == n_bath
-    @test length(Δ_new.b) == n_bath
+    @test length(Δ_new.a) === n_bath
     @test all(b -> isapprox(b, 1 / sqrt(n_bath); rtol=3E-3), Δ_new.b)
     # small weight loss due to truncated interval
     @test 0.99 <= sum(abs2.(Δ_new.b)) <= 1.0
@@ -49,23 +48,40 @@ using Test
     )
     @test typeof(Δ_new2) === Greensfunction{Float64,Vector{Float64}}
     @test typeof(Δ_grid2) === Vector{ComplexF64}
-    @test length(Δ_new2.a) == n_bath
-    @test length(Δ_new2.b) == n_bath
+    @test length(Δ_new2.a) === n_bath
     @test all(b -> isapprox(b, 1 / sqrt(n_bath); rtol=3E-3), Δ_new2.b)
     # small weight loss due to truncated interval
     @test 0.99 <= sum(abs2.(Δ_new2.b)) <= 1.0
     # PHS
     @test abs(sum(abs2.(Δ_new2.b) .* Δ_new2.a)) < 200 * eps()
 
+    # Gaussian broadening
+    G_plus3, G_minus3, Δ_new3, Δ_grid3 = dmft_step_gauss(
+        Δ0, Δ0, H_int, μ, -μ, w, n_v_bit, n_c_bit, e, O, n_kryl, n_kryl_gs, n_bath, η
+    )
+    @test typeof(Δ_new3) === Greensfunction{Float64,Vector{Float64}}
+    @test typeof(Δ_grid3) === Vector{ComplexF64}
+    @test length(Δ_new3.a) === n_bath
+    @test all(b -> isapprox(b, 1 / sqrt(n_bath); rtol=3E-3), Δ_new3.b)
+    # small weight loss due to truncated interval
+    @test 0.99999 <= sum(abs2.(Δ_new3.b)) <= 1.0
+    # PHS
+    @test abs(sum(abs2.(Δ_new3.b) .* Δ_new3.a)) < 200 * eps()
+
     # test equality
     @test G_plus.a == G_plus2.a
     @test G_plus.a == G_plus2.a
+    @test G_plus.a == G_plus3.a
     @test G_minus.b == G_minus2.b
     @test G_minus.b == G_minus2.b
+    @test G_minus.b == G_minus3.b
     # they are not the same
     @test Δ_new.a != Δ_new2.a
+    @test Δ_new.a != Δ_new3.a
     @test Δ_new.b != Δ_new2.b
+    @test Δ_new.b != Δ_new3.b
     @test Δ_grid != Δ_grid2
+    @test Δ_grid != Δ_grid3
 
     # Discretization for Gaussian returned wrong number of poles.
     w = collect(-10:0.0002:10)
