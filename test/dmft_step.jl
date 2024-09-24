@@ -66,4 +66,16 @@ using Test
     @test Δ_new.a != Δ_new2.a
     @test Δ_new.b != Δ_new2.b
     @test Δ_grid != Δ_grid2
+
+    # Discretization for Gaussian returned wrong number of poles.
+    w = collect(-10:0.0002:10)
+    g = similar(w)
+    @. g = exp(-w^2)
+    wrong_length = 0
+    for i in 3:2:1001
+        # test different number of poles
+        dis = equal_weight_discretization(g, w, 0.04, i)
+        length(dis.a) == i || (wrong_length += 1)
+    end
+    @test wrong_length == 0
 end # DMFT step
