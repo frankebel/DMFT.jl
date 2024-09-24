@@ -137,9 +137,9 @@ function equal_weight_discretization(
         v0 += imΔ[M + i] * dw + imΔ[M - i] * dw
         i += 1
     end
-    # calculate total remainung weight for positive freqeuncies:
+    # calculate total remaining weight for positive freqeuncies:
     wght_right = sum(imΔ[(M + i):end]) * dw
-    # calculate total remainung weight for negative freqeuncies:
+    # calculate total remaining weight for negative freqeuncies:
     wght_left = sum(imΔ[1:(M - i)]) * dw
     j = i # remember i for later
 
@@ -164,14 +164,13 @@ function equal_weight_discretization(
             push!(P_plus, pp / v)
             vp = δv
             pp = w[M + i - 1] * δv
-        elseif vp > 0
+        elseif vp > 10 * eps()
+            # no overshoot, but still some weight
             partial += vp
             push!(V_plus, sqrt(vp / π))
             push!(P_plus, pp / vp)
             vp = 0.0
             pp = 0.0
-        else
-            @error "eql_wght_discrt: pole without weight at M+i = $((M+i,N))"
         end
     end
 
@@ -196,14 +195,14 @@ function equal_weight_discretization(
             push!(P_minus, pm / v)
             vm = δv
             pm = w[M - j + 1] * δv
-        elseif vm > 0
+        elseif vm > 10 * eps()
+            @show vm
+            # no overshoot, but still some weight
             partial += vm
             push!(V_minus, sqrt(vm / π))
             push!(P_minus, pm / vm)
             vm = 0.0
             pm = 0.0
-        else
-            @error "eql_wght_discrt: pole without weight at M-j = $(M-j)"
         end
     end
     a = [reverse!(P_minus); 0; P_plus]
