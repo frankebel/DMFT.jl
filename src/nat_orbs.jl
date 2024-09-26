@@ -236,6 +236,11 @@ function natural_orbital_ci_operator(
     n_c_bit::Int=1,
     excitation::Int=1,
 ) where {T<:Real}
+    # Check if function for zero chain length should be used.
+    n_v_bit === n_c_bit === 0 && return _natural_orbital_ci_operator_zero(
+        H_nat, H_int, ϵ_imp, fock_space, n_occ, excitation
+    )
+    # check input
     ishermitian(H_nat) || throw(ArgumentError("H_nat not hermitian"))
     nflavours(fock_space) >= 2 + n_v_bit + n_c_bit ||
         throw(ArgumentError("fock_space too small"))
@@ -308,7 +313,7 @@ function natural_orbital_ci_operator(
     foo = diag(H_nat)
     esite = [foo[(2 + n_v_bit):n_occ]; foo[(n_occ + n_c_bit + 2):end]]
     foo = diag(H_nat, 1)
-    ehop = [foo[(2 + n_v_bit):(n_occ)]; foo[(n_occ + n_c_bit + 2):end]]
+    ehop = [foo[(2 + n_v_bit):n_occ]; foo[(n_occ + n_c_bit + 2):end]]
 
     # Create MixedOperator
     # (i, j, amp)
@@ -317,6 +322,58 @@ function natural_orbital_ci_operator(
         (2 + n_v_bit, 1, foo[1 + n_v_bit]),
         # conduction bath site
         (2 + n_v_bit + n_c_bit, n_v_vector + 1, foo[n_occ + n_c_bit + 1]),
+    )
+
+    return CIOperator(H_bit, mixed, esite, ehop, n_bit, n_v_vector, n_c_vector, excitation)
+end
+
+# Same as `natural_orbital_operator` but with `n_v_bit === n_c_bit === 0`.
+function _natural_orbital_ci_operator_zero(
+    H_nat::Matrix{T},
+    H_int::Operator,
+    ϵ_imp::T,
+    fock_space::FockSpace,
+    n_occ::Int,
+    excitation::Int=1,
+) where {T<:Real}
+    ishermitian(H_nat) || throw(ArgumentError("H_nat not hermitian"))
+    nflavours(fock_space) >= 2 || throw(ArgumentError("fock_space too small"))
+    excitation >= 0 || throw(ArgumentError("negative excitation"))
+    n = size(H_nat, 1)
+    n_emp = n - n_occ
+    n_bit = 2
+    n_v = n_occ - 1
+    n_c = n_emp - 1
+    c = annihilators(fock_space)
+
+    # Create Bitoperator H_bit.
+    H_bit = H_int
+    # impurity i
+    H_bit += ϵ_imp * c[1, -1//2]' * c[1, -1//2]
+    H_bit += ϵ_imp * c[1, 1//2]' * c[1, 1//2]
+    for σ in axes(c, 2)
+        # mirror bath site b
+        H_bit += H_nat[n_occ + 1, n_occ + 1] * c[2, σ]' * c[2, σ]
+        # hopping i <-> b
+        H_bit += H_nat[1, n_occ + 1] * c[1, σ]' * c[2, σ]
+        H_bit += H_nat[1, n_occ + 1] * c[2, σ]' * c[1, σ]
+    end
+
+    # Create VectorOperator
+    n_v_vector = n_v
+    n_c_vector = n_c
+    foo = diag(H_nat)
+    esite = [foo[2:n_occ]; foo[(n_occ + 2):end]]
+    foo = diag(H_nat, 1)
+    ehop = [foo[2:n_occ]; foo[(n_occ + 2):end]]
+
+    # Create MixedOperator
+    # (i, j, amp)
+    mixed = (
+        (1, 1, H_nat[1, 2]), # i <-> v1
+        (2, 1, H_nat[n_occ + 1, 2]), # b <-> v1
+        (1, n_v_vector + 1, H_nat[1, n_occ + 2]), # i <-> c1
+        (2, n_v_vector + 1, H_nat[n_occ + 1, n_occ + 2]), # b <-> c1
     )
 
     return CIOperator(H_bit, mixed, esite, ehop, n_bit, n_v_vector, n_c_vector, excitation)

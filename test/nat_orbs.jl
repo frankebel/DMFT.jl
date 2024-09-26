@@ -197,6 +197,7 @@ using Test
         end # Operator
 
         @testset "CIOperator" begin
+            # some sites of each chain in bit component
             fs = FockSpace(Orbitals(4), FermionicSpin(1//2))
             n = occupations(fs)
             H_int = U * n[1, -1//2] * n[1, 1//2]
@@ -323,19 +324,114 @@ using Test
             @test H1.excitation == 2
 
             # more sites in bit component
-            U = 4.0
-            μ = U / 2
+            U1 = 4.0
+            μ1 = U1 / 2
             fs = FockSpace(Orbitals(6), FermionicSpin(1//2))
             n = occupations(fs)
-            H_int = U * n[1, -1//2] * n[1, 1//2]
+            H_int = U1 * n[1, -1//2] * n[1, 1//2]
             Δ = get_hyb(11)
-            H_nat, n_occ = to_natural_orbitals(Array(Δ))
-            H = natural_orbital_ci_operator(H_nat, H_int, -μ, fs, n_occ, 2, 2, 2)
+            H_nat, n_occ1 = to_natural_orbitals(Array(Δ))
+            H = natural_orbital_ci_operator(H_nat, H_int, -μ1, fs, n_occ1, 2, 2, 2)
             @test length(H.opbit.terms) == 1 + 2 * 6 + 4 * 7
             @test length(H.opmix) == 8
             @test H.zero isa Float64
             @test size(H.one) == (2 * 6, 2 * 6)
             @test size(H.two) == (binomial(2 * 6, 2), binomial(2 * 6, 2))
+
+            # no site of each chain in bit component
+            # natural_orbital_ci_operator_zero
+            fs = FockSpace(Orbitals(4), FermionicSpin(1//2)) # too many Orbitals on purpose
+            n = occupations(fs)
+            H_int = U * n[1, -1//2] * n[1, 1//2]
+            H1 = DMFT._natural_orbital_ci_operator_zero(H_nat1, H_int, -μ, fs, n_occ, 2)
+            H2 = DMFT._natural_orbital_ci_operator_zero(H_nat2, H_int, -μ, fs, n_occ, 2)
+            @test typeof(H1) == typeof(H2)
+            @test H1 == H2
+
+            c = annihilators(fs)
+            n = occupations(fs)
+            H_bit =
+            # impurity
+                U * n[1, 1//2] * n[1, -1//2] +
+                -38 * n[1, -1//2] +
+                -38 * n[1, 1//2] +
+                # mirror site
+                22 * n[2, -1//2] +
+                22 * n[2, 1//2] +
+                # hopping i <-> b
+                4 * c[1, -1//2]' * c[2, -1//2] +
+                4 * c[2, -1//2]' * c[1, -1//2] +
+                4 * c[1, 1//2]' * c[2, 1//2] +
+                4 * c[2, 1//2]' * c[1, 1//2]
+            H_mix = [
+                # i <-> v1
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[1, -1//2]'.terms), 0x0000000000000002, 1, false, 2
+                ),
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[1, -1//2].terms), 0x0000000000000002, 1, true, 2
+                ),
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[1, 1//2]'.terms), 0x0000000000000008, 5, false, 2
+                ),
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[1, 1//2].terms), 0x0000000000000008, 5, true, 2
+                ),
+                # b <-> v1
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[2, -1//2]'.terms), 0x0000000000000000, 1, false, 10
+                ),
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[2, -1//2].terms), 0x0000000000000000, 1, true, 10
+                ),
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[2, 1//2]'.terms), 0x0000000000000000, 5, false, 10
+                ),
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[2, 1//2].terms), 0x0000000000000000, 5, true, 10
+                ),
+                # i <-> c1
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[1, -1//2]'.terms), 0x0000000000000002, 3, true, 5
+                ),
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[1, -1//2].terms), 0x0000000000000002, 3, false, 5
+                ),
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[1, 1//2]'.terms), 0x0000000000000008, 7, true, 5
+                ),
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[1, 1//2].terms), 0x0000000000000008, 7, false, 5
+                ),
+                # b <-> c1
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[2, -1//2]'.terms), 0x0000000000000000, 3, true, 23
+                ),
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[2, -1//2].terms), 0x0000000000000000, 3, false, 23
+                ),
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[2, 1//2]'.terms), 0x0000000000000000, 7, true, 23
+                ),
+                Fermions.Wavefunctions.CIOperatorMixed(
+                    only(c[2, 1//2].terms), 0x0000000000000000, 7, false, 23
+                ),
+            ]
+            zero = 2 * (8 + 15)
+            a = repeat([-8, -15, 29, 36], 2) .+ zero
+            b = [9, 0, 30, 0, 9, 0, 30]
+            one = SymTridiagonal(a, b)
+
+            @test H1.opbit == H_bit
+            @test H1.opmix == H_mix
+            @test H1.zero === zero
+            @test H1.one == one
+            @test typeof(H1.two) === SparseMatrixCSC{Int,Int}
+            @test size(H1.two) == (binomial(2 * 4, 2), binomial(2 * 4, 2))
+            @test H1.nbit === 2
+            @test H1.nfilled === 2
+            @test H1.nempty === 2
+            @test H1.excitation === 2
         end # CIOperator
     end # operator
 
