@@ -1,4 +1,5 @@
 using DMFT
+using Distributions
 using Fermions
 using Fermions.Lanczos
 using Fermions.Wavefunctions
@@ -246,4 +247,25 @@ using Test
         η2 = η_gaussian(η_0, η_∞, 0.5, w)
         @test all(η2 .>= η1)
     end # η_gaussian
+
+    @testset "Bethe lattice Green's function" begin
+        # real frequencies
+        ω = collect(-10:0.002:10)
+        g = G_bethe(ω)
+        @test norm(-imag(g) / π - pdf.(Semicircle(2.0), ω)) < 10 * eps()
+        @test norm(real(g) + reverse(real(g))) < 10 * eps()
+        # D = 1.0
+        g = G_bethe(ω, 1.0)
+        @test norm(-imag(g) / π - pdf.(Semicircle(1.0), ω)) < 10 * eps()
+
+        # complex frequencies
+        @test_throws ArgumentError G_bethe(ω .- 0.04im) # negative imaginary part
+        g = G_bethe(ω .+ 0.04im)
+        # (anti)symmetric
+        @test norm(real(g) + reverse(real(g))) == 0
+        @test norm(imag(g) - reverse(imag(g))) == 0
+        # ω = 0.0 is finickey
+        @test argmax(-imag(g)) === 5001
+        @test real(g[5001]) === 0.0
+    end # Bethe lattice Green's function
 end # util

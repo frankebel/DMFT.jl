@@ -15,6 +15,7 @@ export
     Greensfunction,
 
     # Functions
+    G_bethe,
     block_lanczos,
     dmft_step,
     equal_weight_discretization,

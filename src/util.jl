@@ -277,3 +277,41 @@ evaluated on a grid `ω`.
 function η_gaussian(η_0::R, η_∞::R, σ::R, ω::AbstractVector{<:R}) where {R<:Real}
     return map(i -> η_∞ .+ (η_0 - η_∞) .* exp.(-i^2 / (2 * σ^2)), ω)
 end
+
+_sign1(x::Real) = x >= zero(x) ? one(x) : -one(x)
+
+"""
+    G_bethe(z::AbstractVector{<:Number}, D::Real=2.0)
+
+Calculate Bethe lattice Green's function for frequencies `z`, half-bandwidth `D`,
+and fermi-energy `ϵ_0`:
+
+```math
+G(z) = \\frac{2}{D^2} (z - \\sqrt{z^2 - D^2}.
+```
+
+The sign of the real and imagiary parts of ``\\{\\sqrt{z^2 - D^2}\\}``
+are corrected accordingly.
+"""
+function G_bethe(z::AbstractVector{<:Complex}, D::Real=2.0)
+    result = similar(z, ComplexF64)
+    for i in eachindex(z)
+        imag(z[i]) >= 0 || throw(ArgumentError("negative imaginary part"))
+        foo = sqrt(z[i]^2 - D^2)
+        # correct sign
+        foo *= _sign1(real(z[i]))
+        result[i] = 2 / D^2 * (z[i] - foo)
+    end
+    return result
+end
+
+function G_bethe(ω::AbstractVector{<:Real}, D::Real=2.0)
+    result = similar(ω, ComplexF64)
+    for i in eachindex(ω)
+        foo = sqrt(complex(ω[i]^2 - D^2))
+        # correct sign (only real part)
+        bar = sign(ω[i]) * real(foo) + im * imag(foo)
+        result[i] = 2 / D^2 * (ω[i] - bar)
+    end
+    return result
+end
