@@ -33,6 +33,7 @@ export
     natural_orbital_operator,
     orgtr!,
     orthogonalize_states,
+    read_matrix,
     read_vector,
     realKK,
     self_energy,
@@ -45,6 +46,7 @@ export
     sytrd!,
     to_natural_orbitals,
     update_weiss_field,
+    write_matrix,
     write_vector,
     η_gaussian
 

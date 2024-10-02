@@ -252,6 +252,18 @@ function write_vector(s::AbstractString, V::AbstractVector{<:Number})
 end
 
 """
+    write_matrix(s::AbstractString, M::AbstractMatrix{<:Number})
+
+Write `M` to the given filepath `s`.
+"""
+function write_matrix(s::AbstractString, M::AbstractMatrix{<:Number})
+    h5open(s, "w") do fid
+        fid["M"] = M
+    end
+    return nothing
+end
+
+"""
     read_vector(::Type{T}, s::AbstractString) where {T<:Number}
 
 Read `Vector{T}` from filepath `s`.
@@ -260,6 +272,18 @@ function read_vector(::Type{T}, s::AbstractString) where {T<:Number}
     h5open(s, "r") do fid
         V::Vector{T} = read(fid, "V")
         return V
+    end
+end
+
+"""
+    read_matrix(::Type{T}, s::AbstractString) where {T<:Number}
+
+Read `Matrix{T}` from filepath `s`.
+"""
+function read_matrix(::Type{T}, s::AbstractString) where {T<:Number}
+    h5open(s, "r") do fid
+        M::Matrix{T} = read(fid, "M")
+        return M
     end
 end
 

@@ -233,6 +233,15 @@ using Test
         rm("test.h5")
     end # vector IO
 
+    @testset "matrix IO" begin
+        m = rand(10, 10)
+        @test write_matrix("test.h5", m) === nothing
+        foo = read_matrix(Float64, "test.h5")
+        @test typeof(foo) === Matrix{Float64}
+        @test foo == m
+        rm("test.h5")
+    end # matrix IO
+
     @testset "η_gaussian" begin
         η_0 = 0.01
         η_∞ = 0.04
