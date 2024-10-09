@@ -118,7 +118,7 @@ end
 
 """
     self_energy_improved_gauss(
-        G_plus::GF, G_minus::GF, Z::AbstractVector{<:Complex}, Σ_H::Real
+        G_plus::GF, G_minus::GF, ω::AbstractVector{<:Real}, σ::Real, Σ_H::Real
     ) where {GF<:Greensfunction{<:Real,<:AbstractMatrix{<:Number}}}
 
 Calculate self-energy as ``Σ(Z) = Σ^H + I(Z) - F^L(Z) G^{-1}(Z) F^R(Z)``
