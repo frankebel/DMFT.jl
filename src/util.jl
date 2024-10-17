@@ -32,7 +32,9 @@ function mul_excitation(
 end
 
 # Return all keys not present in other Wavefunction
-function diffkeys(ϕ1::Wavefunction{T}, ϕ2::Wavefunction{T}) where {T}
+function diffkeys(
+    ϕ1::Wavefunction{<:Any,<:Any,T}, ϕ2::Wavefunction{<:Any,<:Any,T}
+) where {T}
     length(ϕ1) >= length(ϕ2)
     result = keytype(T)[]
     for k in keys(ϕ1)
@@ -128,12 +130,12 @@ end
 Get approximate ground state and energy using `n_kryl` Krylov cycles.
 """
 function ground_state(H::Operator, ψ_start::Wavefunction, n_kryl::Int)
-    ψ0, E0 = Fermions.ground_state(H, ψ_start; n_kryl=n_kryl, precision=5E-8, verbose=false)
+    ψ0, E0 = Fermions.ground_state(H, ψ_start; n_kryl=n_kryl, rtol=5E-8, verbose=false)
     return E0, ψ0
 end
 
 function ground_state(H::CIOperator, ψ_start::CIWavefunction, n_kryl::Int)
-    α, β, states = lanczos_with_states(H, ψ_start, n_kryl)
+    α, β, states = lanczos_krylov(H, ψ_start, n_kryl)
     E, T = LAPACK.stev!('V', α, β)
     E0 = E[1]
     ψ0 = zero(ψ_start)
