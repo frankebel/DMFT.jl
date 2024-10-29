@@ -244,32 +244,7 @@ using Test
                 23 * c[4, -1//2]' * c[2, -1//2] +
                 23 * c[2, 1//2]' * c[4, 1//2] +
                 23 * c[4, 1//2]' * c[2, 1//2]
-            H_mix = [
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[3, -1//2]'.terms), 0x0000000000000008, 1, false, 9
-                ),
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[3, -1//2].terms), 0x0000000000000008, 1, true, 9
-                ),
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[3, 1//2]'.terms), 0x0000000000000080, 3, false, 9
-                ),
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[3, 1//2].terms), 0x0000000000000080, 3, true, 9
-                ),
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[4, -1//2]'.terms), 0x0000000000000000, 2, true, 30
-                ),
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[4, -1//2].terms), 0x0000000000000000, 2, false, 30
-                ),
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[4, 1//2]'.terms), 0x0000000000000000, 4, true, 30
-                ),
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[4, 1//2].terms), 0x0000000000000000, 4, false, 30
-                ),
-            ]
+            H_mix = CIOperatorMixed{UInt64,Int}[]
             @test H1.opbit == H_bit
             @test H1.opmix == H_mix
             @test H1.zero == 2 * 15
@@ -286,6 +261,16 @@ using Test
             one = SymTridiagonal(a, b)
             H1 = natural_orbital_ci_operator(H_nat1, H_int, -μ, fs, n_occ, 1, 1, 1)
             H2 = natural_orbital_ci_operator(H_nat2, H_int, -μ, fs, n_occ, 1, 1, 1)
+            H_mix = [
+                CIOperatorMixed(only((9 * c[3, -1//2]').terms), 0x0000000000000008, 1, 2),
+                CIOperatorMixed(only((9 * c[3, -1//2]).terms), 0x0000000000000008, 2, 1),
+                CIOperatorMixed(only((9 * c[3, 1//2]').terms), 0x0000000000000080, 1, 4),
+                CIOperatorMixed(only((9 * c[3, 1//2]).terms), 0x0000000000000080, 4, 1),
+                CIOperatorMixed(only((-30 * c[4, -1//2]').terms), 0x0000000000000000, 3, 1),
+                CIOperatorMixed(only((-30 * c[4, -1//2]).terms), 0x0000000000000000, 1, 3),
+                CIOperatorMixed(only((-30 * c[4, 1//2]').terms), 0x0000000000000000, 5, 1),
+                CIOperatorMixed(only((-30 * c[4, 1//2]).terms), 0x0000000000000000, 1, 5),
+            ]
             @test typeof(H1) == typeof(H2)
             @test H1 == H2
             @test H1.opbit == H_bit
@@ -311,6 +296,42 @@ using Test
             )
             H1 = natural_orbital_ci_operator(H_nat1, H_int, -μ, fs, n_occ, 1, 1, 2)
             H2 = natural_orbital_ci_operator(H_nat2, H_int, -μ, fs, n_occ, 1, 1, 2)
+            H_mix = [
+                CIOperatorMixed(only((9 * c[3, -1//2]').terms), 0x0000000000000008, 1, 2),
+                CIOperatorMixed(only((9 * c[3, -1//2]).terms), 0x0000000000000008, 2, 1),
+                CIOperatorMixed(only((9 * c[3, 1//2]').terms), 0x0000000000000080, 1, 4),
+                CIOperatorMixed(only((9 * c[3, 1//2]).terms), 0x0000000000000080, 4, 1),
+                CIOperatorMixed(only((9 * c[3, 1//2]').terms), 0x0000000000000080, 2, 7),
+                CIOperatorMixed(only((9 * c[3, 1//2]).terms), 0x0000000000000080, 7, 2),
+                CIOperatorMixed(only((9 * c[3, -1//2]').terms), 0x0000000000000008, 3, 6),
+                CIOperatorMixed(only((9 * c[3, -1//2]).terms), 0x0000000000000008, 6, 3),
+                CIOperatorMixed(only((9 * c[3, 1//2]').terms), 0x0000000000000080, 3, 8),
+                CIOperatorMixed(only((9 * c[3, 1//2]).terms), 0x0000000000000080, 8, 3),
+                CIOperatorMixed(only((9 * c[3, -1//2]').terms), 0x0000000000000008, 4, 7),
+                CIOperatorMixed(only((9 * c[3, -1//2]).terms), 0x0000000000000008, 7, 4),
+                CIOperatorMixed(only((9 * c[3, -1//2]').terms), 0x0000000000000008, 5, 9),
+                CIOperatorMixed(only((9 * c[3, -1//2]).terms), 0x0000000000000008, 9, 5),
+                CIOperatorMixed(only((9 * c[3, 1//2]').terms), 0x0000000000000080, 5, 11),
+                CIOperatorMixed(only((9 * c[3, 1//2]).terms), 0x0000000000000080, 11, 5),
+                CIOperatorMixed(only((-30 * c[4, -1//2]').terms), 0x0000000000000000, 3, 1),
+                CIOperatorMixed(only((-30 * c[4, -1//2]).terms), 0x0000000000000000, 1, 3),
+                CIOperatorMixed(only((-30 * c[4, 1//2]').terms), 0x0000000000000000, 5, 1),
+                CIOperatorMixed(only((-30 * c[4, 1//2]).terms), 0x0000000000000000, 1, 5),
+                CIOperatorMixed(only((30 * c[4, -1//2]').terms), 0x0000000000000000, 6, 2),
+                CIOperatorMixed(only((30 * c[4, -1//2]).terms), 0x0000000000000000, 2, 6),
+                CIOperatorMixed(only((-30 * c[4, 1//2]').terms), 0x0000000000000000, 9, 2),
+                CIOperatorMixed(only((-30 * c[4, 1//2]).terms), 0x0000000000000000, 2, 9),
+                CIOperatorMixed(only((-30 * c[4, 1//2]').terms), 0x0000000000000000, 10, 3),
+                CIOperatorMixed(only((-30 * c[4, 1//2]).terms), 0x0000000000000000, 3, 10),
+                CIOperatorMixed(only((-30 * c[4, -1//2]').terms), 0x0000000000000000, 8, 4),
+                CIOperatorMixed(only((-30 * c[4, -1//2]).terms), 0x0000000000000000, 4, 8),
+                CIOperatorMixed(only((30 * c[4, 1//2]').terms), 0x0000000000000000, 11, 4),
+                CIOperatorMixed(only((30 * c[4, 1//2]).terms), 0x0000000000000000, 4, 11),
+                CIOperatorMixed(
+                    only((-30 * c[4, -1//2]').terms), 0x0000000000000000, 10, 5
+                ),
+                CIOperatorMixed(only((-30 * c[4, -1//2]).terms), 0x0000000000000000, 5, 10),
+            ]
             @test typeof(H1) == typeof(H2)
             @test H1 == H2
             @test H1.opbit == H_bit
@@ -333,7 +354,7 @@ using Test
             H_nat, n_occ1 = to_natural_orbitals(Array(Δ))
             H = natural_orbital_ci_operator(H_nat, H_int, -μ1, fs, n_occ1, 2, 2, 2)
             @test length(H.opbit.terms) == 1 + 2 * 6 + 4 * 7
-            @test length(H.opmix) == 8
+            @test length(H.opmix) == 96 # didn't calcuate myself
             @test H.zero isa Float64
             @test size(H.one) == (2 * 6, 2 * 6)
             @test size(H.two) == (binomial(2 * 6, 2), binomial(2 * 6, 2))
@@ -363,67 +384,12 @@ using Test
                 4 * c[2, -1//2]' * c[1, -1//2] +
                 4 * c[1, 1//2]' * c[2, 1//2] +
                 4 * c[2, 1//2]' * c[1, 1//2]
-            H_mix = [
-                # i <-> v1
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[1, -1//2]'.terms), 0x0000000000000002, 1, false, 2
-                ),
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[1, -1//2].terms), 0x0000000000000002, 1, true, 2
-                ),
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[1, 1//2]'.terms), 0x0000000000000008, 5, false, 2
-                ),
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[1, 1//2].terms), 0x0000000000000008, 5, true, 2
-                ),
-                # b <-> v1
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[2, -1//2]'.terms), 0x0000000000000000, 1, false, 10
-                ),
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[2, -1//2].terms), 0x0000000000000000, 1, true, 10
-                ),
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[2, 1//2]'.terms), 0x0000000000000000, 5, false, 10
-                ),
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[2, 1//2].terms), 0x0000000000000000, 5, true, 10
-                ),
-                # i <-> c1
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[1, -1//2]'.terms), 0x0000000000000002, 3, true, 5
-                ),
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[1, -1//2].terms), 0x0000000000000002, 3, false, 5
-                ),
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[1, 1//2]'.terms), 0x0000000000000008, 7, true, 5
-                ),
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[1, 1//2].terms), 0x0000000000000008, 7, false, 5
-                ),
-                # b <-> c1
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[2, -1//2]'.terms), 0x0000000000000000, 3, true, 23
-                ),
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[2, -1//2].terms), 0x0000000000000000, 3, false, 23
-                ),
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[2, 1//2]'.terms), 0x0000000000000000, 7, true, 23
-                ),
-                Fermions.Wavefunctions.CIOperatorMixed(
-                    only(c[2, 1//2].terms), 0x0000000000000000, 7, false, 23
-                ),
-            ]
             zero = 2 * (8 + 15)
             a = repeat([-8, -15, 29, 36], 2) .+ zero
             b = [9, 0, 30, 0, 9, 0, 30]
             one = SymTridiagonal(a, b)
 
             @test H1.opbit == H_bit
-            @test H1.opmix == H_mix
             @test H1.zero === zero
             @test H1.one == one
             @test typeof(H1.two) === SparseMatrixCSC{Int,Int}

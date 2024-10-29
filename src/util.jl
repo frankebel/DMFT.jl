@@ -237,7 +237,7 @@ function orthogonalize_states(V::AbstractMatrix{<:C}) where {C<:CIWavefunction}
     S_sqrt_inv = T * Diagonal([1 / sqrt(x) for x in E]) * T'
     S_sqrt = T * Diagonal([sqrt(x) for x in E]) * T'
     W = zero(V)
-    mul!(W, V, S_sqrt_inv)
+    mul!(W, V, S_sqrt_inv, true, true)
     return W, S_sqrt
 end
 

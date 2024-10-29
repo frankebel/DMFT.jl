@@ -22,7 +22,7 @@ function block_lanczos(H::CIOperator, W::AbstractMatrix{<:CIWavefunction}, n_kry
     # first step
     mul!(V_new, H, V)
     mul!(A[1], V', V_new)
-    mul!(V_new, V, -A[1])
+    mul!(V_new, V, -A[1], true, true)
 
     # successive steps
     for j in 2:n_kryl
@@ -36,8 +36,8 @@ function block_lanczos(H::CIOperator, W::AbstractMatrix{<:CIWavefunction}, n_kry
         zerovector!(V_new)
         mul!(V_new, H, V)
         mul!(A[j], V', V_new)
-        mul!(V_new, V, -A[j])
-        mul!(V_new, V_old, -B[j - 1]')
+        mul!(V_new, V, -A[j], true, true)
+        mul!(V_new, V_old, -B[j - 1]', true, true)
     end
     return A, B
 end
