@@ -27,7 +27,7 @@ function block_lanczos(H::CIOperator, W::AbstractMatrix{<:CIWavefunction}, n_kry
     # successive steps
     for j in 2:n_kryl
         zerovector!(SVD)
-        svd_orthogonalize!(V_new, SVD, B[j - 1])
+        _svd_orthogonalize!(V_new, SVD, B[j - 1])
         V_new, SVD = SVD, V_new
         foo = similar(A[1])
         mul!(foo, V_new', V_new)
@@ -44,7 +44,7 @@ end
 
 # Explanation available under ch. 3.2 of Martin's thesis.
 # https://archiv.ub.uni-heidelberg.de/volltextserver/29305/2/Thesis_V5.pdf
-function svd_orthogonalize!(
+function _svd_orthogonalize!(
     ψ::AbstractMatrix{<:C}, SVD::AbstractMatrix{<:C}, B::AbstractMatrix{<:T}
 ) where {C<:CIWavefunction,T<:Number}
     # Possible issues with negative eigenvalues. Therefore use tolerance `tol`.
