@@ -1,11 +1,16 @@
 """
-    block_lanczos(H::CIOperator, W::AbstractMatrix{<:CIWavefunction}, n_kryl::Int)
+    block_lanczos(
+        H::CIOperator, W::AbstractMatrix{<:CWF}, n_kryl::Int
+    ) where {CWF<:CIWavefunction}
+
 
 Block Lanczos algorithm for given operator `H`, states in `W` and `n_kryl` Krylov cycles.
 
 Returns main diagonal `A` and subdiagonal `B`.
 """
-function block_lanczos(H::CIOperator, W::AbstractMatrix{<:CIWavefunction}, n_kryl::Int)
+function block_lanczos(
+    H::CIOperator, W::AbstractMatrix{<:CWF}, n_kryl::Int
+) where {CWF<:CIWavefunction}
     A = Vector{Matrix{Float64}}(undef, n_kryl)
     B = Vector{Matrix{Float64}}(undef, n_kryl - 1)
     for i in eachindex(A)
@@ -17,7 +22,12 @@ function block_lanczos(H::CIOperator, W::AbstractMatrix{<:CIWavefunction}, n_kry
     V = deepcopy(W)
     V_new = zero(W)
     V_old = zero(W)
-    SVD = zero(W) # dummy container for SVD orthonormalization
+    # dummy containers to reduce allocations
+    SVD = zero(W)
+    M1 = Matrix{Float64}(undef, length(W), length(W))
+    M2 = similar(M1)
+    M3 = similar(M1)
+    Adj = Vector{CWF}(undef, length(W))
 
     # first step
     mul!(V_new, H, V)
@@ -26,18 +36,22 @@ function block_lanczos(H::CIOperator, W::AbstractMatrix{<:CIWavefunction}, n_kry
 
     # successive steps
     for j in 2:n_kryl
+        # orthonormalize V_new
         zerovector!(SVD)
-        _svd_orthogonalize!(V_new, SVD, B[j - 1])
+        _svd_orthogonalize!(B[j - 1], V_new, SVD, Adj, M1, M2, M3)
         V_new, SVD = SVD, V_new
-        foo = similar(A[1])
-        mul!(foo, V_new', V_new)
-        # Cycle 3 vectors.
+        # cycle for new step
         V, V_old, V_new = V_new, V, V_old
         zerovector!(V_new)
         mul!(V_new, H, V)
-        mul!(A[j], V', V_new)
-        mul!(V_new, V, -A[j], true, true)
-        mul!(V_new, V_old, -B[j - 1]', true, true)
+        adjoint!(Adj, V)
+        mul!(A[j], Adj, V_new) # A = V' V_new
+        copyto!(M1, A[j])
+        rmul!(M1, -1)
+        mul!(V_new, V, M1, true, true) # V_new -= V*A
+        adjoint!(M1, B[j - 1])
+        rmul!(M1, -1)
+        mul!(V_new, V_old, M1, true, true) # V_new -= V*B'
     end
     return A, B
 end
@@ -45,17 +59,36 @@ end
 # Explanation available under ch. 3.2 of Martin's thesis.
 # https://archiv.ub.uni-heidelberg.de/volltextserver/29305/2/Thesis_V5.pdf
 function _svd_orthogonalize!(
-    ψ::AbstractMatrix{<:C}, SVD::AbstractMatrix{<:C}, B::AbstractMatrix{<:T}
+    B::AbstractMatrix{<:T},
+    ψ::AbstractMatrix{<:C},
+    SVD::AbstractMatrix{<:C},
+    Adj::AbstractVector{<:C},
+    M1::AbstractMatrix{<:T},
+    M2::AbstractMatrix{<:T},
+    M3::AbstractMatrix{<:T},
 ) where {C<:CIWavefunction,T<:Number}
-    # Possible issues with negative eigenvalues. Therefore use tolerance `tol`.
-    tol = 1E-6
-    S = similar(B)
-    mul!(S, ψ', ψ) # write in dummy location
-    D, V = LAPACK.syev!('V', 'U', S)
-    # SVD = ψ*V*D_sqrt_inv*V^†
-    # B = V*S_sqrt*V^†
-    mul!(SVD, ψ, V * Diagonal(map(d -> d > tol ? 1 / sqrt(d) : zero(T), D)) * V')
-    foo = V * Diagonal(map(d -> d > tol ? sqrt(d) : zero(T), D)) * V'
-    B[:] = 0.5 * (foo + foo') # hermitize due to potential numerical inexactness
-    return ψ, SVD, B
+    tol = 1E-6 # potential issue with small/negative eigenvalues
+    n = size(M2, 1)
+    adjoint!(Adj, ψ)
+    mul!(M1, Adj, ψ) # overlap matrix
+    S, _ = LAPACK.syev!('V', 'U', M1) # How to avoid allocations in diagonalization?
+    # orthonormalized states in SVD
+    rmul!(M2, false) # S_sqrt_inv
+    for i in 1:n
+        M2[i, i] = S[i] > tol ? 1 / sqrt(S[i]) : zero(T)
+    end
+    adjoint!(B, M1) # V'
+    mul!(M3, M2, B) # S_sqrt_inv V'
+    mul!(M2, M1, M3) # V S_sqrt_inv V'
+    mul!(SVD, ψ, M2) # ψ V S_sqrt_inv V'
+    # B matrix
+    rmul!(M2, false) # M2 = S_sqrt
+    for i in 1:n
+        M2[i, i] = S[i] > tol ? sqrt(S[i]) : zero(T)
+    end
+    adjoint!(B, M1) # V'
+    mul!(M3, M2, B) # S_sqrt V'
+    mul!(B, M1, M3) # V S_sqrt V'
+    hermitianpart!(B) # potential numerical inexactness
+    return nothing
 end
