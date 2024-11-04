@@ -1,6 +1,5 @@
 module DMFT
 
-using BlockBandedMatrices
 using Distributions
 using Fermions
 using Fermions.Bits

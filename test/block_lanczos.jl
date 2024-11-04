@@ -39,9 +39,7 @@ using Test
         @test length(b) === n_kryl - 1
         @test all(ishermitian, b)
 
-        # NOTE: change once compatibility is set to >= Julia 1.11
-        # X = BlockTridiagonal(b, a, map(adjoint, b))
-        X = BlockTridiagonal(b, a, Matrix.(adjoint.(b)))
+        X = BlockTridiagonal(b, a, b)
         E = eigvals(X)
         E_ref = [
             -15.678942694187539,
@@ -63,8 +61,12 @@ using Test
         v2 = CIWavefunction(Dict(zero(UInt8) => rand(5)), 4, 1, 1, 1)
         V = [v1 v2]
         SVD = zero(V)
+        Adj = Vector{eltype(V)}(undef, 2)
         B = Matrix{Float64}(undef, 2, 2)
-        @test DMFT.svd_orthogonalize!(V, SVD, B) === (V, SVD, B)
+        M1 = similar(B)
+        M2 = similar(B)
+        M3 = similar(B)
+        DMFT._svd_orthogonalize!(B, V, SVD, Adj, M1, M2, M3)
         @test ishermitian(B)
         # SVD^† SVD = 𝟙
         foo = Matrix{Float64}(undef, 2, 2)

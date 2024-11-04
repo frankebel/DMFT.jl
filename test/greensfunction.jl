@@ -36,7 +36,7 @@ using Test
             B = [rand(2, 2) for _ in 1:4]
             E0 = rand(Float64)
             S_sqrt = rand(2, 2)
-            G = Greensfunction(A, B, E0, S_sqrt)
+            G = DMFT._greensfunction(A, B, E0, S_sqrt)
             @test typeof(G.a) == Vector{Float64}
             @test length(G.a) == 10
             @test typeof(G.b) == Matrix{Float64}

@@ -62,7 +62,7 @@ function _pos(
     end
     W, S_sqrt = orthogonalize_states(V)
     A, B = block_lanczos(H, W, n_kryl)
-    return Greensfunction(A, B, E0, S_sqrt)
+    return _greensfunction(A, B, E0, S_sqrt)
 end
 
 # negative frequencies
@@ -75,5 +75,30 @@ function _neg(
     end
     W, S_sqrt = orthogonalize_states(V)
     A, B = block_lanczos(H, W, n_kryl)
-    return Greensfunction(-A, B, -E0, S_sqrt)
+    return _greensfunction(-A, B, -E0, S_sqrt)
+end
+
+# Diagonalize blocktridiagonal matrix given by `A`, `B` and convert to `Greensfunction`.
+function _greensfunction(
+    A::AbstractVector{<:AbstractMatrix{<:Real}},
+    B::AbstractVector{<:AbstractMatrix{<:T}},
+    E0::Real,
+    S_sqrt::AbstractMatrix{<:T},
+) where {T<:Number}
+    n1 = length(A)
+    n2 = size(S_sqrt, 1)
+    n = n1 * n2
+    X = zeros(T, n, n)
+    for i in 1:(n1 - 1)
+        i1 = 1 + (i - 1) * n2
+        i2 = i * n2
+        X[i1:i2, (i1 + n2):(i2 + n2)] = B[i] # upper diagonal, don't need adjoint
+        X[i1:i2, i1:i2] = A[i] # main diagonal
+        X[(i1 + n2):(i2 + n2), i1:i2] = B[i] # lower diagonal
+    end
+    X[(end - n2 + 1):end, (end - n2 + 1):end] = A[end] # last element
+    E, _ = LAPACK.syev!('V', 'U', X)
+    E .-= E0
+    R = S_sqrt * X[1:size(S_sqrt, 1), :]
+    return Greensfunction(E, R)
 end
