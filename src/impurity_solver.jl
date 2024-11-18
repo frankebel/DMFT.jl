@@ -30,19 +30,9 @@ function solve_impurity(
     # initialize system
     H, E0, ψ0 = init_system(Δ, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs)
 
-    # different threads
-    thr1 = Threads.@spawn _pos(
-        deepcopy(H), copy(E0), deepcopy(ψ0), deepcopy(O), copy(n_kryl)
-    )
-    thr2 = Threads.@spawn _neg(
-        deepcopy(H), copy(E0), deepcopy(ψ0), deepcopy(O), copy(n_kryl)
-    )
-    G_plus::Greensfunction{T,Matrix{T}} = fetch(thr1)
-    G_minus::Greensfunction{T,Matrix{T}} = fetch(thr2)
-
-    # # same thread
-    # G_plus = _pos(H, E0, ψ0, O, n_kryl)
-    # G_minus = _neg(H, E0, ψ0, O, n_kryl)
+    # same thread
+    G_plus = _pos(H, E0, ψ0, O, n_kryl)
+    G_minus = _neg(H, E0, ψ0, O, n_kryl)
 
     # Hartree self-energy
     # Σ_H = ⟨{[d_α, H_int], d_α^†}⟩
