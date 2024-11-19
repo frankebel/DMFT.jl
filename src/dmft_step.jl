@@ -40,16 +40,11 @@ function dmft_step(
     n_kryl_gs::Int,
     n_dis::Int,
     η::T,
-    improved_self_energy::Bool,
 ) where {T<:Real,Op<:Operator}
     G_plus, G_minus, Σ_H = solve_impurity(
         Δ, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs, n_kryl, O
     )
-    if improved_self_energy
-        Σ = self_energy_improved(G_plus, G_minus, Z, Σ_H)
-    else
-        Σ = self_energy(G_plus, G_minus, Z)
-    end
+    Σ = self_energy(G_plus, G_minus, Z, Σ_H)
     Δ_grid = update_weiss_field(Δ0, μ, Z, Σ)
     Δ_new = equal_weight_discretization(-imag(Δ_grid), real(Z), η, n_dis)
     return G_plus, G_minus, Δ_new, Δ_grid
@@ -74,20 +69,20 @@ function dmft_step_gauss(
     G_plus, G_minus, Σ_H = solve_impurity(
         Δ, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs, n_kryl, O
     )
-    Σ = self_energy_improved_gauss(G_plus, G_minus, ω, σ, Σ_H)
+    Σ = self_energy_gauss(G_plus, G_minus, ω, σ, Σ_H)
     Δ_grid = update_weiss_field(Δ0, μ, ω, Σ)
     Δ_new = equal_weight_discretization(-imag(Δ_grid), real(ω), σ, n_dis)
     return G_plus, G_minus, Δ_new, Δ_grid
 end
 
 """
-    self_energy(
+    self_energy_FG(
         G_plus::GF, G_minus::GF, Z::AbstractVector{<:Complex}
     ) where {GF<:Greensfunction{<:Real,<:AbstractMatrix{<:Number}}}
 
 Calculate self-energy as ``Σ(Z) = F(Z) G^{-1}(Z)``.
 """
-function self_energy(
+function self_energy_FG(
     G_plus::GF, G_minus::GF, Z::AbstractVector{<:Complex}
 ) where {GF<:Greensfunction{<:Real,<:AbstractMatrix{<:Number}}}
     gp = G_plus(Z)
@@ -98,13 +93,13 @@ function self_energy(
 end
 
 """
-    self_energy_improved(
+    self_energy(
         G_plus::GF, G_minus::GF, Z::AbstractVector{<:Complex}, Σ_H::Real
     ) where {GF<:Greensfunction{<:Real,<:AbstractMatrix{<:Number}}}
 
 Calculate self-energy as ``Σ(Z) = Σ^H + I(Z) - F^L(Z) G^{-1}(Z) F^R(Z)``.
 """
-function self_energy_improved(
+function self_energy(
     G_plus::GF, G_minus::GF, Z::AbstractVector{<:Complex}, Σ_H::Real
 ) where {GF<:Greensfunction{<:Real,<:AbstractMatrix{<:Number}}}
     gp = G_plus(Z)
@@ -117,7 +112,7 @@ function self_energy_improved(
 end
 
 """
-    self_energy_improved_gauss(
+    self_energy_gauss(
         G_plus::GF, G_minus::GF, ω::AbstractVector{<:Real}, σ::Real, Σ_H::Real
     ) where {GF<:Greensfunction{<:Real,<:AbstractMatrix{<:Number}}}
 
@@ -126,7 +121,7 @@ with Gaussian broadening.
 
 Real part is obtained by Kramers-Kronig relation.
 """
-function self_energy_improved_gauss(
+function self_energy_gauss(
     G_plus::GF, G_minus::GF, ω::AbstractVector{<:Real}, σ::Real, Σ_H::Real
 ) where {GF<:Greensfunction{<:Real,<:AbstractMatrix{<:Number}}}
     # get imaginary part
