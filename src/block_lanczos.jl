@@ -32,7 +32,9 @@ function block_lanczos(
     # first step
     mul!(V_new, H, V)
     mul!(A[1], V', V_new)
-    mul!(V_new, V, -A[1], true, true)
+    copyto!(M1, A[1])
+    rmul!(M1, -1)
+    mul!(V_new, V, M1, true, true)
 
     # successive steps
     for j in 2:n_kryl
