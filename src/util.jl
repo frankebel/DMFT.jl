@@ -18,14 +18,14 @@ function mul_excitation(
 ) where {S<:Unsigned}
     ϕ = Wavefunction(ψ)
     for (k, v) in ψ, t in H.terms
-        k_new, phase = Fermions.Wavefunctions.mul(t, k)
-        iszero(phase) && continue
+        Fermions.Terms.is_mapped_right(t, k) || continue
+        k_new, amp = Fermions.Terms.map_state_right(t, k)
         DMFT.get_excitation(k_new, m_filled, m_empty) > excitation && continue
         if haskey(ϕ, k_new)
-            ϕ[k_new] += phase * v * t.value
+            ϕ[k_new] += amp * v
             iszero(ϕ[k_new]) && delete!(ϕ, k_new)
         else
-            ϕ[k_new] = phase * v * t.value
+            ϕ[k_new] = amp * v
         end
     end
     return ϕ
