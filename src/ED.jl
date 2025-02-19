@@ -11,14 +11,14 @@ export
 
 """
     solve_impurity_ed(
-        Δ::Greensfunction{<:T,<:AbstractVector{<:T}}, H_int::Operator, ϵ_imp::T
-    ) where {T<:Real}
+        Δ::Pole{V,V}, H_int::Operator, ϵ_imp::T
+    ) where {V<:AbstractVector{<:Real}}
 
 Solve AIM in exact diagonalization.
 """
 function solve_impurity_ed(
-    Δ::Greensfunction{<:T,<:AbstractVector{<:T}}, H_int::Operator, ϵ_imp::T
-) where {T<:Real}
+    Δ::Pole{V,V}, H_int::Operator, ϵ_imp::Real
+) where {V<:AbstractVector{<:Real}}
     # Get Hamiltonian
     H_nat, n_occ = to_natural_orbitals(Array(Δ))
     n_sites = size(H_nat, 1)
@@ -59,7 +59,7 @@ function solve_impurity_ed(
     a_plus .-= e0
 
     # impurity GF
-    return Greensfunction([a_minus; a_plus], [b_minus; b_plus])
+    return Pole([a_minus; a_plus], [b_minus; b_plus])
 end
 
 end

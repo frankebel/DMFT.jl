@@ -3,93 +3,91 @@ using Distributions
 using LinearAlgebra
 using Test
 
-@testset "Green's function" begin
+@testset "Pole" begin
+    V = Vector{Float64}
+    M = Matrix{Float64}
     @testset "constructor" begin
-        V = Vector{Float64}
         a = sort(rand(10))
-        b = rand(10)
+        bv = rand(10) # vector
+        bm = rand(2, 10) # matrix
 
         # inner constructor
-        G = Greensfunction{Float64,V}(a, b)
-        @test G.a === a
-        @test G.b === b
-        @test_throws DimensionMismatch Greensfunction{Float64,V}(a, rand(9))
+        P = Pole{V,V}(a, bv)
+        @test P.a === a
+        @test P.b === bv
+        P = Pole{V,M}(a, bm)
+        @test P.a === a
+        @test P.b === bm
 
         # outer constructor
-        G = Greensfunction(a, b)
-        @test typeof(G) === Greensfunction{Float64,V}
+        P = Pole(a, bv)
+        @test typeof(P) === Pole{V,V}
+        @test_throws DimensionMismatch Pole(a, rand(9))
+        @test_throws DimensionMismatch Pole(a, rand(2, 9))
 
-        G_new = Greensfunction{Float64,V}(G)
-        @test typeof(G_new) === typeof(G)
-        @test G_new !== G
-        @test G_new.a == G.a
-        @test G_new.b == G.b
-
-        b = rand(2, 10)
-        G = Greensfunction(a, b)
-        @test G.a === a
-        @test G.b === b
-        @test_throws DimensionMismatch Greensfunction(a, rand(10, 2))
+        # conversion of type
+        a = collect(1:10)
+        b = collect(11:20)
+        P = Pole(a, b)
+        P_new = Pole{Vector{Float64},Vector{Int}}(P)
+        @test typeof(P_new) === Pole{Vector{Float64},Vector{Int}}
+        @test P_new.a == P.a
+        @test P_new.b == P.b
 
         @testset "blockdiagonal" begin
             A = [rand(2, 2) for _ in 1:5]
             B = [rand(2, 2) for _ in 1:4]
             E0 = rand(Float64)
             S_sqrt = rand(2, 2)
-            G = DMFT._greensfunction(A, B, E0, S_sqrt)
-            @test typeof(G.a) == Vector{Float64}
-            @test length(G.a) == 10
-            @test typeof(G.b) == Matrix{Float64}
-            @test size(G.b) == (2, 10)
+            P = DMFT._pole(A, B, E0, S_sqrt)
+            @test typeof(P.a) == Vector{Float64}
+            @test length(P.a) == 10
+            @test typeof(P.b) == Matrix{Float64}
+            @test size(P.b) == (2, 10)
         end # blockdiagonal
     end # constructor
 
     @testset "evaluate" begin
         @testset "Lorentzian" begin
+            a = collect(1.0:10)
             # single point
-            z = rand(ComplexF64)
+            z = 10 + im
             # b::Vector
-            a = sort!(rand(10))
-            b = rand(10)
-            G = Greensfunction(a, b)
-            @test G(z) === sum(map((i, j) -> abs2(j) / (z - i), a, b))
+            b = collect(0.1:0.1:1)
+            P = Pole(a, b)
+            foo = P(z)
+            @test typeof(P(z)) === ComplexF64
+            @test abs(P(z) - sum(i -> (0.1 * i)^2 / (10 + im - i), 1:10)) < eps()
             # b::Matrix
-            b = rand(2, 10)
-            G = Greensfunction(a, b)
-            foo = zeros(ComplexF64, 2, 2)
-            for i in eachindex(a)
-                v = b[:, i]
-                foo += v * v' ./ (z - a[i])
-            end
-            @test foo == G(z)
+            b = reshape(collect(0.1:0.1:2), (2, 10))
+            P = Pole(a, b)
+            foo = P(z)
+            @test typeof(P(z)) === Matrix{ComplexF64}
+            @test norm(
+                P(z) - [
+                    3.419109056634164-5.796080126589452im 3.669440321902302-6.127487634859227im
+                    3.669440321902302-6.127487634859227im 3.9413975570979876-6.478614061451364im
+                ],
+            ) < eps()
 
             # grid
             z = rand(ComplexF64, 2)
-            # multiple poles
-            a = sort!(rand(10))
-            b = rand(10)
-            G = Greensfunction(a, b)
-            @test G(z) == [G(z[1]), G(z[2])]
+            @test P(z) == [P(z[1]), P(z[2])]
         end # Lorentzian
 
         @testset "Gaussian" begin
-            ω = 0.5
+            ω = 0.15
             σ = 0.04
             # b::Matrix
-            a = sort!(rand(2))
-            b = rand(2, 2)
-            G = Greensfunction(a, b)
-            w1 =
-                abs2(b[1, 1]) * pdf(Normal(a[1], σ), ω) +
-                abs2(b[1, 2]) * pdf(Normal(a[2], σ), ω)
-            w2 =
-                b[1, 1] * b[2, 1] * pdf(Normal(a[1], σ), ω) +
-                b[1, 2] * b[2, 2] * pdf(Normal(a[2], σ), ω)
-            w3 = w2 # symmetry
-            w4 =
-                abs2(b[2, 1]) * pdf(Normal(a[1], σ), ω) +
-                abs2(b[2, 2]) * pdf(Normal(a[2], σ), ω)
-            @test imag(G(ω, σ)) == -π * [w1 w2; w3 w4]
+            a = [0.1, 0.2]
+            b = reshape(collect(0.1:0.1:0.4), (2, 2))
+            P = Pole(a, b)
+            @test norm(
+                P(ω, σ) - [
+                    -1.5277637226549838-1.4345225621076145im -1.90970465331873-2.00833158695066im
+                    -1.90970465331873-2.00833158695066im -2.2916455839824765-2.8690451242152295im
+                ],
+            ) < 10 * eps()
 
             # semicircular DOS
             Δ = get_hyb(301)
@@ -108,11 +106,11 @@ using Test
             hv = Δ(ω, foo)
             @test h != hv
             @test imag(h) >= imag(hv) # bigger broadening → pdf closer to zero
-            @test_throws ArgumentError Δ(ω, [σ])
+            @test_throws DimensionMismatch Δ(ω, [σ])
             # b::Matrix
             a = sort!(rand(2))
             b = rand(2, 2)
-            G = Greensfunction(a, b)
+            G = Pole(a, b)
             @test @inferred(G(ω, fill(σ, length(ω)))) isa Vector{Matrix{ComplexF64}}
         end # Gaussian
     end # evaluate
@@ -120,39 +118,39 @@ using Test
     @testset "IO" begin
         # b::Vector
         # write
-        a = sort(rand(10))
+        a = sort!(rand(10))
         b = rand(10)
-        G = Greensfunction(a, b)
-        @test write("test.h5", G) === nothing
+        P = Pole(a, b)
+        @test write("test.h5", P) === nothing
         # read
-        foo = Greensfunction{Float64,Vector{Float64}}("test.h5")
-        @test typeof(foo) == Greensfunction{Float64,Vector{Float64}}
-        @test foo.a == G.a
-        @test foo.b == G.b
+        @test @inferred Pole{V,V}("test.h5") isa Pole{V,V}
+        foo = Pole{V,V}("test.h5")
+        @test foo.a == P.a
+        @test foo.b == P.b
 
         # b::Matrix
         # write
-        a = sort(rand(10))
+        a = sort!(rand(10))
         b = rand(10, 10)
-        G = Greensfunction(a, b)
-        @test write("test.h5", G) === nothing
+        P = Pole(a, b)
+        @test write("test.h5", P) === nothing
         # read
-        foo = Greensfunction{Float64,Matrix{Float64}}("test.h5")
-        @test typeof(foo) == Greensfunction{Float64,Matrix{Float64}}
-        @test foo.a == G.a
-        @test foo.b == G.b
+        @test @inferred Pole{V,M}("test.h5") isa Pole{V,M}
+        @test_throws MethodError Pole{V,V}("test.h5")
+        foo = Pole{V,M}("test.h5")
+        @test foo.a == P.a
+        @test foo.b == P.b
 
         rm("test.h5")
     end # IO
-end # Green's function
+end # Pole
 
 @testset "hybridization" begin
-    A = Float64
-    B = Vector{Float64}
+    V = Vector{Float64}
 
     @testset "get_hyb" begin
         Δ = get_hyb(101)
-        @test typeof(Δ) === Greensfunction{A,B}
+        @test typeof(Δ) === Pole{V,V}
         @test length(Δ.a) === 101
         @test length(Δ.b) === 101
         @test sum(abs2.(Δ.b)) ≈ 1.0 rtol = 10 * eps()
@@ -160,7 +158,7 @@ end # Green's function
         @test norm(Δ.a + reverse(Δ.a)) < 50 * eps()
         @test norm(abs2.(Δ.b) - reverse(abs2.(Δ.b))) < 600 * eps()
         Δ = get_hyb(100)
-        @test typeof(Δ) === Greensfunction{A,B}
+        @test typeof(Δ) === Pole{V,V}
         @test length(Δ.a) === 100
         @test length(Δ.b) === 100
         @test sum(abs2.(Δ.b)) ≈ 1.0 rtol = 10 * eps()
@@ -171,7 +169,7 @@ end # Green's function
     @testset "get_hyb_equal" begin
         @test_throws ArgumentError get_hyb_equal(2)
         Δ = get_hyb_equal(101)
-        @test typeof(Δ) === Greensfunction{A,B}
+        @test typeof(Δ) === Pole{V,V}
         @test length(Δ.a) === 101
         @test length(Δ.b) === 101
         @test all(i -> i === 1 / sqrt(101), Δ.b)
@@ -182,7 +180,7 @@ end # Green's function
     @testset "Array" begin
         a = collect(1:5)
         b = collect(6:10)
-        Δ = Greensfunction(a, b)
+        Δ = Pole(a, b)
         m = Array(Δ)
         @test typeof(m) === Matrix{Int}
         @test m == [
@@ -202,7 +200,7 @@ end # Green's function
         a = [-reverse(a); 0; a]
         b = fill(1 / sqrt(n_bath - 1), n_bath ÷ 2)
         b = [b; 0; b]
-        G = Greensfunction(a, b)
+        G = Pole(a, b)
         # evaluate on grid
         ω = collect(-10:0.002:10)
         Z = ω .+ im * 0.02
@@ -230,7 +228,7 @@ end # Green's function
         @test norm(iKK - reverse(iKK)) < 0.2
 
         # Vector mismatch
-        @test_throws ArgumentError realKK(i, rand(10))
-        @test_throws ArgumentError imagKK(r, rand(10))
+        @test_throws DimensionMismatch realKK(i, rand(10))
+        @test_throws DimensionMismatch imagKK(r, rand(10))
     end # Kramers-Kronig
 end # hybridization

@@ -33,7 +33,7 @@ using Test
     G_plus, G_minus, Δ_new, Δ_grid = dmft_step(
         Δ0, Δ0, H_int, μ, -μ, Z, n_v_bit, n_c_bit, e, O, n_kryl, n_kryl_gs, n_bath, η
     )
-    @test typeof(Δ_new) === Greensfunction{Float64,Vector{Float64}}
+    @test typeof(Δ_new) === Pole{Vector{Float64},Vector{Float64}}
     @test typeof(Δ_grid) === Vector{ComplexF64}
     @test length(Δ_new.a) === n_bath
     @test all(b -> isapprox(b, 1 / sqrt(n_bath); rtol=3E-3), Δ_new.b)
@@ -46,7 +46,7 @@ using Test
     G_plus2, G_minus2, Δ_new2, Δ_grid2 = dmft_step_gauss(
         Δ0, Δ0, H_int, μ, -μ, w, n_v_bit, n_c_bit, e, O, n_kryl, n_kryl_gs, n_bath, η
     )
-    @test typeof(Δ_new2) === Greensfunction{Float64,Vector{Float64}}
+    @test typeof(Δ_new2) === Pole{Vector{Float64},Vector{Float64}}
     @test typeof(Δ_grid2) === Vector{ComplexF64}
     @test length(Δ_new2.a) === n_bath
     @test all(b -> isapprox(b, 1 / sqrt(n_bath); rtol=3E-3), Δ_new2.b)

@@ -1,15 +1,15 @@
 """
     solve_impurity(
-        Δ::Greensfunction{<:Real,<:AbstractVector{<:Real}},
+        Δ::Pole{V,V},
         H_int::Operator,
-        ϵ_imp::T,
+        ϵ_imp::Real,
         n_v_bit::Int,
         n_c_bit::Int,
         e::Int,
         n_kryl_gs::Int,
         n_kryl::Int,
         O::AbstractVector{<:Operator},
-    ) where {T<:Real}
+    ) where {V<:AbstractVector{<:Real}}
 
 Solve the Anderson impurity problem.
 
@@ -17,16 +17,16 @@ Solve the Anderson impurity problem.
 The block Lanczos algorithm is then used to obtain the spectrum.
 """
 function solve_impurity(
-    Δ::Greensfunction{<:T,<:AbstractVector{<:T}},
+    Δ::Pole{V,V},
     H_int::Operator,
-    ϵ_imp::T,
+    ϵ_imp::Real,
     n_v_bit::Int,
     n_c_bit::Int,
     e::Int,
     n_kryl_gs::Int,
     n_kryl::Int,
     O::AbstractVector{<:Operator},
-) where {T<:Real}
+) where {V<:AbstractVector{<:Real}}
     # initialize system
     H, E0, ψ0 = init_system(Δ, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs)
 
@@ -52,7 +52,7 @@ function _pos(
     end
     W, S_sqrt = orthogonalize_states(V)
     A, B = block_lanczos(H, W, n_kryl)
-    return _greensfunction(A, B, E0, S_sqrt)
+    return _pole(A, B, E0, S_sqrt)
 end
 
 # negative frequencies
@@ -65,11 +65,11 @@ function _neg(
     end
     W, S_sqrt = orthogonalize_states(V)
     A, B = block_lanczos(H, W, n_kryl)
-    return _greensfunction(-A, B, -E0, S_sqrt)
+    return _pole(-A, B, -E0, S_sqrt)
 end
 
-# Diagonalize blocktridiagonal matrix given by `A`, `B` and convert to `Greensfunction`.
-function _greensfunction(
+# Diagonalize blocktridiagonal matrix given by `A`, `B` and convert to `Pole`.
+function _pole(
     A::AbstractVector{<:AbstractMatrix{<:Real}},
     B::AbstractVector{<:AbstractMatrix{<:T}},
     E0::Real,
@@ -90,5 +90,5 @@ function _greensfunction(
     E, _ = LAPACK.syev!('V', 'U', X)
     E .-= E0
     R = S_sqrt * X[1:size(S_sqrt, 1), :]
-    return Greensfunction(E, R)
+    return Pole(E, R)
 end

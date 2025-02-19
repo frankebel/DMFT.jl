@@ -1,10 +1,10 @@
 """
     dmft_step(
-        Δ0::Greensfunction{<:T,<:AbstractVector{<:T}},
-        Δ::Greensfunction{<:T,<:AbstractVector{<:T}},
+        Δ0::Pole{V,V},
+        Δ::Pole{V,V},
         H_int::Op,
-        μ::T,
-        ϵ_imp::T,
+        μ::Real,
+        ϵ_imp::Real,
         Z::AbstractVector{<:Complex},
         n_v_bit::Int,
         n_c_bit::Int,
@@ -13,9 +13,9 @@
         n_kryl::Int,
         n_kryl_gs::Int,
         n_dis::Int,
-        η::T,
+        η::Real,
         improved_self_energy::Bool,
-    ) where {T<:Real,Op<:Operator}
+    ) where {V<:AbstractVector{<:Real},Op<:Operator}
 
 Calculate a single step of DMFT.
 
@@ -26,11 +26,11 @@ Returns
 - `Δ_grid`: new hybridization function on a grid
 """
 function dmft_step(
-    Δ0::Greensfunction{<:T,<:AbstractVector{<:T}},
-    Δ::Greensfunction{<:T,<:AbstractVector{<:T}},
+    Δ0::Pole{V,V},
+    Δ::Pole{V,V},
     H_int::Op,
-    μ::T,
-    ϵ_imp::T,
+    μ::Real,
+    ϵ_imp::Real,
     Z::AbstractVector{<:Complex},
     n_v_bit::Int,
     n_c_bit::Int,
@@ -39,8 +39,8 @@ function dmft_step(
     n_kryl::Int,
     n_kryl_gs::Int,
     n_dis::Int,
-    η::T,
-) where {T<:Real,Op<:Operator}
+    η::Real,
+) where {V<:AbstractVector{<:Real},Op<:Operator}
     G_plus, G_minus, Σ_H = solve_impurity(
         Δ, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs, n_kryl, O
     )
@@ -51,12 +51,12 @@ function dmft_step(
 end
 
 function dmft_step_gauss(
-    Δ0::Greensfunction{<:T,<:AbstractVector{<:T}},
-    Δ::Greensfunction{<:T,<:AbstractVector{<:T}},
+    Δ0::Pole{V,V},
+    Δ::Pole{V,V},
     H_int::Op,
-    μ::T,
-    ϵ_imp::T,
-    ω::AbstractVector{<:T},
+    μ::Real,
+    ϵ_imp::Real,
+    ω::AbstractVector{<:Real},
     n_v_bit::Int,
     n_c_bit::Int,
     e::Int,
@@ -64,8 +64,8 @@ function dmft_step_gauss(
     n_kryl::Int,
     n_kryl_gs::Int,
     n_dis::Int,
-    σ::T,
-) where {T<:Real,Op<:Operator}
+    σ::Real,
+) where {V<:AbstractVector{<:Real},Op<:Operator}
     G_plus, G_minus, Σ_H = solve_impurity(
         Δ, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs, n_kryl, O
     )
@@ -78,13 +78,13 @@ end
 """
     self_energy_FG(
         G_plus::GF, G_minus::GF, Z::AbstractVector{<:Complex}
-    ) where {GF<:Greensfunction{<:Real,<:AbstractMatrix{<:Number}}}
+    ) where {GF<:Pole{<:Real,<:AbstractMatrix{<:Number}}}
 
 Calculate self-energy as ``Σ(Z) = F(Z) G^{-1}(Z)``.
 """
 function self_energy_FG(
-    G_plus::GF, G_minus::GF, Z::AbstractVector{<:Complex}
-) where {GF<:Greensfunction{<:Real,<:AbstractMatrix{<:Number}}}
+    G_plus::P, G_minus::P, Z::AbstractVector{<:Complex}
+) where {P<:Pole{<:AbstractVector{<:Real},<:AbstractMatrix{<:Number}}}
     gp = G_plus(Z)
     gm = G_minus(Z)
     G = map(g -> g[1, 1], gm) .+ map(g -> g[1, 1], gp)
@@ -95,13 +95,13 @@ end
 """
     self_energy(
         G_plus::GF, G_minus::GF, Z::AbstractVector{<:Complex}, Σ_H::Real
-    ) where {GF<:Greensfunction{<:Real,<:AbstractMatrix{<:Number}}}
+    ) where {GF<:Pole{<:Real,<:AbstractMatrix{<:Number}}}
 
 Calculate self-energy as ``Σ(Z) = Σ^H + I(Z) - F^L(Z) G^{-1}(Z) F^R(Z)``.
 """
 function self_energy(
-    G_plus::GF, G_minus::GF, Z::AbstractVector{<:Complex}, Σ_H::Real
-) where {GF<:Greensfunction{<:Real,<:AbstractMatrix{<:Number}}}
+    G_plus::P, G_minus::P, Z::AbstractVector{<:Complex}, Σ_H::Real
+) where {P<:Pole{<:AbstractVector{<:Real},<:AbstractMatrix{<:Number}}}
     gp = G_plus(Z)
     gm = G_minus(Z)
     G = map(g -> g[1, 1], gm) .+ map(g -> g[1, 1], gp)
@@ -113,8 +113,8 @@ end
 
 """
     self_energy_gauss(
-        G_plus::GF, G_minus::GF, ω::AbstractVector{<:Real}, σ::Real, Σ_H::Real
-    ) where {GF<:Greensfunction{<:Real,<:AbstractMatrix{<:Number}}}
+        G_plus::P, G_minus::P, ω::AbstractVector{<:Real}, σ::Real, Σ_H::Real
+    ) where {P<:Pole{<:AbstractVector{<:Real},<:AbstractMatrix{<:Number}}}
 
 Calculate self-energy as ``Σ(Z) = Σ^H + I(Z) - F^L(Z) G^{-1}(Z) F^R(Z)``
 with Gaussian broadening.
@@ -122,8 +122,8 @@ with Gaussian broadening.
 Real part is obtained by Kramers-Kronig relation.
 """
 function self_energy_gauss(
-    G_plus::GF, G_minus::GF, ω::AbstractVector{<:Real}, σ::Real, Σ_H::Real
-) where {GF<:Greensfunction{<:Real,<:AbstractMatrix{<:Number}}}
+    G_plus::P, G_minus::P, ω::AbstractVector{<:Real}, σ::Real, Σ_H::Real
+) where {P<:Pole{<:AbstractVector{<:Real},<:AbstractMatrix{<:Number}}}
     # get imaginary part
     gp = G_plus(ω, σ)
     gm = G_minus(ω, σ)
@@ -136,17 +136,14 @@ end
 
 """
     update_weiss_field(
-        Δ0::Greensfunction,
-        μ::Real,
-        Z::AbstractVector{<:Number},
-        Σ::AbstractVector{<:Complex},
+        Δ0::Pole, μ::Real, Z::AbstractVector{<:Number}, Σ::AbstractVector{<:Complex}
     )
 
 Calculate the new Weiss field from the lattice hybridization `Δ0` and
 the impurity self energy `Σ` on grid `Z`.
 """
 update_weiss_field(
-    Δ0::Greensfunction, μ::Real, Z::AbstractVector{<:Number}, Σ::AbstractVector{<:Complex}
+    Δ0::Pole, μ::Real, Z::AbstractVector{<:Number}, Σ::AbstractVector{<:Complex}
 ) = Δ0(Z .+ μ - Σ)
 
 """
@@ -249,5 +246,5 @@ function equal_weight_discretization(
     end
     a = [reverse!(P_minus); 0; P_plus]
     b = [reverse!(V_minus); sqrt(v0 / π); V_plus]
-    return Greensfunction(a, b)
+    return Pole(a, b)
 end

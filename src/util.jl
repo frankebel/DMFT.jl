@@ -169,26 +169,26 @@ end
 
 """
     init_system(
-        Δ::Greensfunction{<:T,<:AbstractVector{<:T}},
+        Δ::Pole{V,V},
         H_int::Operator,
-        ϵ_imp::T,
+        ϵ_imp::Real,
         n_v_bit::Int,
         n_c_bit::Int,
         e::Int,
         n_kryl::Int,
-    ) where {T<:Real}
+    ) where {V<:AbstractVector{<:Real}}
 
 Return Hamiltonian, ground state energy, and ground state.
 """
 function init_system(
-    Δ::Greensfunction{<:T,<:AbstractVector{<:T}},
+    Δ::Pole{V,V},
     H_int::Operator,
-    ϵ_imp::T,
+    ϵ_imp::Real,
     n_v_bit::Int,
     n_c_bit::Int,
     e::Int,
     n_kryl::Int,
-) where {T<:Real}
+) where {V<:AbstractVector{<:Real}}
     arr = Array(Δ)
     n_sites = size(arr, 1)
     H_nat, n_occ = to_natural_orbitals(arr)
@@ -313,10 +313,10 @@ Calculate Bethe lattice Green's function for frequencies `z`, half-bandwidth `D`
 and fermi-energy `ϵ_0`:
 
 ```math
-G(z) = \\frac{2}{D^2} (z - \\sqrt{z^2 - D^2}.
+G(z) = \\frac{2}{D^2} (z - \\sqrt{z^2 - D^2}).
 ```
 
-The sign of the real and imagiary parts of ``\\{\\sqrt{z^2 - D^2}\\}``
+The sign of the real and imagiary parts of ``\\sqrt{z^2 - D^2}``
 are corrected accordingly.
 """
 function G_bethe(z::AbstractVector{<:Complex}, D::Real=2.0)

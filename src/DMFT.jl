@@ -11,7 +11,7 @@ using SpecialFunctions
 
 export
     # Types
-    Greensfunction,
+    Pole,
 
     # Functions
     G_bethe,
@@ -50,7 +50,7 @@ export
     η_gaussian
 
 include("mask.jl")
-include("greensfunction.jl")
+include("pole.jl")
 include("sytrd.jl")
 include("nat_orbs.jl")
 include("util.jl")
