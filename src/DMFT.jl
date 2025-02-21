@@ -32,8 +32,7 @@ export
     natural_orbital_operator,
     orgtr!,
     orthogonalize_states,
-    read_matrix,
-    read_vector,
+    read_hdf5,
     realKK,
     self_energy,
     self_energy_FG,
@@ -45,12 +44,12 @@ export
     sytrd!,
     to_natural_orbitals,
     update_weiss_field,
-    write_matrix,
-    write_vector,
+    write_hdf5,
     η_gaussian
 
 include("mask.jl")
 include("pole.jl")
+include("io.jl")
 include("sytrd.jl")
 include("nat_orbs.jl")
 include("util.jl")

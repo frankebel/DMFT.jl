@@ -9,6 +9,7 @@ include("aqua.jl")
 @testset "DMFT.jl" begin
     include("mask.jl")
     include("pole.jl")
+    include("io.jl")
     include("sytrd.jl")
     include("nat_orbs.jl")
     include("util.jl")

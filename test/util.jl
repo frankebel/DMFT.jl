@@ -224,24 +224,6 @@ using Test
         end
     end # orthogonalize_states
 
-    @testset "vector IO" begin
-        v = rand(10)
-        @test write_vector("test.h5", v) === nothing
-        foo = read_vector(Float64, "test.h5")
-        @test typeof(foo) === Vector{Float64}
-        @test foo == v
-        rm("test.h5")
-    end # vector IO
-
-    @testset "matrix IO" begin
-        m = rand(10, 10)
-        @test write_matrix("test.h5", m) === nothing
-        foo = read_matrix(Float64, "test.h5")
-        @test typeof(foo) === Matrix{Float64}
-        @test foo == m
-        rm("test.h5")
-    end # matrix IO
-
     @testset "η_gaussian" begin
         η_0 = 0.01
         η_∞ = 0.04

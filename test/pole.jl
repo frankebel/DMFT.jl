@@ -114,35 +114,6 @@ using Test
             @test @inferred(G(ω, fill(σ, length(ω)))) isa Vector{Matrix{ComplexF64}}
         end # Gaussian
     end # evaluate
-
-    @testset "IO" begin
-        # b::Vector
-        # write
-        a = sort!(rand(10))
-        b = rand(10)
-        P = Pole(a, b)
-        @test write("test.h5", P) === nothing
-        # read
-        @test @inferred Pole{V,V}("test.h5") isa Pole{V,V}
-        foo = Pole{V,V}("test.h5")
-        @test foo.a == P.a
-        @test foo.b == P.b
-
-        # b::Matrix
-        # write
-        a = sort!(rand(10))
-        b = rand(10, 10)
-        P = Pole(a, b)
-        @test write("test.h5", P) === nothing
-        # read
-        @test @inferred Pole{V,M}("test.h5") isa Pole{V,M}
-        @test_throws MethodError Pole{V,V}("test.h5")
-        foo = Pole{V,M}("test.h5")
-        @test foo.a == P.a
-        @test foo.b == P.b
-
-        rm("test.h5")
-    end # IO
 end # Pole
 
 @testset "hybridization" begin

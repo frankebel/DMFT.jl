@@ -111,24 +111,6 @@ function (P::Pole{<:Any,<:AbstractMatrix})(
     return result
 end
 
-# write to a filepath, overwriting contents
-function Base.write(s::AbstractString, P::Pole{<:Any,<:AbstractArray{<:Number}})
-    h5open(s, "w") do fid
-        fid["a"] = P.a
-        fid["b"] = P.b
-    end
-    return nothing
-end
-
-# read from a filepath
-function Pole{A,B}(s::AbstractString) where {A,B}
-    return h5open(s, "r") do fid
-        a::A = read(fid, "a")
-        b::B = read(fid, "b")
-        return Pole{A,B}(a, b)
-    end
-end
-
 """
     get_hyb(n_bath::Int, t::Real=1.0)
 
