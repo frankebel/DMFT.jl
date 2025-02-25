@@ -22,6 +22,7 @@ export
     get_CI_parameters,
     get_hyb,
     get_hyb_equal,
+    greens_function_local,
     ground_state,
     imagKK,
     init_system,
@@ -53,6 +54,7 @@ include("sytrd.jl")
 include("natural_orbitals.jl")
 include("wavefunctions.jl")
 include("utility.jl")
+include("greens_function.jl")
 include("block_lanczos.jl")
 include("impurity_solver.jl")
 include("dmft_step.jl")

@@ -1,0 +1,72 @@
+# Methods related to lattice Green's functions
+# where the user supplies a dispersion relation H_k.
+
+"""
+    greens_function_local(
+        W::AbstractVector{<:Number},
+        μ::Real,
+        Hk::AbstractVector{<:AbstractMatrix{<:Number}},
+        [Σ::AbstractVector{<:AbstractMatrix{<:Number}},]
+    )
+
+Calculate the (non-)interacting local Green's function for a dispersion relation `Hk`
+and frequency grid `W`.
+
+```math
+G_\\mathrm{loc}(ω) = \\frac{1}{N_k} ∑_k ((ω + μ)I - H_k - Σ(ω))^{-1}
+```
+
+The self-energy `Σ` is optional.
+"""
+function greens_function_local(
+    W::AbstractVector{<:Number}, μ::Real, Hk::AbstractVector{<:AbstractMatrix{<:Number}}
+)
+    # check input
+    nb = LinearAlgebra.checksquare(first(Hk)) # number of bands
+    all(i -> size(i) == (nb, nb), Hk) ||
+        throw(DimensionMismatch("different matrix sizes in Hk"))
+
+    m = Matrix{ComplexF64}(undef, nb, nb) # matrix container to reduce allocations
+    G_loc = [zero(m) for _ in eachindex(W)]
+    for k in eachindex(Hk)
+        copyto!(m, Hk[k])
+        E, V = LAPACK.syev!('V', 'U', m)
+        Threads.@threads for i in eachindex(W)
+            @inbounds G_loc[i] .+= V * Diagonal(inv.(W[i] + μ .- E)) * V'
+        end
+    end
+    rmul!.(G_loc, 1 / length(Hk)) # prefactor 1/N_k
+    return G_loc
+end
+
+# interaction with self-energy Σ
+function greens_function_local(
+    W::AbstractVector{<:Number},
+    μ::Real,
+    Hk::AbstractVector{<:AbstractMatrix{<:Number}},
+    Σ::AbstractVector{<:AbstractMatrix{<:Number}},
+)
+    # check input
+    nb = LinearAlgebra.checksquare(first(Hk)) # number of bands
+    all(i -> size(i) == (nb, nb), Hk) ||
+        throw(ArgumentError("different matrix sizes in Hk"))
+    all(i -> size(i) == (nb, nb), Σ) ||
+        throw(DimensionMismatch("different matrix sizes in Σ"))
+    length(W) == length(Σ) || throw(DimensionMismatch("length mismatch: W, Σ"))
+
+    m = Matrix{ComplexF64}(undef, nb, nb) # matrix container to reduce allocations
+    G_loc = [zero(m) for _ in eachindex(W)] # local Green's function
+    # Calculate local Green's function
+    Threads.@threads for i in eachindex(W)
+        foo = similar(m)
+        for H in Hk
+            # foo = (ω + μ)I - H_k - Σ
+            copyto!(foo, (W[i] + μ) * I)
+            foo .-= H
+            foo .-= Σ[i]
+            @inbounds G_loc[i] .+= inv(foo)
+        end
+    end
+    rmul!.(G_loc, 1 / length(Hk)) # prefactor 1/N_k
+    return G_loc
+end
