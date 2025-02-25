@@ -11,7 +11,7 @@ export
 
 """
     solve_impurity_ed(
-        Δ::Pole{V,V}, H_int::Operator, ϵ_imp::T
+        Δ::Pole{V,V}, H_int::Operator, ϵ_imp::Real
     ) where {V<:AbstractVector{<:Real}}
 
 Solve AIM in exact diagonalization.

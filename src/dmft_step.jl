@@ -97,7 +97,7 @@ end
         G_plus::GF, G_minus::GF, Z::AbstractVector{<:Complex}, Σ_H::Real
     ) where {GF<:Pole{<:Real,<:AbstractMatrix{<:Number}}}
 
-Calculate self-energy as ``Σ(Z) = Σ^H + I(Z) - F^L(Z) G^{-1}(Z) F^R(Z)``.
+Calculate self-energy as ``Σ(Z) = Σ^\\mathrm{H} + I(Z) - F^\\mathrm{L}(Z) G^{-1}(Z) F^\\mathrm{R}(Z)``.
 """
 function self_energy(
     G_plus::P, G_minus::P, Z::AbstractVector{<:Complex}, Σ_H::Real
@@ -113,20 +113,20 @@ end
 
 """
     self_energy_gauss(
-        G_plus::P, G_minus::P, ω::AbstractVector{<:Real}, σ::Real, Σ_H::Real
+        G_plus::P, G_minus::P, W::AbstractVector{<:Real}, σ::Real, Σ_H::Real
     ) where {P<:Pole{<:AbstractVector{<:Real},<:AbstractMatrix{<:Number}}}
 
-Calculate self-energy as ``Σ(Z) = Σ^H + I(Z) - F^L(Z) G^{-1}(Z) F^R(Z)``
+Calculate self-energy as ``Σ(W) = Σ^\\mathrm{H} + I(W) - F^\\mathrm{L}(W) G^{-1}(W) F^\\mathrm{R}(W)``
 with Gaussian broadening.
 
 Real part is obtained by Kramers-Kronig relation.
 """
 function self_energy_gauss(
-    G_plus::P, G_minus::P, ω::AbstractVector{<:Real}, σ::Real, Σ_H::Real
+    G_plus::P, G_minus::P, W::AbstractVector{<:Real}, σ::Real, Σ_H::Real
 ) where {P<:Pole{<:AbstractVector{<:Real},<:AbstractMatrix{<:Number}}}
     # get imaginary part
-    gp = G_plus(ω, σ)
-    gm = G_minus(ω, σ)
+    gp = G_plus(W, σ)
+    gm = G_minus(W, σ)
     G = map(g -> g[1, 1], gm) .+ map(g -> g[1, 1], gp)
     F_R = map(g -> g[1, 2], gm) .+ map(g -> g[2, 1], gp)
     F_L = map(g -> g[1, 2], gm) .+ map(g -> g[2, 1], gp)
@@ -141,6 +141,10 @@ end
 
 Calculate the new Weiss field from the lattice hybridization `Δ0` and
 the impurity self energy `Σ` on grid `Z`.
+
+```math
+Δ(Z) = Δ_0(Z + μ - Σ)
+```
 """
 update_weiss_field(
     Δ0::Pole, μ::Real, Z::AbstractVector{<:Number}, Σ::AbstractVector{<:Complex}
