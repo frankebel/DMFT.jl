@@ -34,7 +34,7 @@ using Test
         # Löwdin orthogonalization
         W, S_sqrt = orthogonalize_states(V0)
         # Block Lanczos
-        a, b = block_lanczos(H, W, n_kryl)
+        a, b = DMFT.block_lanczos(H, W, n_kryl)
         @test length(a) === n_kryl
         @test length(b) === n_kryl - 1
         @test all(ishermitian, b)
