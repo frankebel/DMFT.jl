@@ -1,4 +1,3 @@
-using BlockBandedMatrices
 using DMFT
 using Fermions
 using Fermions.Wavefunctions
@@ -39,7 +38,13 @@ using Test
         @test length(b) === n_kryl - 1
         @test all(ishermitian, b)
 
-        X = BlockTridiagonal(b, a, b)
+        X = zeros(2 * n_kryl, 2 * n_kryl)
+        for i in 1:(n_kryl - 1)
+            X[(2 * i - 1):(2 * i), (2 * i - 1 + 2):(2 * i + 2)] = b[i] # upper diagonal, don't need adjoint
+            X[(2 * i - 1):(2 * i), (2 * i - 1):(2 * i)] = a[i] # main diagonal
+            X[(2 * i + 1):(2 * i + 2), (2 * i - 1):(2 * i)] = b[i] # lower diagonal
+        end
+        X[(end - 1):end, (end - 1):end] = a[end] # last element
         E = eigvals(X)
         E_ref = [
             -15.678942694187539,
