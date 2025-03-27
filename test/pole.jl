@@ -22,6 +22,7 @@ using Test
         # outer constructor
         P = Pole(a, bv)
         @test typeof(P) === Pole{V,V}
+        @test_throws TypeError Pole(rand(ComplexF64, 10), bv)
         @test_throws DimensionMismatch Pole(a, rand(9))
         @test_throws DimensionMismatch Pole(a, rand(2, 9))
 
@@ -47,7 +48,7 @@ using Test
         end # blockdiagonal
     end # constructor
 
-    @testset "evaluate" begin
+    @testset "evaluation" begin
         @testset "Lorentzian" begin
             a = collect(1.0:10)
             # single point
@@ -99,19 +100,6 @@ using Test
             @test norm(ex + imag(h)) < 0.2
             @test maximum(abs.(ex + imag(h))) < 0.1
             @test findmin(imag(h))[2] == cld(length(ω), 2) # symmetric
-            # variable broadening
-            hv = Δ(ω, fill(σ, length(ω)))
-            @test h == hv
-            foo = map(i -> abs(i) < 2.0 ? 0.04 : 0.08, ω)
-            hv = Δ(ω, foo)
-            @test h != hv
-            @test imag(h) >= imag(hv) # bigger broadening → pdf closer to zero
-            @test_throws DimensionMismatch Δ(ω, [σ])
-            # b::Matrix
-            a = sort!(rand(2))
-            b = rand(2, 2)
-            G = Pole(a, b)
-            @test @inferred(G(ω, fill(σ, length(ω)))) isa Vector{Matrix{ComplexF64}}
         end # Gaussian
     end # evaluate
 end # Pole

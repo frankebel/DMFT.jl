@@ -1,7 +1,7 @@
 """
-    Pole{A<:AbstractVector,B<:AbstractVecOrMat}
+    Pole{A<:AbstractVector{<:Real},B<:AbstractVecOrMat}
 
-Pole representation in the upper complex plane with locations `a::A` and weights `b::B`.
+Representation of poles on the real axis with locations `a::A` and weights `b::B`.
 
 If both are `A` and `B` are vectors, it is just a sum:
 
@@ -9,15 +9,19 @@ If both are `A` and `B` are vectors, it is just a sum:
 P(z) = ∑_i \\frac{|b_i|^2}{z-a_i}
 ```
 
-If `B` is a matrix, its ``i``-th column is interpreted as the vector ``\\vec{b_i}`` with
+If `B` is a matrix, its ``i``-th column is interpreted as a vector ``\\vec{b_i}`` with
 
 ```math
 P(z) = \\sum_i \\frac{\\vec{b}_i\\vec{b}_i^\\dagger}{z-a_i}
 ```
 
-Can also be evaluated by Gaussian broadening `P(ω, σ)` with a fixed or variable broadening.
+Can be evaluated at
+- point `z` in the upper complex plane: `P(z)`
+- vector of points `Z` in the upper complex plane: `P(Z)`
+- real point `ω` with Gaussian broadening `σ`: `P(ω, σ)`
+- vector of real points `W` with Gaussian broadening `σ`: `P(W, σ)`
 """
-struct Pole{A<:AbstractVector,B<:AbstractVecOrMat}
+struct Pole{A<:AbstractVector{<:Real},B<:AbstractVecOrMat}
     a::A
     b::B
 
@@ -87,29 +91,6 @@ function (P::Pole{<:Any,<:AbstractMatrix})(ω::R, σ::R) where {R<:Real}
 end
 
 (P::Pole)(ω::AbstractVector{<:R}, σ::R) where {R<:Real} = map(w -> P(w, σ), ω)
-
-# variable broadening
-function (P::Pole{<:Any,<:AbstractVector})(
-    ω::AbstractVector{<:R}, σ::AbstractVector{<:R}
-) where {R<:Real}
-    length(ω) == length(σ) || throw(DimensionMismatch("length mismatch"))
-    result = similar(ω, Complex{R})
-    for i in eachindex(ω)
-        result[i] = P(ω[i], σ[i])
-    end
-    return result
-end
-
-function (P::Pole{<:Any,<:AbstractMatrix})(
-    ω::AbstractVector{<:R}, σ::AbstractVector{<:R}
-) where {R<:Real}
-    length(ω) == length(σ) || throw(DimensionMismatch("length mismatch"))
-    result = similar(ω, Matrix{Complex{R}})
-    for i in eachindex(ω)
-        result[i] = P(ω[i], σ[i])
-    end
-    return result
-end
 
 """
     get_hyb(n_bath::Int, t::Real=1.0)
