@@ -12,3 +12,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - rename `Greensfunction` to `Pole` to reflect that it is more generic ([#27](https://github.com/frankebel/DMFT.jl/issues/27)) ([5631a33](https://github.com/frankebel/DMFT.jl/commit/5631a33405a13b292b0b988edf7b14931b59344a))
 - unify IO under `read_hdf5`, `write_hdf5` ([#29](https://github.com/frankebel/DMFT.jl/pull/29))
 - update `Fermions` dependency to `v0.12.0` ([#30](https://github.com/frankebel/DMFT.jl/pull/30))
+- enforce `Pole` pole locations to be on the real axis ([#34](https://github.com/frankebel/DMFT.jl/pull/34)) ([d094356](https://github.com/frankebel/DMFT.jl/commit/d094356cf8502aa6a25cdb0049918715182d459f))
+- create module `Debug` and clean up namespace ([#34](https://github.com/frankebel/DMFT.jl/pull/34)) ([c92e6a8](https://github.com/frankebel/DMFT.jl/commit/c92e6a8a33b5bc787028015a5a40012f7e334985))
