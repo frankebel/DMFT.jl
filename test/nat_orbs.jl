@@ -477,7 +477,7 @@ using Test
         ϕ = deepcopy(ϕ_start)
         ψ = deepcopy(ψ_start)
         for _ in 1:niter
-            ϕ = mul_excitation(H_wf, ϕ, m_valence, m_conduction, e)
+            ϕ = DMFT.Debug.mul_excitation(H_wf, ϕ, m_valence, m_conduction, e)
             ψ = H_ciwf * ψ
             # normalize
             normalize!(ϕ)

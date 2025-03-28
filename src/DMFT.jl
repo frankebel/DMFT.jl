@@ -20,14 +20,12 @@ export
     dmft_step_gauss,
     equal_weight_discretization,
     get_CI_parameters,
-    get_excitation,
     get_hyb,
     get_hyb_equal,
     ground_state,
     imagKK,
     init_system,
     mask_fe,
-    mul_excitation,
     natural_orbital_ci_operator,
     natural_orbital_operator,
     orgtr!,
@@ -57,6 +55,7 @@ include("block_lanczos.jl")
 include("impurity_solver.jl")
 include("dmft_step.jl")
 include("Combinatorics.jl")
+include("Debug.jl")
 include("ED.jl")
 
 end
