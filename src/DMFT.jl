@@ -45,12 +45,13 @@ export
     write_hdf5,
     η_gaussian
 
-include("mask.jl")
+include("bits.jl")
 include("pole.jl")
 include("io.jl")
 include("sytrd.jl")
-include("nat_orbs.jl")
-include("util.jl")
+include("natural_orbitals.jl")
+include("wavefunctions.jl")
+include("utility.jl")
 include("block_lanczos.jl")
 include("impurity_solver.jl")
 include("dmft_step.jl")

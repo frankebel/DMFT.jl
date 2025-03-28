@@ -1,4 +1,4 @@
-# Manipulation of masks.
+# Manipulation of bit patterns (masks).
 
 """
     mask_fe(slaterdet::Type{<:Unsigned}, nbit::Int, nfilled::Int, nempty::Int)
