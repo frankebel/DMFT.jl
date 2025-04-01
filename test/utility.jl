@@ -101,4 +101,18 @@ using Test
         @test temperature_kondo(0.3, -0.1, 0.1) == 0.04297872341114842
         @test temperature_kondo(0.2, -0.1, 0.015) == 0.00020610334475146955
     end # Kondo temperature
+
+    @testset "find chemical potential" begin
+        # Create a symmetric uniform density on `n_tot` poles.
+        n_tot = 100 # number of poles ≙ filling for μ = ∞
+        h = Diagonal(range(-1, 1, n_tot)) # uniform density in [-1, 1]
+        Hk = [h]
+        Z = collect(-10:0.01:10) .+ 0.05im
+        Σ = [zero(h) for _ in eachindex(Z)]
+        G = greens_function_local(Z, 0, Hk)
+        # test half-filling
+        μ, filling = find_chemical_potential(Z, Hk, Σ, n_tot / 2)
+        @test μ ≈ 0 atol = 2e-3
+        @test filling ≈ n_tot / 2 atol = 2e-2
+    end # find chemical potential
 end # util

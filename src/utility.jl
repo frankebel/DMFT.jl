@@ -155,3 +155,108 @@ T_\\mathrm{K} = \\sqrt{\\frac{UΔ_0}{2}} \\exp(\\frac{π ϵ(ϵ+U)}{2UΔ_0})
 function temperature_kondo(U::Real, ϵ::Real, Δ0::Real)
     return sqrt(U * Δ0 / 2) * exp(π * ϵ * (ϵ + U) / (2 * U * Δ0))
 end
+
+"""
+    find_chemical_potential(
+        W::AbstractVector{<:Number},
+        Hk::AbstractVector{<:AbstractMatrix{<:Number}},
+        Σ::AbstractVector{<:AbstractMatrix{<:Number}},
+        n::Real;
+        tol::Real=1e-3, # tolerance Δμ
+        n_max::Int=30, # maximum number of steps
+    )
+
+Get chemical potential ``μ``, such that desired filling `n` is fulfilled.
+
+```math
+∫_{-∞}^0 \\mathrm{d}ω \\mathrm{Tr}[-\\frac{1}{π}\\mathrm{Im}~G(ω)] ≡ n
+```
+
+with
+
+```math
+G(ω) = \\frac{1}{N} ∑_k [(ω+μ)I - H_k - Σ(ω)]^{-1}
+```
+
+If the self-energy `Σ` is included, it is applied to each diagonal entry of `indices`.
+
+A bisection algorithm is used which stops once `Δμ < tol`
+or `n_max` iterations are surpassed.
+
+Returns the calculated chemical potential and effective filling.
+"""
+function find_chemical_potential(
+    W::AbstractVector{<:Number},
+    Hk::AbstractVector{<:AbstractMatrix{<:Number}},
+    Σ::AbstractVector{<:AbstractMatrix{<:Number}},
+    n::Real;
+    tol::Real=1e-3, # tolerance Δμ
+    n_max::Int=30, # maximum number of steps
+)
+    # check input
+    nb = LinearAlgebra.checksquare(first(Hk)) # number of bands
+    all(i -> size(i) == (nb, nb), Hk) ||
+        throw(DimensionMismatch("different matrix sizes in Hk"))
+    all(i -> size(i) == (nb, nb), Σ) ||
+        throw(DimensionMismatch("different matrix sizes in Σ"))
+    length(W) == length(Σ) || throw(ArgumentError("length mismatch: W, Σ"))
+    Base.require_one_based_indexing(W)
+    Base.require_one_based_indexing(Σ)
+    tol > 0 || throw(ArgumentError("negative tolerance tol"))
+    n_max > 0 || throw(ArgumentError("negative number of steps n_max"))
+
+    # Loop through each combination of (k, ω) and store the eigenvalues of H_k + Σ(ω).
+    ev = Array{ComplexF64}(undef, nb, length(Hk), length(Σ)) # storage for eigenvalues
+    Threads.@threads for iΣ in eachindex(Σ)
+        # foo = Hk + Σ(ω)
+        foo = Matrix{ComplexF64}(undef, nb, nb)
+        for iH in eachindex(Hk)
+            copyto!(foo, Hk[iH])
+            foo .+= Σ[iΣ]
+            ev[:, iH, iΣ] .= eigvals!(foo)
+        end
+    end
+
+    # Use bisection to find μ.
+    # For starting values use the quantiles: desired filling ± 10 %
+    n_low, n_high = n / nb - 0.1, n / nb + 0.1
+    # Avoid filling n ∉ [0, 1]
+    n_low < 0 && (n_low = zero(n_low))
+    n_high > 1 && (n_high = one(n_low))
+    # Get inital values.
+    μ_low, μ_high = quantile(vec(real(ev)), (n_low, n_high))
+    n_low = _get_filling(W, μ_low, ev)
+    n_high = _get_filling(W, μ_high, ev)
+    n_low <= n <= n_high || throw(ArgumentError("could not find chemical potential"))
+    # Bisection with limited number of steps and tolerance.
+    steps = 0
+    while steps <= n_max && μ_high - μ_low >= tol
+        steps += 1
+        μ_new = (μ_low + μ_high) / 2
+        n_new = _get_filling(W, μ_new, ev)
+        n_new >= n ? μ_high = μ_new : μ_low = μ_new # update
+    end
+    μ = (μ_high + μ_low) / 2
+    filling = _get_filling(W, μ, ev)
+    return μ, filling
+end
+
+function _get_filling(
+    W::AbstractArray{<:Number}, # frequency grid
+    μ::Real, # chemical potential
+    ev::AbstractArray{<:Number,3}, # eigenvalues
+)
+    # n ∝ ∑_{b,k,ω≤0} (ω+μ-ev_{bkω})^{-1}
+    filling = zero(ComplexF64)
+    ω0 = findlast(i -> real(i) <= 0, W) # sum all indices ω <= 0
+    for iω in 1:ω0
+        for k in axes(ev, 2)
+            for b in axes(ev, 1)
+                @inbounds filling += inv(W[iω] + μ - ev[b, k, iω])
+            end
+        end
+    end
+    nk = size(ev, 2) # number of k-points
+    dω = real(W[2] - W[1]) # assume equidistant grid
+    return -imag(filling) / π / nk * dω
+end

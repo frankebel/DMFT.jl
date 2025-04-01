@@ -8,6 +8,7 @@ using Fermions.Wavefunctions
 using HDF5
 using LinearAlgebra
 using SpecialFunctions
+using Statistics
 
 export
     # Types
@@ -19,6 +20,7 @@ export
     dmft_step,
     dmft_step_gauss,
     equal_weight_discretization,
+    find_chemical_potential,
     get_CI_parameters,
     get_hyb,
     get_hyb_equal,
