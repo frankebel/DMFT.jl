@@ -23,6 +23,7 @@ export
     get_hyb,
     get_hyb_equal,
     greens_function_local,
+    greens_function_partial,
     ground_state,
     imagKK,
     init_system,

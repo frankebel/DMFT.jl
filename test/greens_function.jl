@@ -40,4 +40,12 @@ using Test
             ],
         ) < eps()
     end # local interacting
+
+    @testset "partial Green's function" begin
+        G = [rand(5, 5) for _ in 1:2]
+        @test greens_function_partial(G, 1:5) == [tr(foo) for foo in G]
+        Gp = greens_function_partial(G, (1, 4))
+        @test Gp[1] == G[1][1, 1] + G[1][4, 4]
+        @test Gp[2] == G[2][1, 1] + G[2][4, 4]
+    end # partial Green's function
 end # Green's function

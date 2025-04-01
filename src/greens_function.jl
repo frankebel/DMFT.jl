@@ -70,3 +70,22 @@ function greens_function_local(
     rmul!.(G_loc, 1 / length(Hk)) # prefactor 1/N_k
     return G_loc
 end
+
+"""
+    greens_function_partial(
+        G::AbstractVector{<:AbstractMatrix{<:T}}, indices
+    ) where {T<:Number}
+
+Calculate the partial Green's function my summing over diagonal terms given by `indices`.
+"""
+function greens_function_partial(
+    G::AbstractVector{<:AbstractMatrix{<:T}}, indices
+) where {T<:Number}
+    result = zeros(T, length(G))
+    for i in eachindex(G)
+        for idx in indices
+            result[i] += G[i][idx, idx]
+        end
+    end
+    return result
+end
