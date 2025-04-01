@@ -96,4 +96,9 @@ using Test
         @test argmax(-imag(g)) === 5001
         @test real(g[5001]) === 0.0
     end # Bethe lattice Green's function
+
+    @testset "Kondo temperature" begin
+        @test temperature_kondo(0.3, -0.1, 0.1) == 0.04297872341114842
+        @test temperature_kondo(0.2, -0.1, 0.015) == 0.00020610334475146955
+    end # Kondo temperature
 end # util

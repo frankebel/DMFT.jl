@@ -40,6 +40,7 @@ export
     starting_CIWavefunction,
     starting_Wavefunction,
     sytrd!,
+    temperature_kondo,
     to_natural_orbitals,
     update_weiss_field,
     write_hdf5,

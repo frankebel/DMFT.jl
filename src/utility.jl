@@ -139,3 +139,19 @@ function G_bethe(ω::AbstractVector{<:Real}, D::Real=2.0)
     end
     return result
 end
+
+"""
+    temperature_kondo(U::Real, ϵ::Real, Δ0::Real)
+
+Calculate the Kondo temperature for
+an interaction `U`,
+on-site with energy `ϵ`,
+and hybridization `Δ0`.
+
+```math
+T_\\mathrm{K} = \\sqrt{\\frac{UΔ_0}{2}} \\exp(\\frac{π ϵ(ϵ+U)}{2UΔ_0})
+```
+"""
+function temperature_kondo(U::Real, ϵ::Real, Δ0::Real)
+    return sqrt(U * Δ0 / 2) * exp(π * ϵ * (ϵ + U) / (2 * U * Δ0))
+end
