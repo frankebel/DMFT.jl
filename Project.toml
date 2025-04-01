@@ -1,7 +1,7 @@
 name = "DMFT"
 uuid = "a6c836f4-75b2-4167-a711-17703ee59b5f"
 authors = ["Frank Ebel <frank.ebel@student.tuwien.ac.at> and contributors"]
-version = "0.4.0"
+version = "0.5.0"
 
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
