@@ -48,4 +48,15 @@ using Test
         @test Gp[1] == G[1][1, 1] + G[1][4, 4]
         @test Gp[2] == G[2][1, 1] + G[2][4, 4]
     end # partial Green's function
+
+    @testset "spectrum Gauss" begin
+        W = [-1, 1]
+        A = spectral_function_gauss(W, 0, Hk, 0.05)
+        @test typeof(A) === Vector{Matrix{Float64}}
+        @test norm(
+            A[1] -
+            [3.989422804014326 -3.989422804014326; -3.989422804014326 3.989422804014326],
+        ) < eps()
+        @test iszero(A[2])
+    end # spectrum Gauss
 end # Green's function

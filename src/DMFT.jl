@@ -41,6 +41,7 @@ export
     self_energy_gauss,
     slater_start,
     solve_impurity,
+    spectral_function_gauss,
     starting_CIWavefunction,
     starting_Wavefunction,
     sytrd!,
