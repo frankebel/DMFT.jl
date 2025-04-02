@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2025-04-02
+
+### Fixed
+
+- documentation ([#40](https://github.com/frankebel/DMFT.jl/pull/40)) ([032ed29](https://github.com/frankebel/DMFT.jl/commit/032ed2981c1af41a57eb60616dcbab8f40fc8017))
+
 ## [0.5.0] - 2025-04-01
 
 ### Added
