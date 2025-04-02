@@ -23,3 +23,9 @@ Modules = [DMFT.Combinatorics]
 ```@autodocs
 Modules = [DMFT.ED]
 ```
+
+## Debug
+
+```@autodocs
+Modules = [DMFT.Debug]
+```
