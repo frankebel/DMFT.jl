@@ -19,7 +19,9 @@ makedocs(;
     format=Documenter.HTML(;
         canonical="https://frankebel.github.io/DMFT.jl", edit_link="main", assets=String[]
     ),
-    pages=["Home" => "index.md", "Changelog" => "changelog.md"],
+    pages=[
+        "Home" => "index.md", "API reference" => "api.md", "Changelog" => "changelog.md"
+    ],
 )
 
 # only works for public repos, see <https://github.com/frankebel/DMFT.jl/settings/pages>
