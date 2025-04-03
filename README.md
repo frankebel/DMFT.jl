@@ -5,3 +5,20 @@
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
 Source code for DMFT calculations for my master's thesis.
+
+## Documentation
+
+The documentation resides in `docs`.
+Currently, it needs to be compiled manually
+
+```sh
+julia --project=path/to/package/docs --exec 'using Pkg; Pkg.develop(path=".."); Pkg.instantiate()'
+julia --project=path/to/package/docs make.jl
+```
+
+It can then be viewed with, e.g. [LiveServer.jl](https://github.com/tlienart/LiveServer.jl)
+
+```julia
+using LiveServer
+serve(dir="build")
+```
