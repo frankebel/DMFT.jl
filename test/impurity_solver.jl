@@ -20,7 +20,7 @@ using Test
         n_sites = 1 + n_bath
         Z = w .+ im * η
 
-        Δ0 = get_hyb(n_bath)
+        Δ0 = hybridization_function_bethe_simple(n_bath)
         # Operators for positive frequencies. Negative ones are calculated by adjoint.
         fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1//2))
         c = annihilators(fs)

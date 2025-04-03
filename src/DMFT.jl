@@ -22,11 +22,13 @@ export
     equal_weight_discretization,
     find_chemical_potential,
     get_CI_parameters,
-    get_hyb,
-    get_hyb_equal,
+    greens_function_bethe_simple,
+    greens_function_bethe_equal_weight,
     greens_function_local,
     greens_function_partial,
     ground_state,
+    hybridization_function_bethe_simple,
+    hybridization_function_bethe_equal_weight,
     imagKK,
     init_system,
     mask_fe,
@@ -59,6 +61,7 @@ include("natural_orbitals.jl")
 include("wavefunctions.jl")
 include("utility.jl")
 include("greens_function.jl")
+include("hybridization_function.jl")
 include("block_lanczos.jl")
 include("impurity_solver.jl")
 include("dmft_step.jl")

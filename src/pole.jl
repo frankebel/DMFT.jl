@@ -92,61 +92,6 @@ end
 
 (P::Pole)(ω::AbstractVector{<:R}, σ::R) where {R<:Real} = map(w -> P(w, σ), ω)
 
-"""
-    get_hyb(n_bath::Int, t::Real=1.0)
-
-Return the semicircular density of states with hopping `t` discretized on `n_bath` poles.
-"""
-function get_hyb(n_bath::Int, t::Real=1.0)
-    α = zeros(n_bath)
-    β = fill(t, n_bath - 1)
-    H0 = SymTridiagonal(α, β)
-    E, T = eigen(H0)
-
-    return Pole(E, abs.(T[:, 1]))
-end
-
-"""
-    get_hyb_equal(n_bath::Int, t::Real=1.0)
-
-Return the semicircular density of states with hopping `t` discretized on `n_bath` poles.
-
-Each site has the same hybridization `V_k^2 = 1/n_bath`.
-"""
-function get_hyb_equal(n_bath::Int, t::Real=1.0)
-    isodd(n_bath) || throw(ArgumentError("n_bath must be odd"))
-
-    D = 2 * t # half-bandwidth
-    V_sqr = 1 / n_bath
-    V = sqrt(V_sqr)
-    s = Semicircle(D)
-
-    # calculate only negative half, mirror due to symmetry
-    q = collect(0:V_sqr:0.5) # equal weight for each pole
-    v = quantile.(Semicircle(D), q) # I_l
-
-    # ϵ_l = 1/V_sqr ∫_{I_l} dω ω f(ω)
-    # trapezoid rule with `n_p` points
-    a = Float64[]
-    n_p = 128 # arbitrary number
-    for i in eachindex(v)
-        i == length(v) && break
-        # subtract half of border values
-        α = -v[i] * pdf(s, v[i]) - v[i + 1] * pdf(s, v[i + 1])
-        α /= 2
-        for j in LinRange(v[i], v[i + 1], n_p)
-            α += j * pdf(s, j)
-        end
-        α *= (v[i + 1] - v[i]) / n_p # Δω = I_l/n_p
-        push!(a, α)
-    end
-    a .*= n_bath # a .*= 1/V_sqr
-
-    a = [a; 0; -reverse(a)]
-    b = fill(V, n_bath)
-    return Pole(a, b)
-end
-
 function Core.Array(P::Pole{<:V,<:V}) where {V<:AbstractVector{<:Real}}
     result = Matrix(Diagonal([0; P.a]))
     result[1, 2:end] .= P.b

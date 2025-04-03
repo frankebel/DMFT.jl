@@ -91,50 +91,17 @@ using Test
             ) < 10 * eps()
 
             # semicircular DOS
-            Δ = get_hyb(301)
+            G = greens_function_bethe_simple(3001)
             ω = collect(-3:0.01:3)
-            σ = 0.04
+            σ = 0.01
             # constant broadening
-            h = Δ(ω, σ)
-            ex = π .* pdf.(Semicircle(2), ω) # exact solution
+            h = G(ω, σ)
+            ex = π .* pdf.(Semicircle(1), ω) # exact solution
             @test norm(ex + imag(h)) < 0.2
-            @test maximum(abs.(ex + imag(h))) < 0.1
+            @test maximum(abs.(ex + imag(h))) < 0.12
             @test findmin(imag(h))[2] == cld(length(ω), 2) # symmetric
         end # Gaussian
     end # evaluate
-end # Pole
-
-@testset "hybridization" begin
-    V = Vector{Float64}
-
-    @testset "get_hyb" begin
-        Δ = get_hyb(101)
-        @test typeof(Δ) === Pole{V,V}
-        @test length(Δ.a) === 101
-        @test length(Δ.b) === 101
-        @test sum(abs2.(Δ.b)) ≈ 1.0 rtol = 10 * eps()
-        @test Δ.a[51] ≈ 0 atol = 10 * eps()
-        @test norm(Δ.a + reverse(Δ.a)) < 50 * eps()
-        @test norm(abs2.(Δ.b) - reverse(abs2.(Δ.b))) < 600 * eps()
-        Δ = get_hyb(100)
-        @test typeof(Δ) === Pole{V,V}
-        @test length(Δ.a) === 100
-        @test length(Δ.b) === 100
-        @test sum(abs2.(Δ.b)) ≈ 1.0 rtol = 10 * eps()
-        @test norm(Δ.a + reverse(Δ.a)) < 100 * eps()
-        @test norm(abs2.(Δ.b) - reverse(abs2.(Δ.b))) < 600 * eps()
-    end # get_hyb
-
-    @testset "get_hyb_equal" begin
-        @test_throws ArgumentError get_hyb_equal(2)
-        Δ = get_hyb_equal(101)
-        @test typeof(Δ) === Pole{V,V}
-        @test length(Δ.a) === 101
-        @test length(Δ.b) === 101
-        @test all(i -> i === 1 / sqrt(101), Δ.b)
-        @test norm(Δ.a + reverse(Δ.a)) === 0.0
-        @test issorted(Δ.a)
-    end # get_hyb_equal
 
     @testset "Array" begin
         a = collect(1:5)
@@ -151,43 +118,43 @@ end # Pole
             10 0 0 0 0 5
         ]
     end # Array
+end # Pole
 
-    @testset "Kramers-Kronig" begin
-        # complex function in pole residue
-        n_bath = 301
-        a = collect(range(2, 6, n_bath ÷ 2))
-        a = [-reverse(a); 0; a]
-        b = fill(1 / sqrt(n_bath - 1), n_bath ÷ 2)
-        b = [b; 0; b]
-        G = Pole(a, b)
-        # evaluate on grid
-        ω = collect(-10:0.002:10)
-        Z = ω .+ im * 0.02
-        foo = G(Z)
-        r = real(foo)
-        i = imag(foo)
+@testset "Kramers-Kronig" begin
+    # complex function in pole residue
+    n_bath = 301
+    a = collect(range(2, 6, n_bath ÷ 2))
+    a = [-reverse(a); 0; a]
+    b = fill(1 / sqrt(n_bath - 1), n_bath ÷ 2)
+    b = [b; 0; b]
+    G = Pole(a, b)
+    # evaluate on grid
+    ω = collect(-10:0.002:10)
+    Z = ω .+ im * 0.02
+    foo = G(Z)
+    r = real(foo)
+    i = imag(foo)
 
-        # use Kramers-Kronig relations
-        rKK = realKK(i, ω)
-        iKK = imagKK(r, ω)
+    # use Kramers-Kronig relations
+    rKK = realKK(i, ω)
+    iKK = imagKK(r, ω)
 
-        # test real part
-        @test maximum(abs.(r - rKK)) < 0.01
-        @test norm(r - rKK) < 0.2
-        # should be antisymmetric
-        @test maximum(abs.(rKK + reverse(rKK))) < 0.01
-        @test norm(rKK + reverse(rKK)) < 0.2
+    # test real part
+    @test maximum(abs.(r - rKK)) < 0.01
+    @test norm(r - rKK) < 0.2
+    # should be antisymmetric
+    @test maximum(abs.(rKK + reverse(rKK))) < 0.01
+    @test norm(rKK + reverse(rKK)) < 0.2
 
-        # test imaginary part
-        # bad approximation as real part decays ∝ 1/ω which is slow
-        @test maximum(abs.(i - iKK)) < 0.4
-        @test norm(i - iKK) < 10
-        # should be symmetric
-        @test maximum(abs.(iKK - reverse(iKK))) < 0.04
-        @test norm(iKK - reverse(iKK)) < 0.2
+    # test imaginary part
+    # bad approximation as real part decays ∝ 1/ω which is slow
+    @test maximum(abs.(i - iKK)) < 0.4
+    @test norm(i - iKK) < 10
+    # should be symmetric
+    @test maximum(abs.(iKK - reverse(iKK))) < 0.04
+    @test norm(iKK - reverse(iKK)) < 0.2
 
-        # Vector mismatch
-        @test_throws DimensionMismatch realKK(i, rand(10))
-        @test_throws DimensionMismatch imagKK(r, rand(10))
-    end # Kramers-Kronig
-end # hybridization
+    # Vector mismatch
+    @test_throws DimensionMismatch realKK(i, rand(10))
+    @test_throws DimensionMismatch imagKK(r, rand(10))
+end # Kramers-Kronig

@@ -19,7 +19,7 @@ using Test
     n_sites = 1 + n_bath
     Z = w .+ im * η
 
-    Δ0 = get_hyb(n_bath)
+    Δ0 = hybridization_function_bethe_simple(n_bath)
     # Operators for positive frequencies. Negative ones are calculated by adjoint.
     fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1//2))
     c = annihilators(fs)
@@ -36,9 +36,9 @@ using Test
     @test typeof(Δ_new) === Pole{Vector{Float64},Vector{Float64}}
     @test typeof(Δ_grid) === Vector{ComplexF64}
     @test length(Δ_new.a) === n_bath
-    @test all(b -> isapprox(b, 1 / sqrt(n_bath); rtol=3E-3), Δ_new.b)
+    @test all(b -> isapprox(b, 1 / sqrt(n_bath) / 2; rtol=3E-3), Δ_new.b)
     # small weight loss due to truncated interval
-    @test 0.99 <= sum(abs2.(Δ_new.b)) <= 1.0
+    @test 0.24 <= sum(abs2.(Δ_new.b)) <= 0.25
     # PHS
     @test abs(sum(abs2.(Δ_new.b) .* Δ_new.a)) < 200 * eps()
 
@@ -49,9 +49,9 @@ using Test
     @test typeof(Δ_new2) === Pole{Vector{Float64},Vector{Float64}}
     @test typeof(Δ_grid2) === Vector{ComplexF64}
     @test length(Δ_new2.a) === n_bath
-    @test all(b -> isapprox(b, 1 / sqrt(n_bath); rtol=3E-3), Δ_new2.b)
+    @test all(b -> isapprox(b, 1 / sqrt(n_bath) / 2; rtol=3E-3), Δ_new2.b)
     # small weight loss due to truncated interval
-    @test 0.99999 <= sum(abs2.(Δ_new2.b)) <= 1.0
+    @test 0.24999 <= sum(abs2.(Δ_new2.b)) <= 0.25
     # PHS
     @test abs(sum(abs2.(Δ_new2.b) .* Δ_new2.a)) < 200 * eps()
 

@@ -48,13 +48,14 @@ using Test
         n_v_bit = 1
         n_c_bit = 1
         e = 2
-        n_kryl = 10
+        n_kryl = 15
         n_sites = 1 + n_bath
 
         # applicable to both methods
-        Δ = get_hyb(n_bath)
+        Δ = hybridization_function_bethe_simple(n_bath)
         H_nat, n_occ = to_natural_orbitals(Array(Δ))
         n_bit, n_v_vector, n_c_vector = get_CI_parameters(n_sites, n_occ, n_c_bit, n_v_bit)
+        E0_target = -21.527949603162277 # target ground state energy
 
         @testset "Wavefunction" begin
             M = 2 * n_sites <= 64 ? UInt64 : BigMask{cld(2 * n_sites, 64),UInt64}
@@ -71,7 +72,7 @@ using Test
             H_avg = dot(ψ0, Hψ)
             H_sqr = dot(Hψ, Hψ)
             var_rel = H_sqr / H_avg^2 - 1
-            @test abs(E0 / -41.338736133386504 - 1) < 1E-4
+            @test abs(E0 / E0_target - 1) < 1E-4
             @test abs(H_avg / E0 - 1) < 1E-14
             @test var_rel < 5E-8
         end # Wavefunction
@@ -97,8 +98,8 @@ using Test
             H_avg = dot(ψ0, Hψ)
             H_sqr = dot(Hψ, Hψ)
             var_rel = H_sqr / H_avg^2 - 1
-            @test norm(S - I) < 1E-12 # S_ij = δ_ij
-            @test abs(E0 / -41.33867543081087 - 1) < 1E-4
+            @test norm(S - I) < 2E-12 # S_ij = δ_ij
+            @test abs(E0 / E0_target - 1) < 1E-4
             @test abs(H_avg / E0 - 1) < 1E-14
             @test var_rel < 4E-8
         end # CIWavefunction

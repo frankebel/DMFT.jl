@@ -16,7 +16,7 @@ using Test
         n_kryl = 5
         n_kryl_gs = 20
         # initial system
-        Δ = get_hyb(n_bath)
+        Δ = hybridization_function_bethe_simple(n_bath, 2)
         fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1//2))
         n = occupations(fs)
         H_int = U * n[1, -1//2] * n[1, 1//2]

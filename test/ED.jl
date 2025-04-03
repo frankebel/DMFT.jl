@@ -8,7 +8,7 @@ using Test
     n_bath = 3
     U = 4.0
     ϵ_imp = -U / 2
-    Δ = get_hyb(n_bath)
+    Δ = hybridization_function_bethe_simple(n_bath)
     fs = FockSpace(Orbitals(n_bath + 1), FermionicSpin(1//2))
     n = occupations(fs)
     H_int = U * n[1, 1//2] * n[1, -1//2]

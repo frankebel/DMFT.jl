@@ -28,8 +28,9 @@ using Test
         n_v_bit = 1
         n_c_bit = 1
         e = 2
-        n_kryl = 10
-        Δ = get_hyb(n_bath)
+        n_kryl = 15
+        E0_target = -21.527949603162277 # target ground state energy
+        Δ = hybridization_function_bethe_simple(n_bath)
         fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1//2))
         n = occupations(fs)
         H_int = U * n[1, -1//2] * n[1, 1//2]
@@ -39,7 +40,7 @@ using Test
         H_sqr = dot(Hψ, Hψ)
         var_rel = H_sqr / H_avg^2 - 1
         @test H isa CIOperator
-        @test abs(E0 / -41.33867543081087 - 1) < 1E-4
+        @test abs(E0 / E0_target - 1) < 1E-4
         @test abs(H_avg / E0 - 1) < 1E-14
         @test var_rel < 4E-8
     end # init system

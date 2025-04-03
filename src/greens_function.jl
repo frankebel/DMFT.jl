@@ -1,5 +1,73 @@
-# Methods related to lattice Green's functions
-# where the user supplies a dispersion relation H_k.
+# Methods related to Green's functions.
+
+# Bethe lattice.
+
+"""
+    greens_function_bethe_simple(n_bath::Int, D::Real=1.0)
+
+Return the [`Pole`](@ref) representation of the semicircular density of states
+with half-bandwidth `D` on `n_bath` poles.
+
+Poles are found by diagonalizing a tridiagonal matrix with hopping ``t=D/2``.
+
+See also: [`greens_function_bethe_equal_weight`](@ref).
+"""
+function greens_function_bethe_simple(n_bath::Int, D::Real=1.0)
+    # check input
+    D > 0 || throw(DomainError(D, "negative half-bandwidth"))
+
+    dv = zeros(n_bath)
+    ev = fill(D / 2, n_bath - 1) # hopping t = D/2
+    H0 = SymTridiagonal(dv, ev)
+    a, T = eigen(H0)
+    b = abs.(T[:, 1]) # positive values for simplicity
+    return Pole(a, b)
+end
+
+"""
+    greens_function_bethe_equal_weight(n_bath::Int, D::Real=1.0)
+
+Return the [`Pole`](@ref) representation of the semicircular density of states
+with half-bandwidth `D` on `n_bath` poles.
+
+Each Pole has the same hybridization ``V^2 = 1/n_b``.
+
+See also: [`greens_function_bethe_simple`](@ref).
+"""
+function greens_function_bethe_equal_weight(n_bath::Int, D::Real=1.0)
+    isodd(n_bath) || throw(DomainError(n_bath, "number of bath sites must be odd"))
+
+    V_sqr = 1 / n_bath
+    V = sqrt(V_sqr)
+    s = Semicircle(D)
+
+    # calculate only negative half, mirror due to symmetry
+    q = collect(0:V_sqr:0.5) # equal weight for each pole
+    v = quantile.(Semicircle(D), q) # I_l
+
+    # ϵ_l = 1/V_sqr ∫_{I_l} dω ω f(ω)
+    # trapezoid rule with `n_p` points
+    a = Vector{Float64}(undef, n_bath ÷ 2)
+    n_p = 128 # arbitrary number
+    for i in eachindex(v)
+        i == length(v) && break
+        # subtract half of border values
+        α = -v[i] * pdf(s, v[i]) - v[i + 1] * pdf(s, v[i + 1])
+        α /= 2
+        for j in LinRange(v[i], v[i + 1], n_p)
+            α += j * pdf(s, j)
+        end
+        α *= (v[i + 1] - v[i]) / n_p # Δω = I_l/n_p
+        a[i] = α
+    end
+    a .*= n_bath # a .*= 1/V_sqr
+
+    a = [a; 0; -reverse(a)]
+    b = fill(V, n_bath)
+    return Pole(a, b)
+end
+
+# Dispersion relation H_k supplied by user.
 
 """
     greens_function_local(
