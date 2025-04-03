@@ -1,4 +1,5 @@
 [deps]
+Changelog = "5217a498-cd5d-4ec6-b8c2-9b85a09b6e3e"
 DMFT = "a6c836f4-75b2-4167-a711-17703ee59b5f"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 
