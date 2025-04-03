@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - unify function names of Green's function and hybridization function ([#41](https://github.com/frankebel/DMFT.jl/pull/41)) ([d095219](https://github.com/frankebel/DMFT.jl/commit/d095219ade1ae73349ff79e8ea903f69f73159a7))
 
+### Fixed
+
+- block Lanzcos must return hermitian matrices ([#42](https://github.com/frankebel/DMFT.jl/pull/42)) ([d0b066a](https://github.com/frankebel/DMFT.jl/commit/d0b066aba90a8308ea0f9adeece25165e52acaba))
+
 ## [0.5.1] - 2025-04-02
 
 ### Fixed
