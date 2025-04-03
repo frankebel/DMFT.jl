@@ -55,6 +55,9 @@ function block_lanczos(
         rmul!(M1, -1)
         mul!(V_new, V_old, M1, true, true) # V_new -= V*B'
     end
+    # hermitize matrices
+    map(hermitianpart!, A)
+    map(hermitianpart!, B)
     return A, B
 end
 

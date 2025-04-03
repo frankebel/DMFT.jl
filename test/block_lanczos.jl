@@ -36,6 +36,7 @@ using Test
         a, b = DMFT.block_lanczos(H, W, n_kryl)
         @test length(a) === n_kryl
         @test length(b) === n_kryl - 1
+        @test all(ishermitian, a)
         @test all(ishermitian, b)
 
         X = zeros(2 * n_kryl, 2 * n_kryl)
