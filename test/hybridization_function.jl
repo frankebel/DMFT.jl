@@ -50,6 +50,44 @@ using Test
             @test sum(abs2.(Δ.b)) ≈ 1.0 rtol = 10 * eps()
         end # simple
 
+        @testset "grid" begin
+            # 101 poles
+            W = collect(range(-1, 1; length=101))
+            Δ = hybridization_function_bethe_grid(W)
+            @test typeof(Δ) === Pole{V,V}
+            @test length(Δ.a) === length(Δ.b) === 101
+            @test Δ.a == W
+            @test Δ.a !== W
+            @test sum(abs2.(Δ.b)) ≈ 0.25 rtol = 10 * eps()
+            @test norm(abs2.(Δ.b) - reverse(abs2.(Δ.b))) < 10 * eps()
+            @test Δ.b[51] ≈ 0.056418488187777546 atol = eps()
+            # 100 poles
+            W = collect(range(-1, 1; length=100))
+            Δ = hybridization_function_bethe_grid(W)
+            @test typeof(Δ) === Pole{V,V}
+            @test length(Δ.a) === length(Δ.b) === 100
+            @test Δ.a == W
+            @test Δ.a !== W
+            @test sum(abs2.(Δ.b)) ≈ 0.25 rtol = 10 * eps()
+            @test norm(abs2.(Δ.b) - reverse(abs2.(Δ.b))) < 10 * eps()
+            @test Δ.b[51] ≈ 0.05670125801017559 atol = eps()
+            # 101 poles, D = 2
+            W = collect(range(-3, 3; length=101))
+            Δ = hybridization_function_bethe_grid(W, 2)
+            @test sum(abs2.(Δ.b)) ≈ 1 rtol = 10 * eps()
+            @test norm(abs2.(Δ.b) - reverse(abs2.(Δ.b))) < 10 * eps()
+            @test all(iszero, view(Δ.b, 1:17))
+            @test all(iszero, view(Δ.b, 85:101))
+            @test Δ.b[51] ≈ 0.13819506847065838 atol = eps()
+            # non-equidistant grid
+            # Test if dense grid in middle has smaller weights.
+            W = [-1:0.01:-0.51; -0.5:0.005:0.5; 0.51:0.01:1]
+            Δ = hybridization_function_bethe_grid(W)
+            w1 = Δ.b[50]
+            @test all(i -> i < w1, view(Δ.b, 51:251))
+            @test Δ.b[151] ≈ 0.028209464484933045 atol = eps()
+        end # grid
+
         @testset "equal weight" begin
             @test_throws DomainError hybridization_function_bethe_equal_weight(2)
             # D = 1

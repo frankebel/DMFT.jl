@@ -34,7 +34,9 @@ with half-bandwidth `D` on `n_bath` poles.
 
 Poles are found by diagonalizing a tridiagonal matrix with hopping ``t=D/2``.
 
-See also: [`greens_function_bethe_equal_weight`](@ref).
+See also:
+[`greens_function_bethe_grid`](@ref),
+[`greens_function_bethe_equal_weight`](@ref).
 """
 function greens_function_bethe_simple(n_bath::Int, D::Real=1.0)
     # check input
@@ -49,6 +51,50 @@ function greens_function_bethe_simple(n_bath::Int, D::Real=1.0)
 end
 
 """
+    greens_function_bethe_grid(grid::AbstractVector{<:Real}, D::Real=1.0)
+
+Return the [`Pole`](@ref) representation of the semicircular density of states
+with half-bandwidth `D` with poles given in `grid`.
+
+See also:
+[`greens_function_bethe_simple`](@ref),
+[`greens_function_bethe_equal_weight`](@ref).
+"""
+function greens_function_bethe_grid(grid::AbstractVector{<:Real}, D::Real=1.0)
+    # check input
+    issorted(grid) || throw(ArgumentError("grid is not sorted"))
+    allunique(grid) || throw(ArgumentError("grid has duplicate poles"))
+    D > 0 || throw(DomainError(D, "negative half-bandwidth"))
+
+    s = Semicircle(D)
+    a = copy(grid)
+    b = similar(grid)
+    if length(grid) == 1
+        b[firstindex(b)] = 1
+        return Pole(a, b)
+    end
+    # For each pole location a[i] we bisect the interval to its neighbors
+    # a_low = 0.5 * (a[i-1] + a[i])
+    # a_high = 0.5 * (a[i] + a[i+1])
+    # and calculate the weight as
+    # b ∝ cdf(a_high) - cdf(a_low)
+    for i in eachindex(a)
+        if i == firstindex(a)
+            # cdf(-Inf) = 0
+            @inbounds b[i] = cdf(s, 0.5 * (a[i] + a[i + 1]))
+        elseif i == lastindex(a)
+            # cdf(Inf) = 1
+            @inbounds b[i] = 1 - cdf(s, 0.5 * (a[i - 1] + a[i]))
+        else
+            @inbounds b[i] =
+                cdf(s, 0.5 * (a[i] + a[i + 1])) - cdf(s, 0.5 * (a[i - 1] + a[i]))
+        end
+    end
+    map!(sqrt, b, b)
+    return Pole(a, b)
+end
+
+"""
     greens_function_bethe_equal_weight(n_bath::Int, D::Real=1.0)
 
 Return the [`Pole`](@ref) representation of the semicircular density of states
@@ -56,7 +102,9 @@ with half-bandwidth `D` on `n_bath` poles.
 
 Each Pole has the same hybridization ``V^2 = 1/n_b``.
 
-See also: [`greens_function_bethe_simple`](@ref).
+See also:
+[`greens_function_bethe_simple`](@ref),
+[`greens_function_bethe_grid`](@ref).
 """
 function greens_function_bethe_equal_weight(n_bath::Int, D::Real=1.0)
     isodd(n_bath) || throw(DomainError(n_bath, "number of bath sites must be odd"))

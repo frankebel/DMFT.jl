@@ -48,6 +48,52 @@ using Test
             @test sum(abs2.(G.b)) ≈ 1 rtol = 10 * eps()
         end # simple
 
+        @testset "grid" begin
+            # 1 pole
+            W = [0.0]
+            G = greens_function_bethe_grid(W)
+            @test typeof(G) === Pole{V,V}
+            @test length(G.a) === length(G.b) === 1
+            @test G.a == W
+            @test G.a !== W
+            @test G.b[1] === 1.0
+            # 101 poles
+            W = collect(range(-1, 1; length=101))
+            G = greens_function_bethe_grid(W)
+            @test typeof(G) === Pole{V,V}
+            @test length(G.a) === length(G.b) === 101
+            @test G.a == W
+            @test G.a !== W
+            @test sum(abs2.(G.b)) ≈ 1 rtol = 10 * eps()
+            @test norm(abs2.(G.b) - reverse(abs2.(G.b))) < 10 * eps()
+            @test G.b[51] ≈ 0.11283697637555509 atol = eps()
+            # 100 poles
+            W = collect(range(-1, 1; length=100))
+            G = greens_function_bethe_grid(W)
+            @test typeof(G) === Pole{V,V}
+            @test length(G.a) === length(G.b) === 100
+            @test G.a == W
+            @test G.a !== W
+            @test sum(abs2.(G.b)) ≈ 1 rtol = 10 * eps()
+            @test norm(abs2.(G.b) - reverse(abs2.(G.b))) < 10 * eps()
+            @test G.b[51] ≈ 0.11340251602035117 atol = eps()
+            # 101 poles, D = 2
+            W = collect(range(-3, 3; length=101))
+            G = greens_function_bethe_grid(W, 2)
+            @test sum(abs2.(G.b)) ≈ 1 rtol = 10 * eps()
+            @test norm(abs2.(G.b) - reverse(abs2.(G.b))) < 10 * eps()
+            @test all(iszero, view(G.b, 1:17))
+            @test all(iszero, view(G.b, 85:101))
+            @test G.b[51] ≈ 0.13819506847065838 atol = eps()
+            # non-equidistant grid
+            # Test if dense grid in middle has smaller weights.
+            W = [-1:0.01:-0.51; -0.5:0.005:0.5; 0.51:0.01:1]
+            G = greens_function_bethe_grid(W)
+            w1 = G.b[50]
+            @test all(i -> i < w1, view(G.b, 51:251))
+            @test G.b[151] ≈ 0.05641892896986609 atol = eps()
+        end # grid
+
         @testset "equal weight" begin
             @test_throws DomainError greens_function_bethe_equal_weight(2)
             G = greens_function_bethe_equal_weight(101)
