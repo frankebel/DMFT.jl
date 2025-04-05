@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- unify function names of Green's function and hybridization function ([#41](https://github.com/frankebel/DMFT.jl/pull/41)) ([d095219](https://github.com/frankebel/DMFT.jl/commit/d095219ade1ae73349ff79e8ea903f69f73159a7))
+- unify function names of Green's function and hybridization function ([#41](https://github.com/frankebel/DMFT.jl/pull/41)) ([d095219](https://github.com/frankebel/DMFT.jl/commit/d095219ade1ae73349ff79e8ea903f69f73159a7)) ([#45](https://github.com/frankebel/DMFT.jl/pull/45)) ([d4a4bf6](https://github.com/frankebel/DMFT.jl/commit/d4a4bf6dda05e8a97f9c749bfef08638d1985f89))
 
 ### Fixed
 
