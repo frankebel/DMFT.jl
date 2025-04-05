@@ -3,6 +3,30 @@
 # Bethe lattice.
 
 """
+    greens_function_bethe_analytic(z::Number, D::Real=1.0)
+    greens_function_bethe_analytic(Z::AbstractVector{<:Number}, D::Real=1.0)
+
+Calculate the Green's function for a Bethe lattice
+given a frequency `z` in the upper complex plane,
+and half-bandwidth `D`.
+
+```math
+G(z) = \\frac{2}{D^2} (z - \\mathrm{sgn}(\\mathrm{Re}(z)) \\sqrt{z^2 - D^2})
+```
+
+with ``\\mathrm{sgn}(0) = \\mathrm{sgn}(0^±)``.
+"""
+function greens_function_bethe_analytic(z::Number, D::Real=1.0)
+    D > 0 || throw(DomainError(D, "negative half-bandwidth"))
+    s = (-1)^signbit(real(z)) # sign(0) = sign(0^±)
+    return 2 / D^2 * (z - s * sqrt((z + 0.0im)^2 - D^2))
+end
+
+function greens_function_bethe_analytic(Z::AbstractVector{<:Number}, D::Real=1.0)
+    return map(z -> greens_function_bethe_analytic(z, D), Z)
+end
+
+"""
     greens_function_bethe_simple(n_bath::Int, D::Real=1.0)
 
 Return the [`Pole`](@ref) representation of the semicircular density of states

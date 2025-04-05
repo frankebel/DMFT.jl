@@ -6,6 +6,27 @@ using Test
     @testset "Bethe lattice" begin
         V = Vector{Float64}
 
+        @testset "analytic" begin
+            # test different number types
+            @test greens_function_bethe_analytic(-2) == -0.5358983848622456
+            @test greens_function_bethe_analytic(-true) == -2
+            @test greens_function_bethe_analytic(-1//2) == -1.0 - 1.7320508075688772im
+            @test greens_function_bethe_analytic(false) == -2im
+            @test greens_function_bethe_analytic(0.1im) == -1.809975124224178im
+            @test greens_function_bethe_analytic(0.5) == 1.0 - 1.7320508075688772im
+            @test greens_function_bethe_analytic(0x1) == 2
+            @test greens_function_bethe_analytic(2.0) == 0.5358983848622456
+            # vary half-bandwidth
+            @test greens_function_bethe_analytic(-1, 2) == -0.5 - 0.8660254037844386im
+            @test greens_function_bethe_analytic(0, 10) == -0.2im
+            # Vector{Complex}
+            g = greens_function_bethe_analytic([2.0 + 0.1im, 3.0 + 0.5im])
+            @test typeof(g) === Vector{ComplexF64}
+            @test length(g) === 2
+            @test g[1] == greens_function_bethe_analytic(2.0 + 0.1im)
+            @test g[2] == greens_function_bethe_analytic(3.0 + 0.5im)
+        end # analytic
+
         @testset "simple" begin
             # 101 poles
             G = greens_function_bethe_simple(101)

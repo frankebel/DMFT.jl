@@ -6,6 +6,29 @@ using Test
     @testset "Bethe lattice" begin
         V = Vector{Float64}
 
+        @testset "analytic" begin
+            # test different number types
+            @test hybridization_function_bethe_analytic(-2) == -0.1339745962155614
+            @test hybridization_function_bethe_analytic(-true) == -1//2
+            @test hybridization_function_bethe_analytic(-1//2) ==
+                -0.25 - 0.4330127018922193im
+            @test hybridization_function_bethe_analytic(false) == -0.5im
+            @test hybridization_function_bethe_analytic(0.1im) == -0.4524937810560445im
+            @test hybridization_function_bethe_analytic(0.5) == 0.25 - 0.4330127018922193im
+            @test hybridization_function_bethe_analytic(0x1) == 0.5
+            @test hybridization_function_bethe_analytic(2.0) == 0.1339745962155614
+            # # vary half-bandwidth
+            @test hybridization_function_bethe_analytic(-1, 2) ==
+                -0.5 - 0.8660254037844386im
+            @test hybridization_function_bethe_analytic(0, 10) == -5im
+            # Vector{Complex}
+            Δ = hybridization_function_bethe_analytic([2.0 + 0.1im, 3.0 + 0.5im])
+            @test typeof(Δ) === Vector{ComplexF64}
+            @test length(Δ) === 2
+            @test Δ[1] == hybridization_function_bethe_analytic(2.0 + 0.1im)
+            @test Δ[2] == hybridization_function_bethe_analytic(3.0 + 0.5im)
+        end # analytic
+
         @testset "simple" begin
             # 101 poles
             Δ = hybridization_function_bethe_simple(101)

@@ -4,6 +4,28 @@
 # as Δ(ω) = D^2/4 G(ω).
 
 """
+    hybridization_function_bethe_analytic(z::Number, D::Real=1.0)
+    hybridization_function_bethe_analytic(Z::AbstractVector{<:Number}, D::Real=1.0)
+
+Calculate the hybrid function for a Bethe lattice
+given a frequency `z` in the upper complex plane,
+and half-bandwidth `D`.
+
+```math
+Δ(z) = \\frac{1}{2} (z - \\sign(\\mathrm{Re}(z)) \\sqrt{z^2 - D^2})
+```
+
+with ``\\sign(0) = \\sign(0^±)``.
+"""
+function hybridization_function_bethe_analytic(z::Number, D::Real=1.0)
+    return greens_function_bethe_analytic(z, D) * D^2 / 4
+end
+
+function hybridization_function_bethe_analytic(Z::AbstractVector{<:Number}, D::Real=1.0)
+    return map(z -> hybridization_function_bethe_analytic(z, D), Z)
+end
+
+"""
     hybridization_function_bethe_simple(n_bath::Int, D::Real=1.0)
 
 Return the [`Pole`](@ref) representation of the semicircular density of states
