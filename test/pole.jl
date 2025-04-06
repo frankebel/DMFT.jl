@@ -138,5 +138,27 @@ using Test
             @test A.b == collect(6:10)
             @test B.b == [6, 7, 8, 9, 100]
         end # copy
+
+        @testset "sort!" begin
+            a = [2, 1]
+            b = [3, 4]
+            A = Pole(a, b)
+            B = sort!(A)
+            @test B === A
+            @test A.a == [1, 2]
+            @test A.b == [4, 3]
+        end # sort!
+
+        @testset "sort" begin
+            a = [2, 1]
+            b = [3, 4]
+            A = Pole(a, b)
+            B = sort(A)
+            @test B !== A
+            @test A.a == [2, 1]
+            @test A.b == [3, 4]
+            @test B.a == [1, 2]
+            @test B.b == [4, 3]
+        end # sort
     end # Base
 end # Pole

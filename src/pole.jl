@@ -100,3 +100,12 @@ function Core.Array(P::Pole{<:V,<:V}) where {V<:AbstractVector{<:Real}}
 end
 
 Base.copy(P::Pole) = Pole(copy(P.a), copy(P.b))
+
+function Base.sort!(P::Pole{<:Any,<:AbstractVector})
+    p = sortperm(P.a)
+    P.a[:] = P.a[p]
+    P.b[:] = P.b[p]
+    return P
+end
+
+Base.sort(P::Pole{<:Any,<:AbstractVector}) = sort!(copy(P))
