@@ -51,6 +51,8 @@ export
     starting_Wavefunction,
     sytrd!,
     temperature_kondo,
+    to_grid,
+    to_grid_sqr,
     to_natural_orbitals,
     update_weiss_field,
     write_hdf5,

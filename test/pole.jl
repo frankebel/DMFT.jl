@@ -48,60 +48,116 @@ using Test
         end # blockdiagonal
     end # constructor
 
-    @testset "evaluation" begin
-        @testset "Lorentzian" begin
-            a = collect(1.0:10)
-            # single point
-            z = 10 + im
-            # b::Vector
-            b = collect(0.1:0.1:1)
-            P = Pole(a, b)
-            foo = P(z)
-            @test typeof(P(z)) === ComplexF64
-            @test abs(P(z) - sum(i -> (0.1 * i)^2 / (10 + im - i), 1:10)) < eps()
-            # b::Matrix
-            b = reshape(collect(0.1:0.1:2), (2, 10))
-            P = Pole(a, b)
-            foo = P(z)
-            @test typeof(P(z)) === Matrix{ComplexF64}
-            @test norm(
-                P(z) - [
-                    3.419109056634164-5.796080126589452im 3.669440321902302-6.127487634859227im
-                    3.669440321902302-6.127487634859227im 3.9413975570979876-6.478614061451364im
-                ],
-            ) < eps()
+    @testset "custom functions" begin
+        @testset "evaluation" begin
+            @testset "Lorentzian" begin
+                a = collect(1.0:10)
+                # single point
+                z = 10 + im
+                # b::Vector
+                b = collect(0.1:0.1:1)
+                P = Pole(a, b)
+                foo = P(z)
+                @test typeof(P(z)) === ComplexF64
+                @test abs(P(z) - sum(i -> (0.1 * i)^2 / (10 + im - i), 1:10)) < eps()
+                # b::Matrix
+                b = reshape(collect(0.1:0.1:2), (2, 10))
+                P = Pole(a, b)
+                foo = P(z)
+                @test typeof(P(z)) === Matrix{ComplexF64}
+                @test norm(
+                    P(z) - [
+                        3.419109056634164-5.796080126589452im 3.669440321902302-6.127487634859227im
+                        3.669440321902302-6.127487634859227im 3.9413975570979876-6.478614061451364im
+                    ],
+                ) < eps()
 
-            # grid
-            z = rand(ComplexF64, 2)
-            @test P(z) == [P(z[1]), P(z[2])]
-        end # Lorentzian
+                # grid
+                z = rand(ComplexF64, 2)
+                @test P(z) == [P(z[1]), P(z[2])]
+            end # Lorentzian
 
-        @testset "Gaussian" begin
-            ω = 0.15
-            σ = 0.04
-            # b::Matrix
-            a = [0.1, 0.2]
-            b = reshape(collect(0.1:0.1:0.4), (2, 2))
-            P = Pole(a, b)
-            @test norm(
-                P(ω, σ) - [
-                    -1.5277637226549838-1.4345225621076145im -1.90970465331873-2.00833158695066im
-                    -1.90970465331873-2.00833158695066im -2.2916455839824765-2.8690451242152295im
-                ],
-            ) < 10 * eps()
+            @testset "Gaussian" begin
+                ω = 0.15
+                σ = 0.04
+                # b::Matrix
+                a = [0.1, 0.2]
+                b = reshape(collect(0.1:0.1:0.4), (2, 2))
+                P = Pole(a, b)
+                @test norm(
+                    P(ω, σ) - [
+                        -1.5277637226549838-1.4345225621076145im -1.90970465331873-2.00833158695066im
+                        -1.90970465331873-2.00833158695066im -2.2916455839824765-2.8690451242152295im
+                    ],
+                ) < 10 * eps()
 
-            # semicircular DOS
-            G = greens_function_bethe_simple(3001)
-            ω = collect(-3:0.01:3)
-            σ = 0.01
-            # constant broadening
-            h = G(ω, σ)
-            ex = π .* pdf.(Semicircle(1), ω) # exact solution
-            @test norm(ex + imag(h)) < 0.2
-            @test maximum(abs.(ex + imag(h))) < 0.12
-            @test findmin(imag(h))[2] == cld(length(ω), 2) # symmetric
-        end # Gaussian
-    end # evaluate
+                # semicircular DOS
+                G = greens_function_bethe_simple(3001)
+                ω = collect(-3:0.01:3)
+                σ = 0.01
+                # constant broadening
+                h = G(ω, σ)
+                ex = π .* pdf.(Semicircle(1), ω) # exact solution
+                @test norm(ex + imag(h)) < 0.2
+                @test maximum(abs.(ex + imag(h))) < 0.12
+                @test findmin(imag(h))[2] == cld(length(ω), 2) # symmetric
+            end # Gaussian
+        end # evaluate
+
+        @testset "to_grid_sqr" begin
+            # all poles within grid, middle pole centerd
+            A = Pole([0.1, 0.2, 0.3], [5.0, -10.0, 1.0])
+            grid = [0.1, 0.3]
+            B = to_grid_sqr(A, grid)
+            @test B.a == [0.1, 0.3]
+            @test norm(B.b - [0.0, -4.0]) < 10 * eps()
+            # all poles within grid, middle pole not centered
+            A = Pole([0.1, 0.25, 0.3], [5.0, -10.0, 1.0])
+            grid = [0.1, 0.3]
+            B = to_grid_sqr(A, grid)
+            @test B.a == [0.1, 0.3]
+            @test norm(B.b - [2.5, -6.5]) < 10 * eps()
+            # pole outside grid
+            A = Pole([0.0, 1.0], [5.0, -10.0])
+            grid = [0.1, 0.3]
+            B = to_grid_sqr(A, grid)
+            @test B.a == [0.1, 0.3]
+            @test B.b == [5.0, -10.0]
+            # poles very close to grid
+            A = Pole([4e-16, 0.9999999999999998], [4.0, 5.0])
+            grid = [0.0, 1.0]
+            B = to_grid_sqr(A, grid)
+            @test B.a == [0.0, 1.0]
+            @test B.b == [4.0, 5.0]
+        end  # to_grid_sqr
+
+        @testset "to_grid" begin
+            # all poles within grid, middle pole centerd
+            A = Pole([0.1, 0.2, 0.3], [5.0, -10.0, 1.0])
+            grid = [0.1, 0.3]
+            B = to_grid(A, grid)
+            @test B.a == [0.1, 0.3]
+            @test norm(B.b - [sqrt(75), sqrt(51)]) < 10 * eps()
+            # all poles within grid, middle pole not centered
+            A = Pole([0.1, 0.25, 0.3], [5.0, -10.0, 1.0])
+            grid = [0.1, 0.3]
+            B = to_grid(A, grid)
+            @test B.a == [0.1, 0.3]
+            @test norm(B.b - [sqrt(50), sqrt(76)]) < 10 * eps()
+            # pole outside grid
+            A = Pole([0.0, 1.0], [5.0, -10.0])
+            grid = [0.1, 0.3]
+            B = to_grid(A, grid)
+            @test B.a == [0.1, 0.3]
+            @test B.b == [5.0, 10.0]
+            # poles very close to grid
+            A = Pole([4e-16, 0.9999999999999998], [4.0, 5.0])
+            grid = [0.0, 1.0]
+            B = to_grid(A, grid)
+            @test B.a == [0.0, 1.0]
+            @test B.b == [4.0, 5.0]
+        end  # to_grid
+    end # custom functions
 
     @testset "Core" begin
         @testset "Array" begin

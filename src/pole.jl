@@ -92,6 +92,78 @@ end
 
 (P::Pole)(ω::AbstractVector{<:R}, σ::R) where {R<:Real} = map(w -> P(w, σ), ω)
 
+"""
+    to_grid_sqr(P::Pole{<:V,<:V}, grid::V) where {V<:AbstractVector{<:Real}}
+
+Create a new [`Pole`](@ref) from `P` on with locations given by `grid`.
+
+A given pole is split locally conserving the zeroth and first moment.
+If the pole is lower than the lowest value in the grid or
+higher than the highest value, only the zeroth moment is conserved.
+
+Assumes that weights are already squared and keeps them squred.
+
+See also: [`to_grid`](@ref).
+"""
+function to_grid_sqr(P::Pole{<:V,<:V}, grid::V) where {V<:AbstractVector{<:Real}}
+    # check input
+    length(P.a) == length(P.b) || throw(DimensionMismatch("length mismatch in P"))
+    issorted(grid) || throw(ArgumentError("grid is not sorted"))
+    allunique(grid) || throw(ArgumentError("degenerate locations in grid"))
+
+    # new location of poles
+    a = copy(grid)
+    b = zero(grid)
+    # run through each pole and split weight to neighbors
+    @inbounds for i in eachindex(P.a)
+        pole = P.a[i]
+        weight = P.b[i]
+        if pole <= first(grid)
+            # no pole to the left
+            b[begin] += weight
+        elseif pole >= last(grid)
+            # no pole to the right
+            b[end] += weight
+        else
+            # find next pole with higher location
+            i = searchsortedfirst(grid, pole)
+            if pole - grid[i - 1] < 10 * eps()
+                # previous pole has same location
+                b[i - 1] += weight
+            elseif grid[i] - pole < 10 * eps()
+                # current pole has same location
+                b[i] += weight
+            else
+                # split such that zeroth and first moment is conserved
+                alow = grid[i - 1]
+                ahigh = grid[i]
+                b[i - 1] += (ahigh - pole) / (ahigh - alow) * weight
+                b[i] += (pole - alow) / (ahigh - alow) * weight
+            end
+        end
+    end
+    return Pole(a, b)
+end
+
+"""
+    to_grid(P::Pole{<:V,<:V}, grid::V) where {V<:AbstractVector{<:Real}}
+
+Create a new [`Pole`](@ref) from `P` on with locations given by `grid`.
+
+A given pole is split locally conserving the zeroth and first moment.
+If the pole is lower than the lowest value in the grid or
+higher than the highest value, only the zeroth moment is conserved.
+
+See also: [`to_grid_sqr`](@ref).
+"""
+function to_grid(P::Pole{<:V,<:V}, grid::V) where {V<:AbstractVector{<:Real}}
+    result = copy(P)
+    map!(abs2, result.b, result.b) # square weights
+    result = to_grid_sqr(result, grid)
+    map!(sqrt, result.b, result.b) # undo squaring
+    return result
+end
+
 function Core.Array(P::Pole{<:V,<:V}) where {V<:AbstractVector{<:Real}}
     result = Matrix(Diagonal([0; P.a]))
     result[1, 2:end] .= P.b
