@@ -98,3 +98,5 @@ function Core.Array(P::Pole{<:V,<:V}) where {V<:AbstractVector{<:Real}}
     result[2:end, 1] .= P.b
     return result
 end
+
+Base.copy(P::Pole) = Pole(copy(P.a), copy(P.b))

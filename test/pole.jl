@@ -103,19 +103,40 @@ using Test
         end # Gaussian
     end # evaluate
 
-    @testset "Array" begin
-        a = collect(1:5)
-        b = collect(6:10)
-        Δ = Pole(a, b)
-        m = Array(Δ)
-        @test typeof(m) === Matrix{Int}
-        @test m == [
-            0 6 7 8 9 10
-            6 1 0 0 0 0
-            7 0 2 0 0 0
-            8 0 0 3 0 0
-            9 0 0 0 4 0
-            10 0 0 0 0 5
-        ]
-    end # Array
+    @testset "Core" begin
+        @testset "Array" begin
+            a = collect(1:5)
+            b = collect(6:10)
+            Δ = Pole(a, b)
+            m = Array(Δ)
+            @test typeof(m) === Matrix{Int}
+            @test m == [
+                0 6 7 8 9 10
+                6 1 0 0 0 0
+                7 0 2 0 0 0
+                8 0 0 3 0 0
+                9 0 0 0 4 0
+                10 0 0 0 0 5
+            ]
+        end # Array
+    end # Core
+
+    @testset "Base" begin
+        @testset "copy" begin
+            a = collect(1:5)
+            b = collect(6:10)
+            A = Pole(a, b)
+            B = copy(A)
+            @test typeof(B) === typeof(A)
+            @test B.a == A.a
+            @test B.b == A.b
+            # mutate values
+            B.a[begin] = 100
+            @test A.a == collect(1:5)
+            @test B.a == [100, 2, 3, 4, 5]
+            B.b[end] = 100
+            @test A.b == collect(6:10)
+            @test B.b == [6, 7, 8, 9, 100]
+        end # copy
+    end # Base
 end # Pole
