@@ -204,6 +204,34 @@ using Test
             @test a == [-1.0, -0.5, 0.0, 1.5]
             @test b == [1.7, 0.0, 0.0, 4.3]
         end # move negative weight to neighbors
+
+        @testset "continued fraction" begin
+            function evaluate_cont_frac(a, b, z::Complex)
+                result = zero(z)
+                for (a, b) in zip(reverse(a[2:end]), reverse(b))
+                    result = abs2(b) / (z - a - result)
+                end
+                result = 1 / (z - a[1] - result)
+                return result
+            end
+
+            G = greens_function_bethe_simple(101)
+            a, b = DMFT._continued_fraction(G)
+            @test length(a) === 101
+            @test length(b) === 100
+            # don't have intuition who poles should look, but test below pass
+            @test all(i -> isapprox(i, 0.5; atol=1000 * eps()), b)
+            @test all(i -> i < 1000 * eps(), @view a[2:end])
+            # evaluate
+            z = 0.1im
+            @test norm(G(z) - evaluate_cont_frac(a, b, z)) < 10 * eps()
+            z = 1.2 + 0.1im
+            @test norm(G(z) - evaluate_cont_frac(a, b, z)) < 10 * eps()
+            z1 = evaluate_cont_frac(a, b, -0.8 + 0.1im)
+            z2 = evaluate_cont_frac(a, b, 0.8 + 0.1im)
+            @test real(z1) ≈ -real(z2) rtol = 2000 * eps()
+            @test imag(z1) ≈ imag(z2) rtol = 7000 * eps()
+        end # continued fraction
     end # custom functions
 
     @testset "Core" begin

@@ -240,6 +240,42 @@ function move_negative_weight_to_neighbors!(
     return P
 end
 
+# Pole in continued fraction representation
+# P(z) = 1 / (z - a_1 - b_1^2 / (z - a_2 - ⋯))
+function _continued_fraction(P::Pole{<:V,<:V}) where {V<:AbstractVector{<:Real}}
+    # check input
+    Base.require_one_based_indexing(P.a)
+    Base.require_one_based_indexing(P.b)
+    abs(norm(P.b) - 1) < 10 * eps() || throw(ArgumentError("Pole P is not normalized"))
+
+    R = eltype(V)
+    N = length(P)
+    A = Diagonal(P.a) # Lanczos on this matrix
+    # container for Lanzcos
+    a = Vector{R}(undef, N)
+    b = Vector{R}(undef, N - 1)
+    kryl = Matrix{R}(undef, N, N)
+    # first Lanczos step
+    kryl[:, 1] = P.b  # input vector
+    v_new = A * P.b
+    a[1] = P.b ⋅ v_new
+    v_new .-= a[1] * P.b
+    for i in 2:N
+        # all other Lanczos steps
+        b[i - 1] = norm(v_new)
+        rmul!(v_new, inv(b[i - 1]))
+        kryl[:, i] = v_new
+        mul!(v_new, A, view(kryl, :, i)) # new vector
+        a[i] = view(kryl, :, i) ⋅ v_new
+        for j in 1:i
+            # orthogonalize against all previous states
+            v_old = view(kryl, :, j)
+            v_new .-= (v_old ⋅ v_new) * v_old
+        end
+    end
+    return a, b
+end
+
 function Core.Array(P::Pole{<:V,<:V}) where {V<:AbstractVector{<:Real}}
     result = Matrix(Diagonal([0; P.a]))
     result[1, 2:end] .= P.b
