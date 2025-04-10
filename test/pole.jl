@@ -380,5 +380,26 @@ using Test
             @test C.a == [-1.0, 0.0, 3.0]
             @test norm(C.b - [sqrt(13.75), 0, sqrt(2.96)]) < 10 * eps()
         end # -
+
+        @testset "inv" begin
+            G = greens_function_bethe_simple(101)
+            a0, P = inv(G)
+            @test length(P.a) === length(P.b) === 100
+            @test all(>=(0), P.b)
+            # poles are symmetric
+            @test abs(a0) < 2000 * eps()
+            @test norm(P.a - P.a) < 10 * eps()
+            @test norm(P.b - P.b) < 10 * eps()
+            @test sum(abs2.(P.b)) ≈ 0.25 atol = 300 * eps() # total weight
+            # evaluate
+            z = 0.1im
+            @test norm(G(z) - 1 / (z - a0 - P(z))) < 20 * eps()
+            z = 1.2 + 0.1im
+            @test norm(G(z) - 1 / (z - a0 - P(z))) < 10 * eps()
+            z1 = 1 / (-0.8 + 0.1im - a0 - P(-0.8 + 0.1im))
+            z2 = 1 / (0.8 + 0.1im - a0 - P(0.8 + 0.1im))
+            @test real(z1) ≈ -real(z2) rtol = 2000 * eps()
+            @test imag(z1) ≈ imag(z2) rtol = 7000 * eps()
+        end # inv
     end # Base
 end # Pole

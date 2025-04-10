@@ -323,3 +323,35 @@ function Base.:-(A::Pole{<:V,<:V}, B::Pole{<:V,<:V}) where {V<:AbstractVector{<:
     map!(sqrt, result.b, result.b) # undo squaring
     return result
 end
+
+"""
+    inv(P::Pole{<:V,<:V}) where V<:AbstractVector{<:Real}
+
+Invert `P` → `P_inv` such that
+
+```math
+P(z) = ∑_{i=1}^N \\frac{|b_i|^2}{z-a_i}
+```
+
+is converted to
+
+```math
+P_inv(z) = \\frac{1}{z - a_0 - \\sum_{i=1}^{N-1} \\frac{|b_i|^2}{z - a_i}} = \\frac{1}{z - a_0 - Q(z)}.
+```
+
+Returns `a_0::Real` and `Q::Pole`.
+
+!!! note
+    Input `P` must be normalized.
+"""
+function Base.inv(P::Pole{<:V,<:V}) where {V<:AbstractVector{<:Real}}
+    a, b = _continued_fraction(P)
+    a0 = a[1]
+    # take all poles except first and diagonalize
+    S = SymTridiagonal(a[2:end], b[2:end])
+    a, T = eigen(S)
+    b = b[1] * view(T, 1, :)
+    map!(abs, b, b) # positive weights easier
+    P = Pole(a, b)
+    return a0, P
+end
