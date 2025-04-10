@@ -164,6 +164,82 @@ function to_grid(P::Pole{<:V,<:V}, grid::V) where {V<:AbstractVector{<:Real}}
     return result
 end
 
+"""
+    move_negative_weight_to_neighbors!(P::Pole{<:V,<:V}) where {V<:AbstractVector{<:Real}}
+
+Move negative weights of `P` such that the zeroth moment is conserved
+and the first moment changes minimally.
+
+Assumes that weights are squared and keeps them in that form.
+"""
+function move_negative_weight_to_neighbors!(
+    P::Pole{<:V,<:V}
+) where {V<:AbstractVector{<:Real}}
+    a = P.a
+    b = P.b
+
+    # check input
+    length(a) == length(b) || throw(DimensionMismatch("length mismatch"))
+    issorted(a) || issorted(a; rev=true) || throw(ArgumentError("grid is not sorted"))
+    allunique(a) || throw(ArgumentError("degenerate locations in grid"))
+    sum(b) >= 0 || throw(ArgumentError("total weight is negative"))
+    firstindex(a) == firstindex(b) || throw(ArgumentError("input uses different indexing"))
+
+    for i in eachindex(b)
+        b[i] >= 0 && continue # no negative weight, go to next
+        if i == lastindex(b)
+            # find previous positive weight
+            for j in Iterators.reverse(firstindex(b):(i - 1))
+                iszero(b[j]) && continue
+                if b[j] + b[end] >= 0
+                    # b[j] can fully compensate b[end]
+                    b[j] += b[end]
+                    b[end] = 0
+                    break
+                else
+                    # b[j] can't fully compensate b[end]
+                    b[end] += b[j]
+                    b[j] = 0
+                end
+            end
+        else
+            for j in Iterators.reverse(firstindex(b):(i - 1))
+                # find a previous pole with positive weight
+                iszero(b[j]) && continue
+                # calculate fractions how weight should be split
+                f_left = (a[i + 1] - a[i]) / (a[i + 1] - a[j])
+                f_right = 1 - f_left
+                if b[j] + f_left * b[i] >= 0
+                    # b[j] can fully compensate b[i]
+                    b[j] += f_left * b[i]
+                    b[i + 1] += f_right * b[i]
+                    b[i] = 0
+                else
+                    # b[j] can't fully compensate b[i].
+                    # Find fraction f ∈ (0, 1) which can be merged such that b[j] gets 0 weight.
+                    # b_j + f f_l b_i === 0
+                    b[i] += b[j] / f_left
+                    b[i + 1] -= f_right / f_left * b[j]
+                    b[j] = 0
+                end
+                if j == firstindex(a)
+                    # no pole with positive weight remaining
+                    b[i + 1] += b[i]
+                    b[i] = 0
+                end
+            end
+            if b[i] <= 0
+                # negative weight remaining and no previous weight to compensate
+                # move negative weight to next pole
+                b[i + 1] += b[i]
+                b[i] = 0
+            end
+        end
+    end
+    sum(b) >= 0 || throw(ArgumentError("total weight got negative"))
+    return P
+end
+
 function Core.Array(P::Pole{<:V,<:V}) where {V<:AbstractVector{<:Real}}
     result = Matrix(Diagonal([0; P.a]))
     result[1, 2:end] .= P.b
