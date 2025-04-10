@@ -242,6 +242,13 @@ using Test
             @test B.b == [6, 7, 8, 9, 100]
         end # copy
 
+        @testset "length" begin
+            P = Pole(rand(10), rand(10))
+            @test length(P) === 10
+            append!(P.a, 0)
+            @test_throws ArgumentError length(P)
+        end # length
+
         @testset "sort!" begin
             a = [2, 1]
             b = [3, 4]

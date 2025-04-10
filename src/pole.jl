@@ -249,6 +249,11 @@ end
 
 Base.copy(P::Pole) = Pole(copy(P.a), copy(P.b))
 
+function Base.length(P::Pole)
+    length(P.a) == length(P.b) || throw(ArgumentError("length mismatch"))
+    return length(P.a)
+end
+
 function Base.sort!(P::Pole{<:Any,<:AbstractVector})
     p = sortperm(P.a)
     P.a[:] = P.a[p]
