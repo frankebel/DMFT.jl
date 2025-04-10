@@ -263,5 +263,87 @@ using Test
             @test B.a == [1, 2]
             @test B.b == [4, 3]
         end # sort
+
+        @testset "-" begin
+            # same pole locations, result has no negative weight
+            a = [-1.0, 0.0, 5.0]
+            Ab = [5.0, 6.0, 7.0]
+            Bb = [2.5, 3.0, 4.8]
+            A = Pole(a, Ab)
+            B = Pole(a, Bb)
+            C = A - B
+            # original must be untouched
+            @test A.a == [-1.0, 0.0, 5.0]
+            @test A.b == [5.0, 6.0, 7.0]
+            @test B.a == [-1.0, 0.0, 5.0]
+            @test B.b == [2.5, 3.0, 4.8]
+            # new Pole
+            @test C.a == [-1.0, 0.0, 5.0]
+            @test C.b == [sqrt(18.75), sqrt(27), sqrt(25.96)]
+
+            # same pole locations, 1 negative weight
+            a = [-1.0, 0.0, 3.0]
+            Ab = [5.0, 2.0, 7.0]
+            Bb = [2.5, 3.0, 4.8]
+            A = Pole(a, Ab)
+            B = Pole(a, Bb)
+            C = A - B
+            # original must be untouched
+            @test A.a == [-1.0, 0.0, 3.0]
+            @test A.b == [5.0, 2.0, 7.0]
+            @test B.a == [-1.0, 0.0, 3.0]
+            @test B.b == [2.5, 3.0, 4.8]
+            # new Pole
+            @test C.a == [-1.0, 0.0, 3.0]
+            @test norm(C.b - [sqrt(15), 0, sqrt(24.71)]) < 10 * eps()
+
+            # different pole locations, result has no negative weight
+            a = [-1.0, 0.0, 3.0]
+            Ab = [5.0, 6.0, 7.0]
+            Bb = [2.5, 3.0, 4.8]
+            A = Pole(a, Ab)
+            B = Pole([-1.0, 1.0, 3.0], Bb)
+            C = A - B
+            # original must be untouched
+            @test A.a == [-1.0, 0.0, 3.0]
+            @test A.b == [5.0, 6.0, 7.0]
+            @test B.a == [-1.0, 1.0, 3.0]
+            @test B.b == [2.5, 3.0, 4.8]
+            # new Pole
+            @test C.a == [-1.0, 0.0, 3.0]
+            @test norm(C.b - [sqrt(18.75), sqrt(30), sqrt(22.96)]) < 10 * eps()
+
+            # different pole locations, middle gets zero weight
+            a = [-1.0, 0.0, 3.0]
+            Ab = [5.0, 6.0, 7.0]
+            Bb = [2.5, sqrt(54), 4.8]
+            A = Pole(a, Ab)
+            B = Pole([-1.0, 1.0, 3.0], Bb)
+            C = A - B
+            # original must be untouched
+            @test A.a == [-1.0, 0.0, 3.0]
+            @test A.b == [5.0, 6.0, 7.0]
+            @test B.a == [-1.0, 1.0, 3.0]
+            @test B.b == [2.5, sqrt(54), 4.8]
+            # new Pole
+            @test C.a == [-1.0, 0.0, 3.0]
+            @test norm(C.b - [sqrt(18.75), 0, sqrt(7.96)]) < 10 * eps()
+
+            # different pole locations, middle gets negative weight
+            a = [-1.0, 0.0, 3.0]
+            Ab = [5.0, 6.0, 7.0]
+            Bb = [2.5, 8.0, 4.8]
+            A = Pole(a, Ab)
+            B = Pole([-1.0, 1.0, 3.0], Bb)
+            C = A - B
+            # original must be untouched
+            @test A.a == [-1.0, 0.0, 3.0]
+            @test A.b == [5.0, 6.0, 7.0]
+            @test B.a == [-1.0, 1.0, 3.0]
+            @test B.b == [2.5, 8.0, 4.8]
+            # new Pole
+            @test C.a == [-1.0, 0.0, 3.0]
+            @test norm(C.b - [sqrt(13.75), 0, sqrt(2.96)]) < 10 * eps()
+        end # -
     end # Base
 end # Pole
