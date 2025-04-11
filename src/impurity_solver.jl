@@ -42,7 +42,18 @@ function solve_impurity(
     return G_plus, G_minus, Σ_H
 end
 
-# positive frequencies
+# positive frequencies, scalar
+function _pos(
+    H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
+) where {CI<:CIWavefunction}
+    v = O * ψ0
+    b0 = norm(v)
+    rmul!(v, inv(b0))
+    a, b = lanczos(H, v, n_kryl)
+    return _pole(a, b, E0, b0)
+end
+
+# positive frequencies, block
 function _pos(
     H::CIOperator, E0::Real, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int
 ) where {CI<:CIWavefunction}
@@ -53,6 +64,17 @@ function _pos(
     W, S_sqrt = orthogonalize_states(V)
     A, B = block_lanczos(H, W, n_kryl)
     return _pole(A, B, E0, S_sqrt)
+end
+
+# negative frequencies, scalar
+function _neg(
+    H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
+) where {CI<:CIWavefunction}
+    v = O * ψ0
+    b0 = norm(v)
+    rmul!(v, inv(b0))
+    a, b = lanczos(H, v, n_kryl)
+    return _pole(-a, -b, -E0, b0)
 end
 
 # negative frequencies
@@ -68,7 +90,16 @@ function _neg(
     return _pole(-A, B, -E0, S_sqrt)
 end
 
-# Diagonalize blocktridiagonal matrix given by `A`, `B` and convert to `Pole`.
+# diagonalize tridiagonal matrix given by `a`, `b` and convert to `Pole`
+function _pole(a::AbstractVector{<:Real}, b::AbstractVector{<:Real}, E0::Real, b0::Real)
+    S = SymTridiagonal(a, b)
+    E, T = eigen(S)
+    E .-= E0
+    R = b0 * T[1, :]
+    return Pole(E, R)
+end
+
+# diagonalize blocktridiagonal matrix given by `A`, `B` and convert to `Pole`
 function _pole(
     A::AbstractVector{<:AbstractMatrix{<:Real}},
     B::AbstractVector{<:AbstractMatrix{<:T}},
