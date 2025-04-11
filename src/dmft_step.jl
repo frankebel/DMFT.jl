@@ -45,7 +45,7 @@ function dmft_step(
         Δ, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs, n_kryl, O
     )
     Σ = self_energy_IFG(G_plus, G_minus, Z, Σ_H)
-    Δ_grid = update_weiss_field(Δ0, μ, Z, Σ)
+    Δ_grid = update_hybridization_function(Δ0, μ, Z, Σ)
     Δ_new = equal_weight_discretization(-imag(Δ_grid), real(Z), η, n_dis)
     return G_plus, G_minus, Δ_new, Δ_grid
 end
@@ -70,35 +70,18 @@ function dmft_step_gauss(
         Δ, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs, n_kryl, O
     )
     Σ = self_energy_IFG_gauss(G_plus, G_minus, ω, σ, Σ_H)
-    Δ_grid = update_weiss_field(Δ0, μ, ω, Σ)
+    Δ_grid = update_hybridization_function(Δ0, μ, ω, Σ)
     Δ_new = equal_weight_discretization(-imag(Δ_grid), real(ω), σ, n_dis)
     return G_plus, G_minus, Δ_new, Δ_grid
 end
-
-"""
-    update_weiss_field(
-        Δ0::Pole, μ::Real, Z::AbstractVector{<:Number}, Σ::AbstractVector{<:Complex}
-    )
-
-Calculate the new Weiss field from the lattice hybridization `Δ0` and
-the impurity self energy `Σ` on grid `Z`.
-
-```math
-Δ(Z) = Δ_0(Z + μ - Σ)
-```
-"""
-update_weiss_field(
-    Δ0::Pole, μ::Real, Z::AbstractVector{<:Number}, Σ::AbstractVector{<:Complex}
-) = Δ0(Z .+ μ - Σ)
 
 """
     equal_weight_discretization(
         imΔ::AbstractVector{<:Real}, w::AbstractVector{<:Real}, η::Real, n::Int
     )
 
-Discretize the Weiss field on `n` poles, such that each pole has equal weight.
+Discretize the given function `imΔ` on `n` poles, such that each pole has equal weight.
 
-`imΔ` is the negative imaginary part of the Weiss field.
 Assumes that `w` is an equidistant grid.
 Assumes that `w` has odd number of values.
 Assumes that `w` is a symmetric interval.

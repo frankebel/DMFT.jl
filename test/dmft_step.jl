@@ -77,6 +77,6 @@ using Test
 
     # FG
     Σ_FG = self_energy_FG(G_plus, G_minus, Z)
-    Δ_grid3 = update_weiss_field(Δ0, μ, Z, Σ_FG)
+    Δ_grid3 = update_hybridization_function(Δ0, μ, Z, Σ_FG)
     @test Δ_grid != Δ_grid3
 end # DMFT step

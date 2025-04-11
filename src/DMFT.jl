@@ -55,7 +55,7 @@ export
     to_grid,
     to_grid_sqr,
     to_natural_orbitals,
-    update_weiss_field,
+    update_hybridization_function,
     write_hdf5,
     η_gaussian
 
@@ -72,6 +72,7 @@ include("hybridization_function.jl")
 include("block_lanczos.jl")
 include("impurity_solver.jl")
 include("self_energy.jl")
+include("update_hybridization_function.jl")
 include("dmft_step.jl")
 include("Combinatorics.jl")
 include("Debug.jl")
