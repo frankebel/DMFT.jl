@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Green's function and hybridization function on a given grid ([#46](https://github.com/frankebel/DMFT.jl/pull/46)) ([c30556d](https://github.com/frankebel/DMFT.jl/commit/c30556ddc816a1b9cf4aa1436d4a3fa88ce6b3fe))
 - subtraction of `Pole` ([#47](https://github.com/frankebel/DMFT.jl/pull/47)) ([8ba021b](https://github.com/frankebel/DMFT.jl/commit/8ba021bee989cf8ba536fd38a51d43711df62775))
 - inversion of `Pole` ([#48](https://github.com/frankebel/DMFT.jl/pull/48)) ([c34ff69](https://github.com/frankebel/DMFT.jl/commit/c34ff69349800085824d1430dbd975e83de9e8b3))
+- update hybridization function in pole representation ([#50](https://github.com/frankebel/DMFT.jl/pull/50)) ([c0725f5](https://github.com/frankebel/DMFT.jl/commit/c0725f5572155657110980cf8caf28ed130a73cb))
 
 ### Changed
 
