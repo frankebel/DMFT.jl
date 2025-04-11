@@ -42,9 +42,9 @@ export
     orthogonalize_states,
     read_hdf5,
     realKK,
-    self_energy,
     self_energy_FG,
-    self_energy_gauss,
+    self_energy_IFG,
+    self_energy_IFG_gauss,
     slater_start,
     solve_impurity,
     spectral_function_gauss,
@@ -71,6 +71,7 @@ include("greens_function.jl")
 include("hybridization_function.jl")
 include("block_lanczos.jl")
 include("impurity_solver.jl")
+include("self_energy.jl")
 include("dmft_step.jl")
 include("Combinatorics.jl")
 include("Debug.jl")

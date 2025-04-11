@@ -44,7 +44,7 @@ function dmft_step(
     G_plus, G_minus, Σ_H = solve_impurity(
         Δ, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs, n_kryl, O
     )
-    Σ = self_energy(G_plus, G_minus, Z, Σ_H)
+    Σ = self_energy_IFG(G_plus, G_minus, Z, Σ_H)
     Δ_grid = update_weiss_field(Δ0, μ, Z, Σ)
     Δ_new = equal_weight_discretization(-imag(Δ_grid), real(Z), η, n_dis)
     return G_plus, G_minus, Δ_new, Δ_grid
@@ -69,69 +69,10 @@ function dmft_step_gauss(
     G_plus, G_minus, Σ_H = solve_impurity(
         Δ, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs, n_kryl, O
     )
-    Σ = self_energy_gauss(G_plus, G_minus, ω, σ, Σ_H)
+    Σ = self_energy_IFG_gauss(G_plus, G_minus, ω, σ, Σ_H)
     Δ_grid = update_weiss_field(Δ0, μ, ω, Σ)
     Δ_new = equal_weight_discretization(-imag(Δ_grid), real(ω), σ, n_dis)
     return G_plus, G_minus, Δ_new, Δ_grid
-end
-
-"""
-    self_energy_FG(
-        G_plus::GF, G_minus::GF, Z::AbstractVector{<:Complex}
-    ) where {GF<:Pole{<:Real,<:AbstractMatrix{<:Number}}}
-
-Calculate self-energy as ``Σ(Z) = F(Z) G^{-1}(Z)``.
-"""
-function self_energy_FG(
-    G_plus::P, G_minus::P, Z::AbstractVector{<:Complex}
-) where {P<:Pole{<:AbstractVector{<:Real},<:AbstractMatrix{<:Number}}}
-    gp = G_plus(Z)
-    gm = G_minus(Z)
-    G = map(g -> g[1, 1], gm) .+ map(g -> g[1, 1], gp)
-    F = map(g -> g[1, 2], gm) .+ map(g -> g[2, 1], gp)
-    return F ./ G
-end
-
-"""
-    self_energy(
-        G_plus::GF, G_minus::GF, Z::AbstractVector{<:Complex}, Σ_H::Real
-    ) where {GF<:Pole{<:Real,<:AbstractMatrix{<:Number}}}
-
-Calculate self-energy as ``Σ(Z) = Σ^\\mathrm{H} + I(Z) - F^\\mathrm{L}(Z) G^{-1}(Z) F^\\mathrm{R}(Z)``.
-"""
-function self_energy(
-    G_plus::P, G_minus::P, Z::AbstractVector{<:Complex}, Σ_H::Real
-) where {P<:Pole{<:AbstractVector{<:Real},<:AbstractMatrix{<:Number}}}
-    gp = G_plus(Z)
-    gm = G_minus(Z)
-    G = map(g -> g[1, 1], gm) .+ map(g -> g[1, 1], gp)
-    F_R = map(g -> g[1, 2], gm) .+ map(g -> g[2, 1], gp)
-    F_L = map(g -> g[1, 2], gm) .+ map(g -> g[2, 1], gp)
-    I = map(g -> g[2, 2], gm) .+ map(g -> g[2, 2], gp)
-    return Σ_H .+ I - F_L ./ G .* F_R
-end
-
-"""
-    self_energy_gauss(
-        G_plus::P, G_minus::P, W::AbstractVector{<:Real}, σ::Real, Σ_H::Real
-    ) where {P<:Pole{<:AbstractVector{<:Real},<:AbstractMatrix{<:Number}}}
-
-Calculate self-energy as ``Σ(W) = Σ^\\mathrm{H} + I(W) - F^\\mathrm{L}(W) G^{-1}(W) F^\\mathrm{R}(W)``
-with Gaussian broadening.
-
-Real part is obtained by Kramers-Kronig relation.
-"""
-function self_energy_gauss(
-    G_plus::P, G_minus::P, W::AbstractVector{<:Real}, σ::Real, Σ_H::Real
-) where {P<:Pole{<:AbstractVector{<:Real},<:AbstractMatrix{<:Number}}}
-    # get imaginary part
-    gp = G_plus(W, σ)
-    gm = G_minus(W, σ)
-    G = map(g -> g[1, 1], gm) .+ map(g -> g[1, 1], gp)
-    F_R = map(g -> g[1, 2], gm) .+ map(g -> g[2, 1], gp)
-    F_L = map(g -> g[1, 2], gm) .+ map(g -> g[2, 1], gp)
-    I = map(g -> g[2, 2], gm) .+ map(g -> g[2, 2], gp)
-    return Σ_H .+ I - F_L ./ G .* F_R
 end
 
 """
