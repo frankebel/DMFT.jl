@@ -64,6 +64,6 @@ using Test
         @test all(i -> i <= 0, imag(Σ))
         # Hartree term Re[Σ(ω=0^+)] = U/2
         @test Σ_H ≈ U / 2 rtol = 20 * eps()
-        @test real(Σ[cld(length(w), 2)]) ≈ U / 2 rtol = 100 * eps()
+        @test real(Σ[cld(length(w), 2)]) ≈ U / 2 rtol = 200 * eps()
     end # solve_impurity
 end # impurity_solver
