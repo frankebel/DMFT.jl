@@ -51,7 +51,8 @@ function to_natural_orbitals(H::AbstractMatrix{<:Real}, ϵ::Real=1E-8)
     B = @view base_occ[:, 2:end]
     S = B' * B
     E, V = LAPACK.syev!('V', 'U', S)
-    R = V * Diagonal(map(x -> 1 / sqrt(x), E)) * V'
+    tol = maximum(E) * sqrt(eps(typeof(ϵ))) # set all eigenvalues smaller to zero
+    R = V * Diagonal(map(x -> x >= tol ? 1 / sqrt(x) : 0, E)) * V'
     B .= B * R
     h = base_occ' * H * base_occ
 
@@ -62,7 +63,8 @@ function to_natural_orbitals(H::AbstractMatrix{<:Real}, ϵ::Real=1E-8)
     B = @view base_emp[:, 2:end]
     S = B' * B
     E, V = LAPACK.syev!('V', 'U', S)
-    R = V * Diagonal(map(x -> 1 / sqrt(x), E)) * V'
+    tol = maximum(E) * sqrt(eps(typeof(ϵ))) # set all eigenvalues smaller to zero
+    R = V * Diagonal(map(x -> x >= tol ? 1 / sqrt(x) : 0, E)) * V'
     B .= B * R
     h = base_emp' * H * base_emp
 

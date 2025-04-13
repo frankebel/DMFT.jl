@@ -46,6 +46,10 @@ using Test
         m = rand(ComplexF64, 10, 10)
         m = 0.5 * (m + m')
         @test_throws MethodError to_natural_orbitals(m)
+
+        # sites with zero hybridization, Löwdin must not return negative eigenvalues
+        Δ = hybridization_function_bethe_grid(collect(range(-2, 2; length=31)))
+        to_natural_orbitals(Array(Δ))
     end # matrix transformation
 
     @testset "operator" begin
