@@ -246,7 +246,7 @@ function _continued_fraction(P::Pole{<:V,<:V}) where {V<:AbstractVector{<:Real}}
     # check input
     Base.require_one_based_indexing(P.a)
     Base.require_one_based_indexing(P.b)
-    abs(norm(P.b) - 1) < 10 * eps() || throw(ArgumentError("Pole P is not normalized"))
+    abs(norm(P.b) - 1) < 100 * eps() || throw(ArgumentError("Pole P is not normalized"))
 
     R = eltype(V)
     N = length(P)
