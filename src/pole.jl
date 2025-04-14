@@ -300,25 +300,27 @@ end
 Base.sort(P::Pole{<:Any,<:AbstractVector}) = sort!(copy(P))
 
 # Subtraction of Poles `result = A - B`.
-# After squaring each weight, `B` is put on the same grid as `A`.
+# After squaring each weight, `A` is put on the same grid as `B`.
 # Then, each pole is subtracted `result.b = A.b - B.b.
 # If any resulting pole has negative weight,
 # it is then shifted around to make all weights non-negative.
 function Base.:-(A::Pole{<:V,<:V}, B::Pole{<:V,<:V}) where {V<:AbstractVector{<:Real}}
     # check input
-    issorted(A.a) || throw(ArgumentError("A is not sorted"))
-    allunique(A.a) || throw(ArgumentError("degenerate energies in A"))
+    issorted(B.a) || throw(ArgumentError("A is not sorted"))
+    allunique(B.a) || throw(ArgumentError("degenerate energies in B"))
     length(A.a) == length(A.b) || throw(DimensionMismatch("length mismatch in A"))
     length(B.a) == length(B.b) || throw(DimensionMismatch("length mismatch in B"))
 
     # create copies to keep original unchanged
     # work with squared weights from here on
-    result = copy(A)
-    map!(abs2, result.b, result.b)
-    B = copy(B)
-    map!(abs2, B.b, B.b)
-    B = to_grid_sqr(B, A.a)
-    result.b .-= B.b # subtract poles
+    result = copy(B)
+    for i in eachindex(result.b)
+        result.b[i] = -abs2(result.b[i])
+    end
+    A = copy(A)
+    map!(abs2, A.b, A.b)
+    A = to_grid_sqr(A, B.a)
+    result.b .+= A.b # difference of weights
     move_negative_weight_to_neighbors!(result)
     map!(sqrt, result.b, result.b) # undo squaring
     return result
