@@ -1,3 +1,69 @@
+# correlator with Lanczos
+"""
+    dmft_step(
+        Δ0::Pole{V,V},
+        Δ::Pole{V,V},
+        H_int::Op,
+        μ::Real,
+        ϵ_imp::Real,
+        n_v_bit::Int,
+        n_c_bit::Int,
+        e::Int,
+        O::Op, # creator
+        Ogs::AbstractVector{<:Op}, # operators to measure on ground state
+        n_kryl::Int,
+        n_kryl_gs::Int,
+    ) where {V<:AbstractVector{<:Real},Op<:Operator}
+
+Calculate a single step of DMFT.
+
+Returns
+- `G_imp::Pole{V,V}`: impurity Green's function
+- `Σ_H::eltype{V}`: self-energy Hartree term
+- `Σ::Pole{V,V}`: self-energy excluding Hartree term
+- `Δ_new::Pole{V,V}`: new hybridization function
+- `E0::eltype{V}`: ground-state energy
+- `expectation_values::V`: expectation values for `Ogs`
+"""
+function dmft_step(
+    Δ0::Pole{V,V},
+    Δ::Pole{V,V},
+    H_int::Op,
+    μ::Real,
+    ϵ_imp::Real,
+    n_v_bit::Int,
+    n_c_bit::Int,
+    e::Int,
+    O::Op, # creator
+    Ogs::AbstractVector{<:Op}, # operators to measure on ground state
+    n_kryl::Int,
+    n_kryl_gs::Int,
+) where {V<:AbstractVector{<:Real},Op<:Operator}
+    # initialize system
+    H, E0, ψ0 = init_system(Δ, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs)
+
+    # expectation values on ground state
+    expectation_values = V(undef, length(Ogs))
+    for i in eachindex(Ogs)
+        expectation_values[i] = dot(ψ0, Ogs[i] * ψ0)
+    end
+
+    # impurity Green's function
+    G_plus = DMFT._pos(H, E0, ψ0, O, n_kryl)
+    G_minus = DMFT._neg(H, E0, ψ0, O, n_kryl)
+    G_imp = Pole([G_minus.a; G_plus.a], [G_minus.b; G_plus.b])
+    sort!(G_imp)
+
+    # self-energy
+    Σ_H, Σ = self_energy_pole(ϵ_imp, Δ0, G_imp)
+
+    # new hybridization function
+    Δ_new = update_hybridization_function(Δ0, μ, Σ_H, Σ)
+
+    return G_imp, Σ_H, Σ, Δ_new, E0, expectation_values
+end
+
+# multiple correlators with block Lanczos
 """
     dmft_step(
         Δ0::Pole{V,V},

@@ -31,6 +31,36 @@ using Test
     B = A' * H_int - H_int * A' # [f_↓, H_int]
     B = B' # need to apply to ket
     O = [A, B]
+    Ogs = [1.0 * n[1, -1//2], 1.0 * n[1, 1//2], 1.0 * n[1, 1//2] * n[1, -1//2]]
+
+    @testset "Lanczos" begin
+        G_imp, Σ_H, Σ, Δ, E0, expectation_values = dmft_step(
+            Δ0, Δ0, H_int, μ, ϵ_imp, n_v_bit, n_c_bit, e, O[1], Ogs, n_kryl, n_kryl_gs
+        )
+        # impurity Green's function
+        @test issorted(G_imp.a)
+        @test norm(G_imp.a + reverse(G_imp.a)) < 100 * eps()
+        weights = abs2.(G_imp.b)
+        @test sum(weights) ≈ 1 atol = 100 * eps()
+        @test norm(weights - reverse(weights)) < eps()
+        # self-energy
+        @test Σ_H ≈ U / 2 atol = 100 * eps()
+        @test Σ.a == Δ0.a
+        weights = abs2.(Σ.b)
+        @test sum(weights) ≈ U^2 / 4 atol = 500 * sqrt(eps())
+        @test norm(weights - reverse(weights)) < 200 * eps()
+        # new hybridization
+        @test Δ.a == Δ0.a
+        weights = abs2.(Δ.b)
+        @test sum(weights) ≈ 0.25 atol = 100 * eps()
+        @test norm(weights - reverse(weights)) < 100 * eps()
+        # GS energy
+        @test E0 ≈ -21.527949603162277 atol = sqrt(eps())
+        # expectation values
+        @test expectation_values[1] ≈ 0.5 atol = 100 * eps()
+        @test expectation_values[2] ≈ 0.5 atol = 100 * eps()
+        @test expectation_values[3] ≈ 0.04361582917690503 atol = 100 * eps()
+    end # Lanczos
 
     @testset "block Lanczos" begin
         # self-energy
