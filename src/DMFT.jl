@@ -45,6 +45,7 @@ export
     self_energy_FG,
     self_energy_IFG,
     self_energy_IFG_gauss,
+    self_energy_pole,
     slater_start,
     solve_impurity,
     spectral_function_gauss,

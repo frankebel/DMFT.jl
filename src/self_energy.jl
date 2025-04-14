@@ -1,5 +1,31 @@
 # various methods of calculating self-energy from Pole representation
 
+"""
+    self_energy_pole(
+    ϵ_imp::Real, Δ0::Pole{<:V,<:V}, 𝒢::Pole{<:V,<:V}
+) where {V<:AbstractVector{<:Real}}
+
+Calculate the self-energy purely in [`Pole`](@ref) representation using the Dyson equation.
+
+```math
+Σ(z) = 𝒢_0^{-1}(z) - 𝒢^{-1}(z)
+```
+
+with
+
+```math
+𝒢_0^{-1}(z) = \\frac{1}{z - ϵ_imp - Δ_0(z)}
+```
+"""
+function self_energy_pole(
+    ϵ_imp::Real, Δ0::Pole{<:V,<:V}, 𝒢::Pole{<:V,<:V}
+) where {V<:AbstractVector{<:Real}}
+    a0, 𝒢_inv = inv(𝒢)
+    Σ_H = a0 - ϵ_imp
+    Σ = 𝒢_inv - Δ0
+    return Σ_H, Σ
+end
+
 # https://doi.org/10.1088/0953-8984/10/37/021
 """
     self_energy_FG(

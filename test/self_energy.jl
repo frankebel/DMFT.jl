@@ -34,13 +34,24 @@ using Test
         Δ0, H_int, -μ, n_v_bit, n_c_bit, e, n_kryl_gs, n_kryl, O
     )
 
-    # self-energies
-    Σ_IFG = self_energy_IFG(G_plus, G_minus, Z, Σ_H)
-    Σ_IFG_gauss = self_energy_IFG_gauss(G_plus, G_minus, W, δ, Σ_H)
-    Σ_FG = self_energy_FG(G_plus, G_minus, Z)
-    @test Σ_IFG != Σ_IFG_gauss
-    @test Σ_IFG != Σ_FG
-    @test norm(Σ_IFG - Σ_FG) * step_size < 0.0004 # they should be somewhat similar
-    @test iszero(imag(first(Σ_IFG_gauss))) # exponential decay results in zero
-    @test minimum(imag(Σ_IFG_gauss)) < minimum(imag(Σ_IFG)) # Gauss is steeper
+    @testset "pole" begin
+        G_imp = Pole([G_minus.a; G_plus.a], [G_minus.b[1, :]; G_plus.b[1, :]])
+        sort!(G_imp)
+        Σ_H, Σ = self_energy_pole(-μ, Δ0, G_imp)
+        @test abs(Σ_H - U / 2) < 100 * eps() # half-filling
+        @test Σ.a == Δ0.a
+        @test norm(sum(abs2.(Σ.b)) - U^2 / 4) < 1000 * sqrt(eps())
+    end # pole
+
+    @testset "correlator" begin
+        # self-energies
+        Σ_IFG = self_energy_IFG(G_plus, G_minus, Z, Σ_H)
+        Σ_IFG_gauss = self_energy_IFG_gauss(G_plus, G_minus, W, δ, Σ_H)
+        Σ_FG = self_energy_FG(G_plus, G_minus, Z)
+        @test Σ_IFG != Σ_IFG_gauss
+        @test Σ_IFG != Σ_FG
+        @test norm(Σ_IFG - Σ_FG) * step_size < 0.0004 # they should be somewhat similar
+        @test iszero(imag(first(Σ_IFG_gauss))) # exponential decay results in zero
+        @test minimum(imag(Σ_IFG_gauss)) < minimum(imag(Σ_IFG)) # Gauss is steeper
+    end # correlator
 end # self-energy
