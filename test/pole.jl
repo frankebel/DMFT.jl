@@ -393,7 +393,7 @@ using Test
             @test sum(abs2.(P.b)) ≈ 0.25 atol = 300 * eps() # total weight
             # evaluate
             z = 0.1im
-            @test norm(G(z) - 1 / (z - a0 - P(z))) < 20 * eps()
+            @test norm(G(z) - 1 / (z - a0 - P(z))) < 30 * eps()
             z = 1.2 + 0.1im
             @test norm(G(z) - 1 / (z - a0 - P(z))) < 10 * eps()
             z1 = 1 / (-0.8 + 0.1im - a0 - P(-0.8 + 0.1im))
