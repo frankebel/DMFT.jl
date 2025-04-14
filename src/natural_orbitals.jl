@@ -9,7 +9,7 @@ States with energies `E ∈ (-ϵ, ϵ)` are considered degenerate.
 function to_natural_orbitals(H::AbstractMatrix{<:Real}, ϵ::Real=1E-8)
     ishermitian(H) || throw(ArgumentError("`H` not hermitian"))
     E, T = LAPACK.syev!('V', 'U', copy(H))
-    n_lower = count(x -> x <= -ϵ, E)
+    n_lower = count(<=(-ϵ), E)
     n_zero = count(x -> abs(x) < ϵ, E)
     isodd(n_zero) && @warn "odd number of energies equal zero"
     n_occ = n_lower + (n_zero ÷ 2) # half of states around zero occupied
