@@ -32,7 +32,7 @@ function self_energy_IFG(
     gp = G_plus(Z)
     gm = G_minus(Z) # transpose to access F components
     G = map(g -> g[1, 1], gm) .+ map(g -> g[1, 1], gp)
-    F_R = map(g -> g[1, 2], gm) .+ map(g -> g[2, 1], gp)
+    F_R = map(g -> g[2, 1], gm) .+ map(g -> g[1, 2], gp)
     F_L = map(g -> g[1, 2], gm) .+ map(g -> g[2, 1], gp)
     I = map(g -> g[2, 2], gm) .+ map(g -> g[2, 2], gp)
     return Σ_H .+ I - F_L ./ G .* F_R
