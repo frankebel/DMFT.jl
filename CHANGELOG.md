@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - block Lanzcos must return hermitian matrices ([#42](https://github.com/frankebel/DMFT.jl/pull/42)) ([d0b066a](https://github.com/frankebel/DMFT.jl/commit/d0b066aba90a8308ea0f9adeece25165e52acaba))
+- correlator FR in improved self-enregy ([#51](https://github.com/frankebel/DMFT.jl/pull/51)) ([f374b44](https://github.com/frankebel/DMFT.jl/commit/f374b444381c9c2a612561cf0d95c32a1733dff3))
 
 ## [0.5.1] - 2025-04-02
 
