@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - subtraction of `Pole` ([#47](https://github.com/frankebel/DMFT.jl/pull/47)) ([8ba021b](https://github.com/frankebel/DMFT.jl/commit/8ba021bee989cf8ba536fd38a51d43711df62775))
 - inversion of `Pole` ([#48](https://github.com/frankebel/DMFT.jl/pull/48)) ([c34ff69](https://github.com/frankebel/DMFT.jl/commit/c34ff69349800085824d1430dbd975e83de9e8b3))
 - update hybridization function in pole representation ([#50](https://github.com/frankebel/DMFT.jl/pull/50)) ([c0725f5](https://github.com/frankebel/DMFT.jl/commit/c0725f5572155657110980cf8caf28ed130a73cb))
+- calculate DMFT self-consistency in pure `Pole` representation ([#52](https://github.com/frankebel/DMFT.jl/pull/52)) ([18c783b](https://github.com/frankebel/DMFT.jl/commit/18c783bfcada4463ebeb77d85fc8bef7fac357c7))
 
 ### Changed
 
