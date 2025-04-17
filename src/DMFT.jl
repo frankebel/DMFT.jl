@@ -27,6 +27,7 @@ export
     greens_function_bethe_simple,
     greens_function_local,
     greens_function_partial,
+    grid_log,
     ground_state,
     hybridization_function_bethe_analytic,
     hybridization_function_bethe_equal_weight,

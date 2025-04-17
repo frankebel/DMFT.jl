@@ -95,4 +95,15 @@ using Test
         @test μ ≈ 0 atol = 2e-3
         @test filling ≈ n_tot / 2 atol = 2e-2
     end # find chemical potential
+
+    @testset "logarithmic grid" begin
+        @test_throws ArgumentError grid_log(1, 1.0, 10)
+        @test_throws ArgumentError grid_log(1, 2.0, 0)
+        @test grid_log(1, 2, 10) == [
+            2^(-9), 2^(-8), 2^(-7), 2^(-6), 2^(-5), 2^(-4), 2^(-3), 2^(-2), 2^(-1), 2^(-0)
+        ]
+        @test grid_log(16.0, 2, 4) == [2, 4, 8, 16]
+        @test grid_log(-16.0, 2, 4) == [-16, -8, -4, -2]
+        @test grid_log(100, 500, 1) == [100]
+    end # logarithmic grid
 end # util
