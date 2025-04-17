@@ -1,5 +1,5 @@
 """
-    Pole{A<:AbstractVector{<:Real},B<:AbstractVecOrMat}
+    Pole{A<:AbstractVector{<:Real},B<:AbstractVecOrMat{<:Number}}
 
 Representation of poles on the real axis with locations `a::A` and weights `b::B`.
 
@@ -21,7 +21,7 @@ Can be evaluated at
 - real point `ω` with Gaussian broadening `σ`: `P(ω, σ)`
 - vector of real points `W` with Gaussian broadening `σ`: `P(W, σ)`
 """
-struct Pole{A<:AbstractVector{<:Real},B<:AbstractVecOrMat}
+struct Pole{A<:AbstractVector{<:Real},B<:AbstractVecOrMat{<:Number}}
     a::A
     b::B
 
