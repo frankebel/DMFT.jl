@@ -96,6 +96,7 @@ function _pole(a::AbstractVector{<:Real}, b::AbstractVector{<:Real}, E0::Real, b
     E, T = eigen(S)
     E .-= E0
     R = b0 * T[1, :]
+    map!(abs, R, R) # sign does not matter, positive is easier
     return Pole(E, R)
 end
 
