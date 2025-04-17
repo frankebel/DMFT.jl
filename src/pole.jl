@@ -276,6 +276,33 @@ function _continued_fraction(P::Pole{<:V,<:V}) where {V<:AbstractVector{<:Real}}
     return a, b
 end
 
+"""
+    merge_equal_poles!(P::Pole{V,V}, tol::Real=1e-10) where {V<:AbstractVector{<:Real}}
+
+Merge poles which are less than `tol` apart.
+
+If `P.a[i+1] - P.a[i] < tol`, then add up weights and pop index `i+1`.
+"""
+function merge_equal_poles!(P::Pole{V,V}, tol::Real=1e-10) where {V<:AbstractVector{<:Real}}
+    a, b = P.a, P.b
+    tol > 0 || throw(ArgumentError("negative tol"))
+    issorted(a) || throw(ArgumentError("poles are not sorted"))
+
+    i = firstindex(a)
+    while i < lastindex(a)
+        if a[i + 1] - a[i] < tol
+            # merge
+            b[i] = sqrt(abs2(b[i]) + abs2(b[i + 1]))
+            popat!(a, i + 1)
+            popat!(b, i + 1)
+        else
+            # increment index
+            i += 1
+        end
+    end
+    return P
+end
+
 function Core.Array(P::Pole{<:V,<:V}) where {V<:AbstractVector{<:Real}}
     result = Matrix(Diagonal([0; P.a]))
     result[1, 2:end] .= P.b

@@ -53,6 +53,7 @@ function dmft_step(
     G_minus = DMFT._neg(H, E0, ψ0, O, n_kryl)
     G_imp = Pole([G_minus.a; G_plus.a], [G_minus.b; G_plus.b])
     sort!(G_imp)
+    merge_equal_poles!(G_imp)
 
     # self-energy
     Σ_H, Σ = self_energy_pole(ϵ_imp, Δ0, G_imp)

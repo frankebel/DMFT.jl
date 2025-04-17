@@ -232,6 +232,26 @@ using Test
             @test real(z1) ≈ -real(z2) rtol = 2000 * eps()
             @test imag(z1) ≈ imag(z2) rtol = 7000 * eps()
         end # continued fraction
+
+        @testset "merge equal poles!" begin
+            P = Pole([0.1, 0.2, 0.5], [0.25, 0.75, 1.5])
+            # manual tolerance
+            P1 = copy(P)
+            @test merge_equal_poles!(P1, 0.11) === P1
+            @test P1.a == [0.1, 0.5]
+            @test P1.b == [sqrt(0.625), 1.5]
+            # default tolerance too small
+            P1 = copy(P)
+            @test merge_equal_poles!(P1) === P1
+            @test P1.a == [0.1, 0.2, 0.5]
+            @test P1.b == [0.25, 0.75, 1.5]
+            # default tolerance
+            P1 = copy(P)
+            P1.a[2] = 0.4999999999999
+            @test merge_equal_poles!(P1) === P1
+            @test P1.a == [0.1, 0.4999999999999]
+            @test P1.b == [0.25, sqrt(2.8125)]
+        end # merge equal poles
     end # custom functions
 
     @testset "Core" begin

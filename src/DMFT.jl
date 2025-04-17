@@ -35,6 +35,7 @@ export
     imagKK,
     init_system,
     mask_fe,
+    merge_equal_poles!,
     move_negative_weight_to_neighbors!,
     natural_orbital_ci_operator,
     natural_orbital_operator,
