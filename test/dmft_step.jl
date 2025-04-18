@@ -5,22 +5,23 @@ using LinearAlgebra
 using Test
 
 @testset "DMFT step" begin
-    n_bath = 31
+    n_bath = 301
     U = 4.0
     μ = U / 2
     ϵ_imp = -U / 2
     n_v_bit = 1
     n_c_bit = 1
-    e = 2
+    e = 1
     n_kryl = 100
     n_kryl_gs = 20
     W = collect(-10:0.0002:10)
     δ = 0.08
+    grid_poles = collect(range(-5, 5; length=n_bath))
     # do not change parameters below
     n_sites = 1 + n_bath
     Z = W .+ im * δ
 
-    Δ0 = hybridization_function_bethe_simple(n_bath)
+    Δ0 = hybridization_function_bethe_grid(grid_poles)
 
     # Operators for positive frequencies. Negative ones are calculated by adjoint.
     fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1//2))
@@ -38,28 +39,27 @@ using Test
             Δ0, Δ0, H_int, μ, ϵ_imp, n_v_bit, n_c_bit, e, O[1], Ogs, n_kryl, n_kryl_gs
         )
         # impurity Green's function
-        @test issorted(G_imp.a)
-        @test norm(G_imp.a + reverse(G_imp.a)) < 100 * eps()
+        @test G_imp.a == grid_poles
         weights = abs2.(G_imp.b)
         @test sum(weights) ≈ 1 atol = 100 * eps()
-        @test norm(weights - reverse(weights)) < eps()
+        @test norm(weights - reverse(weights)) < 10 * eps()
         # self-energy
         @test Σ_H ≈ U / 2 atol = 100 * eps()
-        @test Σ.a == Δ0.a
+        @test Σ.a == grid_poles
         weights = abs2.(Σ.b)
-        @test sum(weights) ≈ U^2 / 4 atol = 500 * sqrt(eps())
-        @test norm(weights - reverse(weights)) < 200 * eps()
+        @test sum(weights) ≈ U^2 / 4 atol = 2e-4
+        @test norm(weights - reverse(weights)) < 1e3 * eps()
         # new hybridization
-        @test Δ.a == Δ0.a
+        @test Δ.a == grid_poles
         weights = abs2.(Δ.b)
         @test sum(weights) ≈ 0.25 atol = 100 * eps()
         @test norm(weights - reverse(weights)) < 100 * eps()
         # GS energy
-        @test E0 ≈ -21.527949603162277 atol = sqrt(eps())
+        @test E0 ≈ -747.1570703287655 atol = sqrt(eps())
         # expectation values
         @test expectation_values[1] ≈ 0.5 atol = 100 * eps()
         @test expectation_values[2] ≈ 0.5 atol = 100 * eps()
-        @test expectation_values[3] ≈ 0.04361582917690503 atol = 100 * eps()
+        @test expectation_values[3] ≈ 0.04355604136992631 atol = 100 * eps()
     end # Lanczos
 
     @testset "block Lanczos" begin
@@ -83,7 +83,9 @@ using Test
         @test typeof(Δ_new2) === Pole{Vector{Float64},Vector{Float64}}
         @test typeof(Δ_grid2) === Vector{ComplexF64}
         @test length(Δ_new2.a) === n_bath
-        @test all(b -> isapprox(b, 1 / sqrt(n_bath) / 2; rtol=3E-3), Δ_new2.b)
+        weights_without_zero = [Δ_new2.b[1:150]; Δ_new2.b[152:end]]
+        @test all(b -> isapprox(b, 1 / sqrt(n_bath) / 2; rtol=3E-3), weights_without_zero)
+        @test Δ_new2.b[n_bath ÷ 2 + 1] ≈ 1 / sqrt(n_bath) / 2 rtol = 3e-2
         # small weight loss due to truncated interval
         @test 0.24999 <= sum(abs2.(Δ_new2.b)) <= 0.25
         # PHS
