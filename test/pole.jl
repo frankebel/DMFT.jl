@@ -102,6 +102,23 @@ using Test
                 @test maximum(abs.(ex + imag(h))) < 0.12
                 @test findmin(imag(h))[2] == cld(length(ω), 2) # symmetric
             end # Gaussian
+
+            @testset "loggauss" begin
+                Λ = 1.2
+                N = 150
+                a = grid_log(1, Λ, N)
+                grid = [-reverse(a); 0; a]
+                G = greens_function_bethe_grid(grid)
+                W = collect(-2:0.001:2)
+                popat!(W, findfirst(iszero, W)) # exclude ω == 0
+                A = spectral_function_loggauss(G, W, 0.2)
+                A .*= π
+                @test all(>=(0), A) # positive semidefinite
+                @test norm(A - reverse(A)) * 0.001 < 10 * eps() # symmetry
+                @test abs(A[2000] - 2) < 0.01 # Luttinger pinning
+                @test first(A) < 1e-6 # decay for ω → ±∞
+                @test last(A) < 1e-6 # decay for ω → ±∞
+            end # loggauss
         end # evaluate
 
         @testset "to_grid_sqr" begin

@@ -93,6 +93,58 @@ end
 (P::Pole)(ω::AbstractVector{<:R}, σ::R) where {R<:Real} = map(w -> P(w, σ), ω)
 
 """
+    spectral_function_loggauss(P::Pole{<:Any,<:AbstractVector{<:Real}}, ω::Real, b::Real)
+
+Calculate the spectral function ``A(ω) = -1/π \\mathrm{Im}[P(ω)]`` with a lognormal broadening.
+
+Each pole is broadened as in NRG
+
+```math
+|b_i|^2 δ(ω - a_i) → |b_i|^2 \\frac{\\mathrm{e}^{-b^2/4}}{\\sqrt{π}|a|b}
+\\exp\\left(-\\frac{\\ln^2(ω/a_i)}{b^2}\\right).
+```
+
+If there is a pole ``a_i = 0``, it is shifted halfway betweeen its neighbors and
+each getting half weight
+
+```math
+|b_i|^2 δ(ω) =
+  \\frac{|b_i|^2}{2} δ\\left(ω - \\frac{a_{i-1}}{2}\\right)
++ \\frac{|b_i|^2}{2} δ\\left(ω - \\frac{a_{i+1}}{2}\\right).
+```
+"""
+function spectral_function_loggauss(
+    P::Pole{<:Any,<:AbstractVector{<:Real}}, ω::Real, b::Real
+)
+    result = zero(ω)
+    iszero(ω) && return result # no weight at ω == 0
+    for i in eachindex(P.a)
+        if iszero(P.a[i])
+            # special case, move half of weight to left/right repectively
+            issorted(P.a) || throw(ArgumentError("P is not sorted"))
+            location = ω > 0 ? P.a[i + 1] / 2 : P.a[i - 1] / 2
+            weight = abs2.(P.b[i]) / 2
+        elseif sign(ω) == sign(P.a[i])
+            # only contribute weight if on same side of real axis
+            weight = abs2.(P.b[i])
+            location = P.a[i]
+        else
+            # frequency has opposite sign compared to pole location
+            continue
+        end
+        prefactor = weight * exp(-b^2 / 4) / (b * abs(location) * sqrt(π))
+        result += prefactor * exp(-(log(ω / location) / b)^2)
+    end
+    return result
+end
+
+function spectral_function_loggauss(
+    P::Pole{<:Any,<:V}, ω::V, b::Real
+) where {V<:AbstractVector{<:Real}}
+    return map(w -> spectral_function_loggauss(P, w, b), ω)
+end
+
+"""
     to_grid_sqr(P::Pole{<:V,<:V}, grid::V) where {V<:AbstractVector{<:Real}}
 
 Create a new [`Pole`](@ref) from `P` on with locations given by `grid`.
