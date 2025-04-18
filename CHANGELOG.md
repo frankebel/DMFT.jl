@@ -10,7 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - merge equal poles ([#54](https://github.com/frankebel/DMFT.jl/pull/54)) ([66b6dc2](https://github.com/frankebel/DMFT.jl/commit/66b6dc218e681535645e7434da2ae204ffc4bfd3))
-- logarithmic grid and log-gaussian broadening ([#55g](https://github.com/frankebel/DMFT.jl/pull/54)) ([f3a09b0](https://github.com/frankebel/DMFT.jl/commit/f3a09b01e668d3ee188530d1c88ddac1a884b2a6))
+- logarithmic grid and log-gaussian broadening ([#55](https://github.com/frankebel/DMFT.jl/pull/55)) ([f3a09b0](https://github.com/frankebel/DMFT.jl/commit/f3a09b01e668d3ee188530d1c88ddac1a884b2a6))
+
+### Fixed
+
+- errors in DMFT self-consistency loop ([#57](https://github.com/frankebel/DMFT.jl/pull/57)) ([b10573a](https://github.com/frankebel/DMFT.jl/commit/b10573a5ff1b487878ead85c9fc63c53bc0ed731))
 
 ## [0.6.0] - 2025-04-16
 
