@@ -269,6 +269,27 @@ using Test
             @test P1.a == [0.1, 0.4999999999999]
             @test P1.b == [0.25, sqrt(2.8125)]
         end # merge equal poles
+
+        @testset "remove poles with zero weight!" begin
+            a = collect(1:6)
+            b = [0, 7, 0, 9, 0, -0.0]
+            P = Pole(a, b)
+            @test remove_poles_with_zero_weight!(P) === P
+            @test P.a == [2, 4]
+            @test P.b == [7, 9]
+        end # remove poles with zero weight!
+
+        @testset "remove poles with zero weight" begin
+            a = collect(1:6)
+            b = [0, 7, 0, 9, 0, -0.0]
+            P = Pole(a, b)
+            P_new = remove_poles_with_zero_weight(P)
+            @test typeof(P_new) === Pole{Vector{Int},Vector{Float64}}
+            @test P_new.a == [2, 4]
+            @test P_new.b == [7, 9]
+            @test P.a == collect(1:6)
+            @test P.b == [0, 7, 0, 9, 0, 0]
+        end # remove poles with zero weight
     end # custom functions
 
     @testset "Core" begin

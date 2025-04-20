@@ -44,6 +44,8 @@ export
     orthogonalize_states,
     read_hdf5,
     realKK,
+    remove_poles_with_zero_weight!,
+    remove_poles_with_zero_weight,
     self_energy_FG,
     self_energy_IFG,
     self_energy_IFG_gauss,

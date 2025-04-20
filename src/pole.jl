@@ -355,6 +355,39 @@ function merge_equal_poles!(P::Pole{V,V}, tol::Real=1e-10) where {V<:AbstractVec
     return P
 end
 
+"""
+    remove_poles_with_zero_weight!(P::Pole{<:Any,<:AbstractVector{<:Number}})
+
+Remove all poles ``|b_i|^2 = 0``.
+
+See also: [`remove_poles_with_zero_weight`](@ref).
+"""
+function remove_poles_with_zero_weight!(P::Pole{<:Any,<:AbstractVector{<:Number}})
+    i = firstindex(P.b)
+    while i <= lastindex(P.b)
+        if iszero(P.b[i])
+            popat!(P.a, i)
+            popat!(P.b, i)
+        else
+            i += 1
+        end
+    end
+    return P
+end
+
+"""
+    remove_poles_with_zero_weight(P::Pole{<:Any,<:AbstractVector{<:Number}})
+
+Remove all poles ``|b_i|^2 = 0``.
+
+See also: [`remove_poles_with_zero_weight!`](@ref).
+"""
+function remove_poles_with_zero_weight(P::Pole{<:Any,<:AbstractVector{<:Number}})
+    result = copy(P)
+    remove_poles_with_zero_weight!(result)
+    return result
+end
+
 function Core.Array(P::Pole{<:V,<:V}) where {V<:AbstractVector{<:Real}}
     result = Matrix(Diagonal([0; P.a]))
     result[1, 2:end] .= P.b
