@@ -277,6 +277,13 @@ using Test
             @test remove_poles_with_zero_weight!(P) === P
             @test P.a == [2, 4]
             @test P.b == [7, 9]
+            # pole at a=0
+            a = [-1, 0, 5]
+            b = [2, 0, 3]
+            P = Pole(a, b)
+            @test remove_poles_with_zero_weight!(P) === P
+            @test P.a == [-1, 0, 5]
+            @test P.b == [2, 0, 3]
         end # remove poles with zero weight!
 
         @testset "remove poles with zero weight" begin
@@ -451,15 +458,16 @@ using Test
         end # -
 
         @testset "inv" begin
-            G = greens_function_bethe_simple(101)
+            grid = collect(range(-5, 5; length=1001))
+            G = greens_function_bethe_grid(grid)
             a0, P = inv(G)
-            @test length(P.a) === length(P.b) === 100
+            @test length(P.a) === length(P.b) === 200 # originally 201 poles with weight ≠ 0
             @test all(>=(0), P.b)
             # poles are symmetric
             @test abs(a0) < 2000 * eps()
             @test norm(P.a - P.a) < 10 * eps()
             @test norm(P.b - P.b) < 10 * eps()
-            @test sum(abs2.(P.b)) ≈ 0.25 atol = 300 * eps() # total weight
+            @test sum(abs2.(P.b)) ≈ 0.25 atol = 1e-4 # total weight
             # evaluate
             z = 0.1im
             @test norm(G(z) - 1 / (z - a0 - P(z))) < 30 * eps()

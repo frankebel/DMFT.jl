@@ -358,14 +358,17 @@ end
 """
     remove_poles_with_zero_weight!(P::Pole{<:Any,<:AbstractVector{<:Number}})
 
-Remove all poles ``|b_i|^2 = 0``.
+Remove all poles ``|b_i|^2 = 0`` excluding ``a_i = 0``.
 
 See also: [`remove_poles_with_zero_weight`](@ref).
 """
 function remove_poles_with_zero_weight!(P::Pole{<:Any,<:AbstractVector{<:Number}})
     i = firstindex(P.b)
     while i <= lastindex(P.b)
-        if iszero(P.b[i])
+        if iszero(P.a[i])
+            # keep pole at energy 0
+            i += 1
+        elseif iszero(P.b[i])
             popat!(P.a, i)
             popat!(P.b, i)
         else
@@ -378,7 +381,7 @@ end
 """
     remove_poles_with_zero_weight(P::Pole{<:Any,<:AbstractVector{<:Number}})
 
-Remove all poles ``|b_i|^2 = 0``.
+Remove all poles ``|b_i|^2 = 0`` excluding ``a_i = 0``.
 
 See also: [`remove_poles_with_zero_weight!`](@ref).
 """
@@ -451,7 +454,7 @@ P(z) = ∑_{i=1}^N \\frac{|b_i|^2}{z-a_i}
 is converted to
 
 ```math
-P_inv(z) = \\frac{1}{z - a_0 - \\sum_{i=1}^{N-1} \\frac{|b_i|^2}{z - a_i}} = \\frac{1}{z - a_0 - Q(z)}.
+P(z)^{1} = \\frac{1}{z - a_0 - \\sum_{i=1}^{N-1} \\frac{|b_i|^2}{z - a_i}} = \\frac{1}{z - a_0 - Q(z)}.
 ```
 
 Returns `a_0::Real` and `Q::Pole`.
@@ -460,6 +463,7 @@ Returns `a_0::Real` and `Q::Pole`.
     Input `P` must be normalized.
 """
 function Base.inv(P::Pole{<:V,<:V}) where {V<:AbstractVector{<:Real}}
+    P = remove_poles_with_zero_weight(P)
     a, b = _continued_fraction(P)
     a0 = a[1]
     # take all poles except first and diagonalize
