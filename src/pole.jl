@@ -388,7 +388,8 @@ function remove_poles_with_zero_weight(P::Pole{<:Any,<:AbstractVector{<:Number}}
     return result
 end
 
-function Core.Array(P::Pole{<:V,<:V}) where {V<:AbstractVector{<:Real}}
+function Core.Array(P::Pole{<:Any,<:V}) where {V<:AbstractVector{<:Real}}
+    P = remove_poles_with_zero_weight(P)
     result = Matrix(Diagonal([0; P.a]))
     result[1, 2:end] .= P.b
     result[2:end, 1] .= P.b

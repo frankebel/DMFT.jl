@@ -35,6 +35,7 @@ The poles are taken from the input hybridization: `Δ.a == Δ0.a`
 function update_hybridization_function(
     Δ0::Pole{<:V,<:V}, μ::R, Σ_H::R, Σ::Pole{<:V,<:V}
 ) where {V<:AbstractVector{<:Real},R<:Real}
+    Σ = remove_poles_with_zero_weight(Σ)
     n = length(Σ) + 1
     n_tot = length(Δ0) * n
     a = V(undef, n_tot)

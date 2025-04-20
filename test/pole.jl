@@ -296,8 +296,8 @@ using Test
         @testset "Array" begin
             a = collect(1:5)
             b = collect(6:10)
-            Δ = Pole(a, b)
-            m = Array(Δ)
+            P = Pole(a, b)
+            m = Array(P)
             @test typeof(m) === Matrix{Int}
             @test m == [
                 0 6 7 8 9 10
@@ -306,6 +306,17 @@ using Test
                 8 0 0 3 0 0
                 9 0 0 0 4 0
                 10 0 0 0 0 5
+            ]
+            # poles with zero weight
+            a = collect(1:5)
+            b = [6, 7, 0, 9, 0]
+            P = Pole(a, b)
+            m = Array(P)
+            @test m == [
+                0 6 7 9
+                6 1 0 0
+                7 0 2 0
+                9 0 0 4
             ]
         end # Array
     end # Core

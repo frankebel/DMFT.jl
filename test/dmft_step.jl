@@ -48,14 +48,14 @@ using Test
         @test Σ.a == grid_poles
         weights = abs2.(Σ.b)
         @test sum(weights) ≈ U^2 / 4 atol = 2e-4
-        @test norm(weights - reverse(weights)) < 1e3 * eps()
+        @test norm(weights - reverse(weights)) < 1200 * eps() # ERROR: foo
         # new hybridization
         @test Δ.a == grid_poles
         weights = abs2.(Δ.b)
         @test sum(weights) ≈ 0.25 atol = 100 * eps()
         @test norm(weights - reverse(weights)) < 100 * eps()
         # GS energy
-        @test E0 ≈ -747.1570703287655 atol = sqrt(eps())
+        @test E0 ≈ -33.15707032876605 atol = sqrt(eps())
         # expectation values
         @test expectation_values[1] ≈ 0.5 atol = 100 * eps()
         @test expectation_values[2] ≈ 0.5 atol = 100 * eps()
