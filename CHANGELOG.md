@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - errors in DMFT self-consistency loop ([#57](https://github.com/frankebel/DMFT.jl/pull/57)) ([b10573a](https://github.com/frankebel/DMFT.jl/commit/b10573a5ff1b487878ead85c9fc63c53bc0ed731))
+- loss of particle-hole symmetry in natural orbitals ([#58](https://github.com/frankebel/DMFT.jl/issues/58)) ([#59](https://github.com/frankebel/DMFT.jl/pull/59)) ([37ad203](https://github.com/frankebel/DMFT.jl/pull/59/commits/37ad2032a98c06f015ea29152481e9f52333b44c))
 
 ## [0.6.0] - 2025-04-16
 
