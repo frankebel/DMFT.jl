@@ -396,6 +396,7 @@ function Core.Array(P::Pole{<:Any,<:V}) where {V<:AbstractVector{<:Real}}
     result = Matrix(Diagonal([0; P.a]))
     result[1, 2:end] .= P.b
     result[2:end, 1] .= P.b
+    @info "Array size: $(size(result))"
     return result
 end
 
