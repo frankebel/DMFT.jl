@@ -86,8 +86,8 @@ end
 Calculate a single step of DMFT.
 
 Returns
-- `G_plus`: for positive freqeuncies
-- `G_minus`: for negative freqeuncies
+- `G_plus`: for positive frequencies
+- `G_minus`: for negative frequencies
 - `Δ_new`: new hybridization function
 - `Δ_grid`: new hybridization function on a grid
 """
