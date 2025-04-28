@@ -95,6 +95,58 @@ function greens_function_bethe_grid(grid::AbstractVector{<:Real}, D::Real=1.0)
 end
 
 """
+    greens_function_bethe_grid_hubbard3(
+        grid::AbstractVector{<:Real}, U::Real=0.0, D::Real=1.0
+    )
+
+Return the [`Pole`](@ref) representation of the Hubbard III approximation
+with half-bandwidth `D` and poles given in `grid`.
+
+Created using two semicircles at ``±U/2``.
+"""
+function greens_function_bethe_grid_hubbard3(
+    grid::AbstractVector{<:Real}, U::Real=0.0, D::Real=1.0
+)
+    # check input
+    issorted(grid) || throw(ArgumentError("grid is not sorted"))
+    allunique(grid) || throw(ArgumentError("grid has duplicate poles"))
+    D > 0 || throw(DomainError(D, "negative half-bandwidth"))
+
+    s = Semicircle(D)
+    a = copy(grid)
+    b = similar(grid)
+    if length(grid) == 1
+        b[firstindex(b)] = 1
+        return Pole(a, b)
+    end
+    # For each pole location a[i] we bisect the interval to its neighbors
+    # a_low = 0.5 * (a[i-1] + a[i])
+    # a_high = 0.5 * (a[i] + a[i+1])
+    # and calculate the weight as
+    # b ∝ cdf(a_high) - cdf(a_low)
+    for i in eachindex(a)
+        if i == firstindex(a)
+            # cdf(-Inf) = 0
+            a_high = 0.5 * (a[i] + a[i + 1])
+            @inbounds b[i] = cdf(s, a_high + U / 2) + cdf(s, a_high - U / 2)
+        elseif i == lastindex(a)
+            # cdf(Inf) = 2
+            a_low = 0.5 * (a[i - 1] + a[i])
+            @inbounds b[i] = 2 - cdf(s, a_low + U / 2) - cdf(s, a_low - U / 2)
+        else
+            a_low = 0.5 * (a[i - 1] + a[i])
+            a_high = 0.5 * (a[i] + a[i + 1])
+            @inbounds b[i] =
+                cdf(s, a_high + U / 2) + cdf(s, a_high - U / 2) - cdf(s, a_low + U / 2) -
+                cdf(s, a_low - U / 2)
+        end
+    end
+    b ./= 2 # noralize 2 distributions
+    map!(sqrt, b, b)
+    return Pole(a, b)
+end
+
+"""
     greens_function_bethe_equal_weight(n_bath::Int, D::Real=1.0)
 
 Return the [`Pole`](@ref) representation of the semicircular density of states

@@ -61,6 +61,24 @@ function hybridization_function_bethe_grid(grid::AbstractVector{<:Real}, D::Real
 end
 
 """
+    hybridization_function_bethe_grid_hubbard3(
+    grid::AbstractVector{<:Real}, U::Real=0.0, D::Real=1.0
+)
+
+Return the [`Pole`](@ref) representation of the Hubbard III approximation
+with half-bandwidth `D` and poles given in `grid`.
+
+Created using two semicircles at ``±U/2``.
+"""
+function hybridization_function_bethe_grid_hubbard3(
+    grid::AbstractVector{<:Real}, U::Real=0.0, D::Real=1.0
+)
+    Δ = greens_function_bethe_grid_hubbard3(grid, U, D)
+    Δ.b .*= D / 2
+    return Δ
+end
+
+"""
     hybridization_bethe_equal_weight(n_bath::Int, D::Real=1.0)
 
 Return the [`Pole`](@ref) representation of the semicircular density of states

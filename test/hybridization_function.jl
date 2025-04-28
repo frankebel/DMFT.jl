@@ -50,6 +50,24 @@ using Test
             @test sum(abs2.(Δ.b)) ≈ 1.0 rtol = 10 * eps()
         end # simple
 
+        @testset "grid Hubbard III" begin
+            grid = collect(range(-5, 5; length=101))
+            # U = 0
+            Δ = hybridization_function_bethe_grid_hubbard3(grid)
+            Δ0 = hybridization_function_bethe_grid(grid)
+            @test typeof(Δ) === Pole{V,V}
+            @test length(Δ.a) === length(Δ.b) === 101
+            @test Δ.a == grid
+            @test Δ.a !== grid
+            @test norm(Δ.b - Δ0.b) < 10 * eps()
+            # U = 3
+            Δ = hybridization_function_bethe_grid_hubbard3(grid, 3)
+            @test Δ.b[36] ≈ 0.08918761226820784 atol = 10 * eps()
+            @test Δ.b[51] == 0
+            @test Δ.b[66] ≈ 0.08918761226820784 atol = 10 * eps()
+            @test sum(abs2.(Δ.b)) ≈ 0.25 atol = 10 * eps()
+        end # grid Hubbard III
+
         @testset "grid" begin
             # 101 poles
             W = collect(range(-1, 1; length=101))

@@ -94,6 +94,29 @@ using Test
             @test G.b[151] ≈ 0.05641892896986609 atol = eps()
         end # grid
 
+        @testset "grid Hubbard III" begin
+            # 1 pole
+            G = greens_function_bethe_grid_hubbard3([5.0])
+            @test G.a == [5.0]
+            @test G.b == [1.0]
+            # uniform grid
+            grid = collect(range(-5, 5; length=101))
+            # U = 0
+            G = greens_function_bethe_grid_hubbard3(grid)
+            G0 = greens_function_bethe_grid(grid)
+            @test typeof(G) === Pole{V,V}
+            @test length(G.a) === length(G.b) === 101
+            @test G.a == grid
+            @test G.a !== grid
+            @test norm(G.b - G0.b) < 10 * eps()
+            # U = 3
+            G = greens_function_bethe_grid_hubbard3(grid, 3)
+            @test G.b[36] ≈ 0.1783752245364157 atol = 10 * eps()
+            @test G.b[51] == 0
+            @test G.b[66] ≈ 0.1783752245364157 atol = 10 * eps()
+            @test sum(abs2.(G.b)) ≈ 1 atol = 10 * eps()
+        end # grid Hubbdard III
+
         @testset "equal weight" begin
             @test_throws DomainError greens_function_bethe_equal_weight(2)
             G = greens_function_bethe_equal_weight(101)
