@@ -324,10 +324,22 @@ using Test
             P = Pole(a, b)
             m = Array(P)
             @test m == [
-                0 6 7 9
-                6 1 0 0
-                7 0 2 0
-                9 0 0 4
+                0 6 7 0 9 0
+                6 1 0 0 0 0
+                7 0 2 0 0 0
+                0 0 0 3 0 0
+                9 0 0 0 4 0
+                0 0 0 0 0 5
+            ]
+            # correct promotion
+            a = collect(1:2)
+            b = [1.1, 5.5]
+            P = Pole(a, b)
+            m = Array(P)
+            @test m == [
+                0 1.1 5.5
+                1.1 1 0
+                5.5 0 2
             ]
         end # Array
     end # Core

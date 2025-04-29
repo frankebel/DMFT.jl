@@ -407,11 +407,10 @@ function remove_poles_with_zero_weight(
 end
 
 function Core.Array(P::Pole{<:Any,<:V}) where {V<:AbstractVector{<:Real}}
-    P = remove_poles_with_zero_weight(P)
-    result = Matrix(Diagonal([0; P.a]))
+    T = promote_type(eltype(P.a), eltype(P.b))
+    result = Matrix{T}(Diagonal([0; P.a]))
     result[1, 2:end] .= P.b
     result[2:end, 1] .= P.b
-    @info "Array size: $(size(result))"
     return result
 end
 
