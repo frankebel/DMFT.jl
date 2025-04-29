@@ -50,7 +50,16 @@ function _pos(
     b0 = norm(v)
     rmul!(v, inv(b0))
     a, b = lanczos(H, v, n_kryl)
-    return _pole(a, b, E0, b0)
+    G_plus = _pole(a, b, E0, b0)
+
+    # poles at negative energies (never happens on exact arithmetic)
+    idx_neg = findall(<(0), G_plus.a)
+    if !isempty(idx_neg)
+        n_neg = length(idx_neg)
+        weight_neg = sum(abs2.(G_plus.b[idx_neg]))
+        @warn "negative specral weight on G+" n_neg weight_neg
+    end
+    return G_plus
 end
 
 # positive frequencies, block
@@ -74,7 +83,18 @@ function _neg(
     b0 = norm(v)
     rmul!(v, inv(b0))
     a, b = lanczos(H, v, n_kryl)
-    return _pole(-a, -b, -E0, b0)
+    map!(-, a, a)
+    map!(-, b, b)
+    G_minus = _pole(a, b, -E0, b0)
+
+    # poles at positive energies (never happens on exact arithmetic)
+    idx_pos = findall(>(0), G_minus.a)
+    if !isempty(idx_pos)
+        n_pos = length(idx_pos)
+        weight_pos = sum(abs2.(G_minus.b[idx_pos]))
+        @warn "positive specral weight on G-" n_pos weight_pos
+    end
+    return G_minus
 end
 
 # negative frequencies
