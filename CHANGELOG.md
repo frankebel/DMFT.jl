@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - logarithmic grid and log-gaussian broadening ([#55](https://github.com/frankebel/DMFT.jl/pull/55)) ([f3a09b0](https://github.com/frankebel/DMFT.jl/commit/f3a09b01e668d3ee188530d1c88ddac1a884b2a6))
 - Hubbard-III approximation ([#64](https://github.com/frankebel/DMFT.jl/pull/64)) ([e5dbed7](https://github.com/frankebel/DMFT.jl/commit/e5dbed71f02c0949e646a6ba255a7249c2bf8de5))
 - warn if wrong spectral weight exists ([#66](https://github.com/frankebel/DMFT.jl/pull/66)) ([25da3b0](https://github.com/frankebel/DMFT.jl/commit/25da3b0bf829ba4261094e2cbc1d5bad48bb2924))
+- export `g_plus()`, `g_minus()` ([#70](https://github.com/frankebel/DMFT.jl/pull/70)) ([4ae6ad8](https://github.com/frankebel/DMFT.jl/commit/4ae6ad89343d726179fda7e85af3a90e959e20f2))
 
 ### Removed
 
