@@ -474,15 +474,15 @@ using Test
         end # -
 
         @testset "inv" begin
-            grid = collect(range(-5, 5; length=1001))
+            grid = collect(range(-1, 1; length=101))
             G = greens_function_bethe_grid(grid)
             a0, P = inv(G)
-            @test length(P.a) === length(P.b) === 200 # originally 201 poles with weight ≠ 0
+            @test length(P.a) === length(P.b) === 100 # originally 101 poles
             @test all(>=(0), P.b)
             # poles are symmetric
-            @test abs(a0) < 2000 * eps()
-            @test norm(P.a - P.a) < 10 * eps()
-            @test norm(P.b - P.b) < 10 * eps()
+            @test abs(a0) < 10 * eps()
+            @test norm(P.a + reverse(P.a)) < 100 * eps()
+            @test norm(P.b - reverse(P.b)) < 100 * eps()
             @test sum(abs2.(P.b)) ≈ 0.25 atol = 1e-4 # total weight
             # evaluate
             z = 0.1im

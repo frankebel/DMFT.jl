@@ -478,7 +478,6 @@ Returns `a_0::Real` and `Q::Pole`.
     Input `P` must be normalized.
 """
 function Base.inv(P::Pole{<:V,<:V}) where {V<:AbstractVector{<:Real}}
-    P = remove_poles_with_zero_weight(P)
     a, b = _continued_fraction(P)
     a0 = a[1]
     # take all poles except first and diagonalize
