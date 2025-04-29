@@ -12,14 +12,8 @@ P(z) = ∑_i \\frac{|b_i|^2}{z-a_i}
 If `B` is a matrix, its ``i``-th column is interpreted as a vector ``\\vec{b_i}`` with
 
 ```math
-P(z) = \\sum_i \\frac{\\vec{b}_i\\vec{b}_i^\\dagger}{z-a_i}
+P(z) = \\sum_i \\frac{\\vec{b}_i\\vec{b}_i^\\dagger}{z-a_i}.
 ```
-
-Can be evaluated at
-- point `z` in the upper complex plane: `P(z)`
-- vector of points `Z` in the upper complex plane: `P(Z)`
-- real point `ω` with Gaussian broadening `σ`: `P(ω, σ)`
-- vector of real points `W` with Gaussian broadening `σ`: `P(W, σ)`
 """
 struct Pole{A<:AbstractVector{<:Real},B<:AbstractVecOrMat{<:Number}}
     a::A
@@ -42,8 +36,11 @@ Pole(a::A, b::B) where {A,B} = Pole{A,B}(a, b)
 
 Pole{A,B}(P::Pole) where {A,B} = Pole(A(P.a), B(P.b))
 
-# evaluate with Lorentzian broadening at complex value `z`
+"""
+   (P::Pole)(z::Complex)
 
+Evaluate `P` at complex frequency `z`.
+"""
 function (P::Pole{<:Any,<:AbstractVector})(z::Complex)
     result = zero(z)
     for i in eachindex(P.a)
@@ -62,10 +59,18 @@ function (P::Pole{<:Any,<:AbstractMatrix})(z::Complex)
     return result
 end
 
+"""
+   (P::Pole)(Z::AbstractVector{<:Complex})
+
+Evaluate `P` at complex frequencies `Z`.
+"""
 (P::Pole)(Z::AbstractVector{<:Complex}) = map(P, Z)
 
-# evaluate with Gaussian broadening `σ`
+"""
+   (P::Pole)(ω::R, σ::R) where {R<:Real}
 
+Evaluate `P` at frequency `ω` with Gaussian broadening `σ`.
+"""
 function (P::Pole{<:Any,<:AbstractVector})(ω::R, σ::R) where {R<:Real}
     real = zero(R)
     imag = zero(R)
@@ -90,6 +95,11 @@ function (P::Pole{<:Any,<:AbstractMatrix})(ω::R, σ::R) where {R<:Real}
     return π .* result # not spectral function
 end
 
+"""
+   (P::Pole)(ω::AbstractVector{<:R}, σ::R) where {R<:Real}
+
+Evaluate `P` at frequencies `ω` with Gaussian broadening `σ`.
+"""
 (P::Pole)(ω::AbstractVector{<:R}, σ::R) where {R<:Real} = map(w -> P(w, σ), ω)
 
 """
