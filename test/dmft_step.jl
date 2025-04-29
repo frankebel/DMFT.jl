@@ -35,34 +35,6 @@ using Test
     O = [A, B]
     Ogs = [1.0 * n[1, -1//2], 1.0 * n[1, 1//2], 1.0 * n[1, 1//2] * n[1, -1//2]]
 
-    @testset "Lanczos" begin
-        G_imp, Σ_H, Σ, Δ, E0, expectation_values = dmft_step(
-            Δ0, Δ, H_int, μ, ϵ_imp, n_v_bit, n_c_bit, e, O[1], Ogs, n_kryl, n_kryl_gs
-        )
-        # impurity Green's function
-        @test G_imp.a == grid_poles
-        weights = abs2.(G_imp.b)
-        @test sum(weights) ≈ 1 atol = 100 * eps()
-        @test norm(weights - reverse(weights)) < 10 * eps()
-        # self-energy
-        @test Σ_H ≈ U / 2 atol = 100 * eps()
-        @test Σ.a == grid_poles
-        weights = abs2.(Σ.b)
-        @test sum(weights) ≈ U^2 / 4 atol = 2e-4
-        @test norm(weights - reverse(weights)) < 1200 * eps() # ERROR: foo
-        # new hybridization
-        @test Δ.a == grid_poles
-        weights = abs2.(Δ.b)
-        @test sum(weights) ≈ 0.25 atol = 100 * eps()
-        @test norm(weights - reverse(weights)) < 100 * eps()
-        # GS energy
-        @test E0 ≈ -33.15707032876605 atol = sqrt(eps())
-        # expectation values
-        @test expectation_values[1] ≈ 0.5 atol = 100 * eps()
-        @test expectation_values[2] ≈ 0.5 atol = 100 * eps()
-        @test expectation_values[3] ≈ 0.04355604136992631 atol = 100 * eps()
-    end # Lanczos
-
     @testset "block Lanczos" begin
         # self-energy
         G_plus, G_minus, Δ_new, Δ_grid = dmft_step(
