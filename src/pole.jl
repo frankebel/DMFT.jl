@@ -27,13 +27,13 @@ struct Pole{A<:AbstractVector{<:Real},B<:AbstractVecOrMat{<:Number}}
 
     # both are vectors
     function Pole{A,B}(a, b) where {A<:AbstractVector{<:Number},B<:AbstractVector{<:Number}}
-        length(a) == length(b) || throw(DimensionMismatch("length mismatch"))
+        eachindex(a) == eachindex(b) || throw(DimensionMismatch("index mismatch"))
         return new{A,B}(a, b)
     end
 
     # `b` is a matrix
     function Pole{A,B}(a, b) where {A<:AbstractVector{<:Number},B<:AbstractMatrix{<:Number}}
-        length(a) == size(b, 2) || throw(DimensionMismatch("length mismatch"))
+        eachindex(a) == axes(b, 2) || throw(DimensionMismatch("index mismatch"))
         return new{A,B}(a, b)
     end
 end
