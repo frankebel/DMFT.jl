@@ -20,6 +20,8 @@ export
     dmft_step_gauss,
     equal_weight_discretization,
     find_chemical_potential,
+    g_minus,
+    g_plus,
     get_CI_parameters,
     greens_function_bethe_analytic,
     greens_function_bethe_equal_weight,

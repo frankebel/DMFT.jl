@@ -42,8 +42,26 @@ function solve_impurity(
     return G_plus, G_minus, Σ_H
 end
 
-# positive frequencies, scalar
-function _pos(
+"""
+    g_plus(
+        H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
+    ) where {CI<:CIWavefunction}
+
+Calculate the positive part of the Green's function.
+
+```math
+\\begin{aligned}
+G^+(z)
+&=
+⟨ψ_0 d \\frac{1}{z - H + E_0} d^† ψ_0⟩ \\\\
+&≈
+\\sum_{i=1}^n \frac{|b_i|^2}{z - a_i}
+\\end{aligned}
+```
+
+See also [`g_minus`](@ref).
+"""
+function g_plus(
     H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
 ) where {CI<:CIWavefunction}
     v = O * ψ0
@@ -75,8 +93,26 @@ function _pos(
     return _pole(A, B, E0, S_sqrt)
 end
 
-# negative frequencies, scalar
-function _neg(
+"""
+    g_minus(
+        H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
+    ) where {CI<:CIWavefunction}
+
+Calculate the negative part of the Green's function.
+
+```math
+\\begin{aligned}
+G^+(z)
+&=
+⟨ψ_0 d^† \\frac{1}{z + H - E_0} d ψ_0⟩ \\\\
+&≈
+\\sum_{i=1}^n \frac{|b_i|^2}{z - a_i}
+\\end{aligned}
+```
+
+See also [`g_plus`](@ref).
+"""
+function g_minus(
     H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
 ) where {CI<:CIWavefunction}
     v = O * ψ0
