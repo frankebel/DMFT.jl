@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Hubbard-III approximation ([#64](https://github.com/frankebel/DMFT.jl/pull/64)) ([e5dbed7](https://github.com/frankebel/DMFT.jl/commit/e5dbed71f02c0949e646a6ba255a7249c2bf8de5))
 - warn if wrong spectral weight exists ([#66](https://github.com/frankebel/DMFT.jl/pull/66)) ([25da3b0](https://github.com/frankebel/DMFT.jl/commit/25da3b0bf829ba4261094e2cbc1d5bad48bb2924))
 
+### Removed
+
+- DMFT step with Lanczos ([#69](https://github.com/frankebel/DMFT.jl/pull/69)) ([34633dd](https://github.com/frankebel/DMFT.jl/commit/34633dd7e88e8e72aad84dbbd496677fd478c434))
+
 ### Fixed
 
 - errors in DMFT self-consistency loop ([#57](https://github.com/frankebel/DMFT.jl/pull/57)) ([b10573a](https://github.com/frankebel/DMFT.jl/commit/b10573a5ff1b487878ead85c9fc63c53bc0ed731))
