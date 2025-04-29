@@ -274,16 +274,20 @@ using Test
             a = collect(1:6)
             b = [0, 7, 0, 9, 0, -0.0]
             P = Pole(a, b)
-            @test remove_poles_with_zero_weight!(P) === P
+            @test remove_poles_with_zero_weight!(P, true) === P
             @test P.a == [2, 4]
             @test P.b == [7, 9]
             # pole at a=0
-            a = [-1, 0, 5]
-            b = [2, 0, 3]
-            P = Pole(a, b)
+            a = [-1, 0, 1]
+            b = [2, 0, 0]
+            P = Pole(copy(a), copy(b))
             @test remove_poles_with_zero_weight!(P) === P
-            @test P.a == [-1, 0, 5]
-            @test P.b == [2, 0, 3]
+            @test P.a == [-1]
+            @test P.b == [2]
+            P = Pole(copy(a), copy(b))
+            @test remove_poles_with_zero_weight!(P, false) === P
+            @test P.a == [-1, 0]
+            @test P.b == [2, 0]
         end # remove poles with zero weight!
 
         @testset "remove poles with zero weight" begin

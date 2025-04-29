@@ -22,6 +22,7 @@ using Test
     Z = W .+ im * δ
 
     Δ0 = hybridization_function_bethe_grid(grid_poles)
+    Δ = copy(Δ0)
 
     # Operators for positive frequencies. Negative ones are calculated by adjoint.
     fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1//2))
@@ -36,7 +37,7 @@ using Test
 
     @testset "Lanczos" begin
         G_imp, Σ_H, Σ, Δ, E0, expectation_values = dmft_step(
-            Δ0, Δ0, H_int, μ, ϵ_imp, n_v_bit, n_c_bit, e, O[1], Ogs, n_kryl, n_kryl_gs
+            Δ0, Δ, H_int, μ, ϵ_imp, n_v_bit, n_c_bit, e, O[1], Ogs, n_kryl, n_kryl_gs
         )
         # impurity Green's function
         @test G_imp.a == grid_poles

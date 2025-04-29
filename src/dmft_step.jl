@@ -40,6 +40,7 @@ function dmft_step(
     n_kryl_gs::Int,
 ) where {V<:AbstractVector{<:Real},Op<:Operator}
     # initialize system
+    remove_poles_with_zero_weight!(Δ) # TODO: What about pole at zero energy?
     H, E0, ψ0 = init_system(Δ, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs)
 
     # expectation values on ground state

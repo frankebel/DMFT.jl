@@ -356,19 +356,28 @@ function merge_equal_poles!(P::Pole{V,V}, tol::Real=1e-10) where {V<:AbstractVec
 end
 
 """
-    remove_poles_with_zero_weight!(P::Pole{<:Any,<:AbstractVector{<:Number}})
+    remove_poles_with_zero_weight!(
+        P::Pole{<:Any,<:AbstractVector{<:Number}}, remove_zero::Bool=true
+    )
 
-Remove all poles ``|b_i|^2 = 0`` excluding ``a_i = 0``.
+Remove all poles ``|b_i|^2 = 0``.
+
+If `remove_zero`, ``a_i = b_i = 0`` is also removed.
 
 See also: [`remove_poles_with_zero_weight`](@ref).
 """
-function remove_poles_with_zero_weight!(P::Pole{<:Any,<:AbstractVector{<:Number}})
+function remove_poles_with_zero_weight!(
+    P::Pole{<:Any,<:AbstractVector{<:Number}}, remove_zero::Bool=true
+)
     i = firstindex(P.b)
     while i <= lastindex(P.b)
-        if iszero(P.a[i])
-            # keep pole at energy 0
+        if iszero(P.a[i]) && !remove_zero
+            # keep pole at zero energy
             i += 1
-        elseif iszero(P.b[i])
+            continue
+        end
+
+        if iszero(P.b[i])
             popat!(P.a, i)
             popat!(P.b, i)
         else
@@ -379,15 +388,21 @@ function remove_poles_with_zero_weight!(P::Pole{<:Any,<:AbstractVector{<:Number}
 end
 
 """
-    remove_poles_with_zero_weight(P::Pole{<:Any,<:AbstractVector{<:Number}})
+    remove_poles_with_zero_weight(
+        P::Pole{<:Any,<:AbstractVector{<:Number}}, remove_zero::Bool=true
+    )
 
-Remove all poles ``|b_i|^2 = 0`` excluding ``a_i = 0``.
+Remove all poles ``|b_i|^2 = 0``.
+
+If `remove_zero`, ``a_i = b_i = 0`` is also removed.
 
 See also: [`remove_poles_with_zero_weight!`](@ref).
 """
-function remove_poles_with_zero_weight(P::Pole{<:Any,<:AbstractVector{<:Number}})
+function remove_poles_with_zero_weight(
+    P::Pole{<:Any,<:AbstractVector{<:Number}}, remove_zero::Bool=true
+)
     result = copy(P)
-    remove_poles_with_zero_weight!(result)
+    remove_poles_with_zero_weight!(result, remove_zero)
     return result
 end
 
