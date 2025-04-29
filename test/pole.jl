@@ -367,6 +367,11 @@ using Test
             @test length(P) === 10
             append!(P.a, 0)
             @test_throws ArgumentError length(P)
+            # b::Matrix
+            P = Pole(rand(10), rand(2, 10))
+            @test length(P) === 10
+            append!(P.a, 0)
+            @test_throws ArgumentError length(P)
         end # length
 
         @testset "sort!" begin

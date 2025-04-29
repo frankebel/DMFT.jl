@@ -416,8 +416,13 @@ end
 
 Base.copy(P::Pole) = Pole(copy(P.a), copy(P.b))
 
-function Base.length(P::Pole)
+function Base.length(P::Pole{<:Any,<:AbstractVector})
     length(P.a) == length(P.b) || throw(ArgumentError("length mismatch"))
+    return length(P.a)
+end
+
+function Base.length(P::Pole{<:Any,<:AbstractMatrix})
+    length(P.a) == size(P.b, 2) || throw(ArgumentError("length mismatch"))
     return length(P.a)
 end
 
