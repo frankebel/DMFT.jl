@@ -10,7 +10,7 @@ using Kramers-Kronig relations
 \\mathrm{Re}~A(ω) = \\frac{1}{π} 𝒫 ∫_{-∞}^∞ \\frac{A(ω')}{ω' - ω} \\mathrm{d}ω'.
 ```
 
-See also: [`imagKK`](@ref).
+See also [`imagKK`](@ref).
 """
 function realKK(A::V, ω::V) where {V<:AbstractVector{<:Real}}
     length(A) == length(ω) || throw(DimensionMismatch("length mismatch"))
@@ -40,7 +40,7 @@ using Kramers-Kronig relations
 \\mathrm{Im}~A(ω) = -\\frac{1}{π} 𝒫 ∫_{-∞}^∞ \\frac{A(ω')}{ω' - ω} \\mathrm{d}ω'.
 ```
 
-See also: [`realKK`](@ref).
+See also [`realKK`](@ref).
 """
 function imagKK(A::V, ω::V) where {V<:AbstractVector{<:Real}}
     return -realKK(A, ω)

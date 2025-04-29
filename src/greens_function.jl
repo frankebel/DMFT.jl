@@ -34,7 +34,7 @@ with half-bandwidth `D` on `n_bath` poles.
 
 Poles are found by diagonalizing a tridiagonal matrix with hopping ``t=D/2``.
 
-See also:
+See also
 [`greens_function_bethe_grid`](@ref),
 [`greens_function_bethe_equal_weight`](@ref).
 """
@@ -56,7 +56,7 @@ end
 Return the [`Pole`](@ref) representation of the semicircular density of states
 with half-bandwidth `D` with poles given in `grid`.
 
-See also:
+See also
 [`greens_function_bethe_simple`](@ref),
 [`greens_function_bethe_equal_weight`](@ref).
 """
@@ -154,7 +154,7 @@ with half-bandwidth `D` on `n_bath` poles.
 
 Each Pole has the same hybridization ``V^2 = 1/n_b``.
 
-See also:
+See also
 [`greens_function_bethe_simple`](@ref),
 [`greens_function_bethe_grid`](@ref).
 """

@@ -165,7 +165,7 @@ higher than the highest value, only the zeroth moment is conserved.
 
 Assumes that weights are already squared and keeps them squred.
 
-See also: [`to_grid`](@ref).
+See also [`to_grid`](@ref).
 """
 function to_grid_sqr(P::Pole{<:V,<:V}, grid::V) where {V<:AbstractVector{<:Real}}
     # check input
@@ -216,7 +216,7 @@ A given pole is split locally conserving the zeroth and first moment.
 If the pole is lower than the lowest value in the grid or
 higher than the highest value, only the zeroth moment is conserved.
 
-See also: [`to_grid_sqr`](@ref).
+See also [`to_grid_sqr`](@ref).
 """
 function to_grid(P::Pole{<:V,<:V}, grid::V) where {V<:AbstractVector{<:Real}}
     result = copy(P)
@@ -374,7 +374,7 @@ Remove all poles ``|b_i|^2 = 0``.
 
 If `remove_zero`, ``a_i = b_i = 0`` is also removed.
 
-See also: [`remove_poles_with_zero_weight`](@ref).
+See also [`remove_poles_with_zero_weight`](@ref).
 """
 function remove_poles_with_zero_weight!(
     P::Pole{<:Any,<:AbstractVector{<:Number}}, remove_zero::Bool=true
@@ -406,7 +406,7 @@ Remove all poles ``|b_i|^2 = 0``.
 
 If `remove_zero`, ``a_i = b_i = 0`` is also removed.
 
-See also: [`remove_poles_with_zero_weight!`](@ref).
+See also [`remove_poles_with_zero_weight!`](@ref).
 """
 function remove_poles_with_zero_weight(
     P::Pole{<:Any,<:AbstractVector{<:Number}}, remove_zero::Bool=true

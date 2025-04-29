@@ -225,7 +225,7 @@ Convert natural orbital Hamiltonian `H_nat` to `CIOperator`.
 - `n_c_bit::Int=1`: number of conduction bath sites in bit component
 - `excitation::Int=1`: maximum excitation in bit component
 
-See also: `CIOperator`.
+See also `CIOperator`.
 """
 function natural_orbital_ci_operator(
     H_nat::Matrix{T},
