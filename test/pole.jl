@@ -268,7 +268,31 @@ using Test
             @test merge_equal_poles!(P1) === P1
             @test P1.a == [0.1, 0.4999999999999]
             @test P1.b == [0.25, sqrt(2.8125)]
-        end # merge equal poles
+        end # merge equal poles!
+
+        @testset "merge small poles!" begin
+            # first index
+            a = [-1.0, 0.0, 1.5]
+            b = [0.5, -2.5, 5.0]
+            P = Pole(a, b)
+            @test merge_small_poles!(P, 1.0) === P
+            @test P.a == [0.0, 1.5]
+            @test P.b == [sqrt(6.5), 5.0]
+            # last index
+            a = [-1.0, 0.0, 1.5]
+            b = [5.0, -2.5, 0.5]
+            P = Pole(a, b)
+            @test merge_small_poles!(P, 1.0) === P
+            @test P.a == [-1.0, 0.0]
+            @test P.b == [5.0, sqrt(6.5)]
+            # middle index
+            a = [-1.0, 0.0, 1.5]
+            b = [5.0, 0.5, -2.5]
+            P = Pole(a, b)
+            @test merge_small_poles!(P, 1.0) === P
+            @test P.a == [-1.0, 1.5]
+            @test P.b == [sqrt(25.15), sqrt(6.35)]
+        end # merge small poles!
 
         @testset "remove poles with zero weight!" begin
             a = collect(1:6)

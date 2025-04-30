@@ -366,6 +366,53 @@ function merge_equal_poles!(P::Pole{V,V}, tol::Real=1e-10) where {V<:AbstractVec
 end
 
 """
+    merge_small_poles!(P::Pole{V,V}, tol::Real=1e-10) where {V<:AbstractVector{<:Real}}
+
+Merge poles with weight `< tol` to its neighbors.
+
+A given pole is split locally conserving the zeroth and first moment.
+"""
+function merge_small_poles!(P::Pole{V,V}, tol::Real=1e-10) where {V<:AbstractVector{<:Real}}
+    tol > 0 || throw(ArgumentError("negative tol"))
+    issorted(P.a) || issorted(P.a; rev=true) || throw(ArgumentError("poles are not sorted"))
+
+    map!(abs2, P.b, P.b) # use weights
+    i = firstindex(P.a)
+    while i <= lastindex(P.a)
+        pole = P.a[i]
+        weight = P.b[i]
+
+        if weight >= tol
+            # enough weight, go to next
+            i += 1
+            continue
+        end
+
+        if pole == first(P.a)
+            # add weight to next pole
+            P.b[i + 1] += weight
+            popfirst!(P.a)
+            popfirst!(P.b)
+        elseif pole == last(P.a)
+            # add weight to previous pole
+            P.b[i - 1] += weight
+            pop!(P.a)
+            pop!(P.b)
+        else
+            # split weight such that zeroth and first moment is conserved
+            alow = P.a[i - 1]
+            ahigh = P.a[i + 1]
+            P.b[i - 1] += (ahigh - pole) / (ahigh - alow) * weight
+            P.b[i + 1] += (pole - alow) / (ahigh - alow) * weight
+            popat!(P.a, i)
+            popat!(P.b, i)
+        end
+    end
+    map!(sqrt, P.b, P.b) # undo squaring
+    return P
+end
+
+"""
     remove_poles_with_zero_weight!(
         P::Pole{<:Any,<:AbstractVector{<:Number}}, remove_zero::Bool=true
     )
