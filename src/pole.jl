@@ -335,6 +335,9 @@ function _continued_fraction(P::Pole{<:V,<:V}) where {V<:AbstractVector{<:Real}}
             v_new .-= (v_old ⋅ v_new) * v_old
         end
     end
+    # look if any coefficient b is small
+    value, index = findmin(b)
+    @debug "smallest weight b=$(value) at index $(index)/$(lastindex(b))"
     return a, b
 end
 
