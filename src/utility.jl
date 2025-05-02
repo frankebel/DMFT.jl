@@ -231,7 +231,7 @@ Create `n` sorted poles on a logarithmic grid with `ω0` having highest magnitud
 The poles have constant ratio
 
 ```math
-\\frac{ω_i}}{ω_{i+1} =  \\frac{1}{Λ}.
+\\frac{ω_i}{ω_{i+1}} =  \\frac{1}{Λ}.
 ```
 """
 function grid_log(ω0::Real, Λ::Real, n::Int)
