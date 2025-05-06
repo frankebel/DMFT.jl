@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - export `g_plus()`, `g_minus()` ([#70](https://github.com/frankebel/DMFT.jl/pull/70)) ([4ae6ad8](https://github.com/frankebel/DMFT.jl/commit/4ae6ad89343d726179fda7e85af3a90e959e20f2))
 - merge poles with small weight to neighbors ([#72](https://github.com/frankebel/DMFT.jl/pull/72)) ([7ab44a7](https://github.com/frankebel/DMFT.jl/commit/7ab44a7076250e47c623d3530dc583485d6843c9))
 
+### Changed
+
+- rename `Pole` → `Poles`, `self_energy_pole` → `self_energy_poles` ([#76](https://github.com/frankebel/DMFT.jl/pull/76)) ([ee98b96](https://github.com/frankebel/DMFT.jl/commit/ee98b96a051d91be21990a2d2f59300735a798b4))
+
 ### Removed
 
 - DMFT step with Lanczos ([#69](https://github.com/frankebel/DMFT.jl/pull/69)) ([34633dd](https://github.com/frankebel/DMFT.jl/commit/34633dd7e88e8e72aad84dbbd496677fd478c434))
