@@ -15,7 +15,7 @@ end
 
 """
     init_system(
-        Δ::Pole{V,V},
+        Δ::Poles{V,V},
         H_int::Operator,
         ϵ_imp::Real,
         n_v_bit::Int,
@@ -27,7 +27,7 @@ end
 Return Hamiltonian, ground state energy, and ground state.
 """
 function init_system(
-    Δ::Pole{V,V},
+    Δ::Poles{V,V},
     H_int::Operator,
     ϵ_imp::Real,
     n_v_bit::Int,

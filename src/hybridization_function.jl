@@ -28,7 +28,7 @@ end
 """
     hybridization_function_bethe_simple(n_bath::Int, D::Real=1.0)
 
-Return the [`Pole`](@ref) representation of the semicircular density of states
+Return the [`Poles`](@ref) representation of the semicircular density of states
 with half-bandwidth `D` on `n_bath` poles.
 
 Poles are found by diagonalizing a tridiagonal matrix with hopping ``t=D/2``.
@@ -47,7 +47,7 @@ end
 """
     hybridization_function_bethe_grid(grid::AbstractVector{<:Real}, D::Real=1.0)
 
-Return the [`Pole`](@ref) representation of the semicircular density of states
+Return the [`Poles`](@ref) representation of the semicircular density of states
 with half-bandwidth `D` with poles given in `grid`.
 
 See also
@@ -65,7 +65,7 @@ end
     grid::AbstractVector{<:Real}, U::Real=0.0, D::Real=1.0
 )
 
-Return the [`Pole`](@ref) representation of the Hubbard III approximation
+Return the [`Poles`](@ref) representation of the Hubbard III approximation
 with half-bandwidth `D` and poles given in `grid`.
 
 Created using two semicircles at ``±U/2``.
@@ -81,7 +81,7 @@ end
 """
     hybridization_bethe_equal_weight(n_bath::Int, D::Real=1.0)
 
-Return the [`Pole`](@ref) representation of the semicircular density of states
+Return the [`Poles`](@ref) representation of the semicircular density of states
 with half-bandwidth `D` on `n_bath` poles.
 
 Each site has the same hybridization ``V^2``.

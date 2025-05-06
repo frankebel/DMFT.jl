@@ -12,7 +12,7 @@ using Statistics
 
 export
     # Types
-    Pole,
+    Poles,
 
     # Functions
     block_lanczos,
@@ -54,7 +54,7 @@ export
     self_energy_FG,
     self_energy_IFG,
     self_energy_IFG_gauss,
-    self_energy_pole,
+    self_energy_poles,
     slater_start,
     solve_impurity,
     spectral_function_gauss,
@@ -71,7 +71,7 @@ export
     η_gaussian
 
 include("bits.jl")
-include("pole.jl")
+include("poles.jl")
 include("io.jl")
 include("sytrd.jl")
 include("natural_orbitals.jl")

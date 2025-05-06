@@ -99,5 +99,5 @@ function equal_weight_discretization(
     end
     a = [reverse!(P_minus); 0; P_plus]
     b = [reverse!(V_minus); sqrt(v0 / π); V_plus]
-    return Pole(a, b)
+    return Poles(a, b)
 end

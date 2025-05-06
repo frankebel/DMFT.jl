@@ -34,14 +34,14 @@ using Test
         Δ0, H_int, -μ, n_v_bit, n_c_bit, e, n_kryl_gs, n_kryl, O
     )
 
-    @testset "pole" begin
-        G_imp = Pole([G_minus.a; G_plus.a], [G_minus.b[1, :]; G_plus.b[1, :]])
+    @testset "Poles" begin
+        G_imp = Poles([G_minus.a; G_plus.a], [G_minus.b[1, :]; G_plus.b[1, :]])
         sort!(G_imp)
-        Σ_H, Σ = self_energy_pole(-μ, Δ0, G_imp)
+        Σ_H, Σ = self_energy_poles(-μ, Δ0, G_imp)
         @test abs(Σ_H - U / 2) < 100 * eps() # half-filling
         @test Σ.a == Δ0.a
         @test norm(sum(abs2.(Σ.b)) - U^2 / 4) < 1000 * sqrt(eps())
-    end # pole
+    end # Poles
 
     @testset "correlator" begin
         # self-energies

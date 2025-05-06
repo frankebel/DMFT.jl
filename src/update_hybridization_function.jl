@@ -2,7 +2,7 @@
 
 """
     update_hybridization_function(
-        Δ0::Pole{<:V,<:V}, μ::Real, Z::AbstractVector{<:Number}, Σ::AbstractVector{<:Complex}
+        Δ0::Poles{<:V,<:V}, μ::Real, Z::AbstractVector{<:Number}, Σ::AbstractVector{<:Complex}
     ) where {V<:AbstractVector{<:Real}}
 
 Calculate the new hybridization function from the lattice hybridization `Δ0` and
@@ -13,18 +13,18 @@ the impurity self energy `Σ` on grid `Z`.
 ```
 """
 function update_hybridization_function(
-    Δ0::Pole{<:V,<:V}, μ::Real, Z::AbstractVector{<:Number}, Σ::AbstractVector{<:Complex}
+    Δ0::Poles{<:V,<:V}, μ::Real, Z::AbstractVector{<:Number}, Σ::AbstractVector{<:Complex}
 ) where {V<:AbstractVector{<:Real}}
     return Δ0(Z .+ μ - Σ)
 end
 
 """
     update_hybridization_function(
-        Δ0::Pole{<:V,<:V}, μ::R, Σ_H::R, Σ::Pole{<:V,<:V}
+        Δ0::Poles{<:V,<:V}, μ::R, Σ_H::R, Σ::Poles{<:V,<:V}
     ) where {V<:AbstractVector{<:Real},R<:Real}
 
 
-Calculate the new hybridization function in [`Pole`](@ref) representation.
+Calculate the new hybridization function in [`Poles`](@ref) representation.
 
 ```math
 Δ(z) = Δ_0(z + μ - Σ(z))
@@ -33,14 +33,14 @@ Calculate the new hybridization function in [`Pole`](@ref) representation.
 The poles are taken from the input hybridization: `Δ.a == Δ0.a`
 """
 function update_hybridization_function(
-    Δ0::Pole{<:V,<:V}, μ::R, Σ_H::R, Σ::Pole{<:V,<:V}
+    Δ0::Poles{<:V,<:V}, μ::R, Σ_H::R, Σ::Poles{<:V,<:V}
 ) where {V<:AbstractVector{<:Real},R<:Real}
     Σ = remove_poles_with_zero_weight(Σ)
     n = length(Σ) + 1
     n_tot = length(Δ0) * n
     a = V(undef, n_tot)
     b = V(undef, n_tot)
-    result = Pole(a, b)
+    result = Poles(a, b)
     foo = Array(Σ) # create once for speed
 
     # diagonalization for each pole in Δ0

@@ -8,7 +8,7 @@ include("aqua.jl")
 
 @testset "DMFT.jl" begin
     include("bits.jl")
-    include("pole.jl")
+    include("poles.jl")
     include("io.jl")
     include("sytrd.jl")
     include("natural_orbitals.jl")

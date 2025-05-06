@@ -3,7 +3,7 @@ using Distributions
 using LinearAlgebra
 using Test
 
-@testset "Pole" begin
+@testset "Poles" begin
     V = Vector{Float64}
     M = Matrix{Float64}
     @testset "constructor" begin
@@ -12,26 +12,26 @@ using Test
         bm = rand(2, 10) # matrix
 
         # inner constructor
-        P = Pole{V,V}(a, bv)
+        P = Poles{V,V}(a, bv)
         @test P.a === a
         @test P.b === bv
-        P = Pole{V,M}(a, bm)
+        P = Poles{V,M}(a, bm)
         @test P.a === a
         @test P.b === bm
 
         # outer constructor
-        P = Pole(a, bv)
-        @test typeof(P) === Pole{V,V}
-        @test_throws TypeError Pole(rand(ComplexF64, 10), bv)
-        @test_throws DimensionMismatch Pole(a, rand(9))
-        @test_throws DimensionMismatch Pole(a, rand(2, 9))
+        P = Poles(a, bv)
+        @test typeof(P) === Poles{V,V}
+        @test_throws TypeError Poles(rand(ComplexF64, 10), bv)
+        @test_throws DimensionMismatch Poles(a, rand(9))
+        @test_throws DimensionMismatch Poles(a, rand(2, 9))
 
         # conversion of type
         a = collect(1:10)
         b = collect(11:20)
-        P = Pole(a, b)
-        P_new = Pole{Vector{Float64},Vector{Int}}(P)
-        @test typeof(P_new) === Pole{Vector{Float64},Vector{Int}}
+        P = Poles(a, b)
+        P_new = Poles{Vector{Float64},Vector{Int}}(P)
+        @test typeof(P_new) === Poles{Vector{Float64},Vector{Int}}
         @test P_new.a == P.a
         @test P_new.b == P.b
 
@@ -40,7 +40,7 @@ using Test
             B = [rand(2, 2) for _ in 1:4]
             E0 = rand(Float64)
             S_sqrt = rand(2, 2)
-            P = DMFT._pole(A, B, E0, S_sqrt)
+            P = DMFT._poles(A, B, E0, S_sqrt)
             @test typeof(P.a) == Vector{Float64}
             @test length(P.a) == 10
             @test typeof(P.b) == Matrix{Float64}
@@ -56,13 +56,13 @@ using Test
                 z = 10 + im
                 # b::Vector
                 b = collect(0.1:0.1:1)
-                P = Pole(a, b)
+                P = Poles(a, b)
                 foo = P(z)
                 @test typeof(P(z)) === ComplexF64
                 @test abs(P(z) - sum(i -> (0.1 * i)^2 / (10 + im - i), 1:10)) < eps()
                 # b::Matrix
                 b = reshape(collect(0.1:0.1:2), (2, 10))
-                P = Pole(a, b)
+                P = Poles(a, b)
                 foo = P(z)
                 @test typeof(P(z)) === Matrix{ComplexF64}
                 @test norm(
@@ -83,7 +83,7 @@ using Test
                 # b::Matrix
                 a = [0.1, 0.2]
                 b = reshape(collect(0.1:0.1:0.4), (2, 2))
-                P = Pole(a, b)
+                P = Poles(a, b)
                 @test norm(
                     P(ω, σ) - [
                         -1.5277637226549838-1.4345225621076145im -1.90970465331873-2.00833158695066im
@@ -123,25 +123,25 @@ using Test
 
         @testset "to_grid_sqr" begin
             # all poles within grid, middle pole centerd
-            A = Pole([0.1, 0.2, 0.3], [5.0, -10.0, 1.0])
+            A = Poles([0.1, 0.2, 0.3], [5.0, -10.0, 1.0])
             grid = [0.1, 0.3]
             B = to_grid_sqr(A, grid)
             @test B.a == [0.1, 0.3]
             @test norm(B.b - [0.0, -4.0]) < 10 * eps()
             # all poles within grid, middle pole not centered
-            A = Pole([0.1, 0.25, 0.3], [5.0, -10.0, 1.0])
+            A = Poles([0.1, 0.25, 0.3], [5.0, -10.0, 1.0])
             grid = [0.1, 0.3]
             B = to_grid_sqr(A, grid)
             @test B.a == [0.1, 0.3]
             @test norm(B.b - [2.5, -6.5]) < 10 * eps()
             # pole outside grid
-            A = Pole([0.0, 1.0], [5.0, -10.0])
+            A = Poles([0.0, 1.0], [5.0, -10.0])
             grid = [0.1, 0.3]
             B = to_grid_sqr(A, grid)
             @test B.a == [0.1, 0.3]
             @test B.b == [5.0, -10.0]
             # poles very close to grid
-            A = Pole([4e-16, 0.9999999999999998], [4.0, 5.0])
+            A = Poles([4e-16, 0.9999999999999998], [4.0, 5.0])
             grid = [0.0, 1.0]
             B = to_grid_sqr(A, grid)
             @test B.a == [0.0, 1.0]
@@ -150,25 +150,25 @@ using Test
 
         @testset "to_grid" begin
             # all poles within grid, middle pole centerd
-            A = Pole([0.1, 0.2, 0.3], [5.0, -10.0, 1.0])
+            A = Poles([0.1, 0.2, 0.3], [5.0, -10.0, 1.0])
             grid = [0.1, 0.3]
             B = to_grid(A, grid)
             @test B.a == [0.1, 0.3]
             @test norm(B.b - [sqrt(75), sqrt(51)]) < 10 * eps()
             # all poles within grid, middle pole not centered
-            A = Pole([0.1, 0.25, 0.3], [5.0, -10.0, 1.0])
+            A = Poles([0.1, 0.25, 0.3], [5.0, -10.0, 1.0])
             grid = [0.1, 0.3]
             B = to_grid(A, grid)
             @test B.a == [0.1, 0.3]
             @test norm(B.b - [sqrt(50), sqrt(76)]) < 10 * eps()
             # pole outside grid
-            A = Pole([0.0, 1.0], [5.0, -10.0])
+            A = Poles([0.0, 1.0], [5.0, -10.0])
             grid = [0.1, 0.3]
             B = to_grid(A, grid)
             @test B.a == [0.1, 0.3]
             @test B.b == [5.0, 10.0]
             # poles very close to grid
-            A = Pole([4e-16, 0.9999999999999998], [4.0, 5.0])
+            A = Poles([4e-16, 0.9999999999999998], [4.0, 5.0])
             grid = [0.0, 1.0]
             B = to_grid(A, grid)
             @test B.a == [0.0, 1.0]
@@ -179,7 +179,7 @@ using Test
             # equidistant grid
             a = [-0.5, 0.5, 1.5]
             b = [1.5, -0.5, 5.0]
-            foo = move_negative_weight_to_neighbors!(Pole(a, b))
+            foo = move_negative_weight_to_neighbors!(Poles(a, b))
             @test foo.a === a
             @test foo.b === b
             @test a == [-0.5, 0.5, 1.5]
@@ -187,37 +187,37 @@ using Test
             # not equidistant grid
             a = [-0.5, 0.0, 1.5]
             b = [1.5, -0.5, 5.0]
-            move_negative_weight_to_neighbors!(Pole(a, b))
+            move_negative_weight_to_neighbors!(Poles(a, b))
             @test a == [-0.5, 0.0, 1.5]
             @test b == [1.125, 0.0, 4.875]
             # first pole negative
             a = [0.0, 1.0, 5.0]
             b = [-1.0, 0.5, 2.25]
-            move_negative_weight_to_neighbors!(Pole(a, b))
+            move_negative_weight_to_neighbors!(Poles(a, b))
             @test a == [0.0, 1.0, 5.0]
             @test b == [0.0, 0.0, 1.75]
             # last pole negative
             a = [0.0, 1.0, 5.0]
             b = [2.25, 0.5, -1.0]
-            move_negative_weight_to_neighbors!(Pole(a, b))
+            move_negative_weight_to_neighbors!(Poles(a, b))
             @test a == [0.0, 1.0, 5.0]
             @test b == [1.75, 0.0, 0.0]
             # weight exactly cancel
             a = [0.0, 1.0, 5.0]
             b = [-1.0, 0.5, 0.5]
-            move_negative_weight_to_neighbors!(Pole(a, b))
+            move_negative_weight_to_neighbors!(Poles(a, b))
             @test a == [0.0, 1.0, 5.0]
             @test b == [0.0, 0.0, 0.0]
             # symmetric case
             a = [-2.0, -0.5, 0.0, 0.5, 2.0]
             b = [5.0, -2.0, 1.0, -2.0, 5.0]
-            move_negative_weight_to_neighbors!(Pole(a, b))
+            move_negative_weight_to_neighbors!(Poles(a, b))
             @test a == [-2.0, -0.5, 0.0, 0.5, 2.0]
             @test norm(b - [3.5, 0.0, 0.0, 0.0, 3.5]) < 10 * eps()
             # previous pole would get negative weight
             a = [-1.0, -0.5, 0.0, 1.5]
             b = [2.0, 1.5, -2.5, 5.0]
-            move_negative_weight_to_neighbors!(Pole(a, b))
+            move_negative_weight_to_neighbors!(Poles(a, b))
             @test a == [-1.0, -0.5, 0.0, 1.5]
             @test b == [1.7, 0.0, 0.0, 4.3]
         end # move negative weight to neighbors
@@ -251,7 +251,7 @@ using Test
         end # continued fraction
 
         @testset "merge equal poles!" begin
-            P = Pole([0.1, 0.2, 0.5], [0.25, 0.75, 1.5])
+            P = Poles([0.1, 0.2, 0.5], [0.25, 0.75, 1.5])
             # manual tolerance
             P1 = copy(P)
             @test merge_equal_poles!(P1, 0.11) === P1
@@ -274,21 +274,21 @@ using Test
             # first index
             a = [-1.0, 0.0, 1.5]
             b = [0.5, -2.5, 5.0]
-            P = Pole(a, b)
+            P = Poles(a, b)
             @test merge_small_poles!(P, 1.0) === P
             @test P.a == [0.0, 1.5]
             @test P.b == [sqrt(6.5), 5.0]
             # last index
             a = [-1.0, 0.0, 1.5]
             b = [5.0, -2.5, 0.5]
-            P = Pole(a, b)
+            P = Poles(a, b)
             @test merge_small_poles!(P, 1.0) === P
             @test P.a == [-1.0, 0.0]
             @test P.b == [5.0, sqrt(6.5)]
             # middle index
             a = [-1.0, 0.0, 1.5]
             b = [5.0, 0.5, -2.5]
-            P = Pole(a, b)
+            P = Poles(a, b)
             @test merge_small_poles!(P, 1.0) === P
             @test P.a == [-1.0, 1.5]
             @test P.b == [sqrt(25.15), sqrt(6.35)]
@@ -297,18 +297,18 @@ using Test
         @testset "remove poles with zero weight!" begin
             a = collect(1:6)
             b = [0, 7, 0, 9, 0, -0.0]
-            P = Pole(a, b)
+            P = Poles(a, b)
             @test remove_poles_with_zero_weight!(P, true) === P
             @test P.a == [2, 4]
             @test P.b == [7, 9]
             # pole at a=0
             a = [-1, 0, 1]
             b = [2, 0, 0]
-            P = Pole(copy(a), copy(b))
+            P = Poles(copy(a), copy(b))
             @test remove_poles_with_zero_weight!(P) === P
             @test P.a == [-1]
             @test P.b == [2]
-            P = Pole(copy(a), copy(b))
+            P = Poles(copy(a), copy(b))
             @test remove_poles_with_zero_weight!(P, false) === P
             @test P.a == [-1, 0]
             @test P.b == [2, 0]
@@ -317,9 +317,9 @@ using Test
         @testset "remove poles with zero weight" begin
             a = collect(1:6)
             b = [0, 7, 0, 9, 0, -0.0]
-            P = Pole(a, b)
+            P = Poles(a, b)
             P_new = remove_poles_with_zero_weight(P)
-            @test typeof(P_new) === Pole{Vector{Int},Vector{Float64}}
+            @test typeof(P_new) === Poles{Vector{Int},Vector{Float64}}
             @test P_new.a == [2, 4]
             @test P_new.b == [7, 9]
             @test P.a == collect(1:6)
@@ -331,7 +331,7 @@ using Test
         @testset "Array" begin
             a = collect(1:5)
             b = collect(6:10)
-            P = Pole(a, b)
+            P = Poles(a, b)
             m = Array(P)
             @test typeof(m) === Matrix{Int}
             @test m == [
@@ -345,7 +345,7 @@ using Test
             # poles with zero weight
             a = collect(1:5)
             b = [6, 7, 0, 9, 0]
-            P = Pole(a, b)
+            P = Poles(a, b)
             m = Array(P)
             @test m == [
                 0 6 7 0 9 0
@@ -358,7 +358,7 @@ using Test
             # correct promotion
             a = collect(1:2)
             b = [1.1, 5.5]
-            P = Pole(a, b)
+            P = Poles(a, b)
             m = Array(P)
             @test m == [
                 0 1.1 5.5
@@ -372,7 +372,7 @@ using Test
         @testset "copy" begin
             a = collect(1:5)
             b = collect(6:10)
-            A = Pole(a, b)
+            A = Poles(a, b)
             B = copy(A)
             @test typeof(B) === typeof(A)
             @test B.a == A.a
@@ -387,12 +387,12 @@ using Test
         end # copy
 
         @testset "length" begin
-            P = Pole(rand(10), rand(10))
+            P = Poles(rand(10), rand(10))
             @test length(P) === 10
             append!(P.a, 0)
             @test_throws ArgumentError length(P)
             # b::Matrix
-            P = Pole(rand(10), rand(2, 10))
+            P = Poles(rand(10), rand(2, 10))
             @test length(P) === 10
             append!(P.a, 0)
             @test_throws ArgumentError length(P)
@@ -401,7 +401,7 @@ using Test
         @testset "sort!" begin
             a = [2, 1]
             b = [3, 4]
-            A = Pole(a, b)
+            A = Poles(a, b)
             B = sort!(A)
             @test B === A
             @test A.a == [1, 2]
@@ -411,7 +411,7 @@ using Test
         @testset "sort" begin
             a = [2, 1]
             b = [3, 4]
-            A = Pole(a, b)
+            A = Poles(a, b)
             B = sort(A)
             @test B !== A
             @test A.a == [2, 1]
@@ -425,15 +425,15 @@ using Test
             a = [-1.0, 0.0, 5.0]
             Ab = [5.0, 6.0, 7.0]
             Bb = [2.5, 3.0, 4.8]
-            A = Pole(a, Ab)
-            B = Pole(a, Bb)
+            A = Poles(a, Ab)
+            B = Poles(a, Bb)
             C = A - B
             # original must be untouched
             @test A.a == [-1.0, 0.0, 5.0]
             @test A.b == [5.0, 6.0, 7.0]
             @test B.a == [-1.0, 0.0, 5.0]
             @test B.b == [2.5, 3.0, 4.8]
-            # new Pole
+            # new Poles
             @test C.a == [-1.0, 0.0, 5.0]
             @test C.b == [sqrt(18.75), sqrt(27), sqrt(25.96)]
 
@@ -441,15 +441,15 @@ using Test
             a = [-1.0, 0.0, 3.0]
             Ab = [5.0, 2.0, 7.0]
             Bb = [2.5, 3.0, 4.8]
-            A = Pole(a, Ab)
-            B = Pole(a, Bb)
+            A = Poles(a, Ab)
+            B = Poles(a, Bb)
             C = A - B
             # original must be untouched
             @test A.a == [-1.0, 0.0, 3.0]
             @test A.b == [5.0, 2.0, 7.0]
             @test B.a == [-1.0, 0.0, 3.0]
             @test B.b == [2.5, 3.0, 4.8]
-            # new Pole
+            # new Poles
             @test C.a == [-1.0, 0.0, 3.0]
             @test norm(C.b - [sqrt(15), 0, sqrt(24.71)]) < 10 * eps()
 
@@ -457,15 +457,15 @@ using Test
             a = [-1.0, 0.0, 3.0]
             Ab = [5.0, 6.0, 7.0]
             Bb = [2.5, 3.0, 4.8]
-            A = Pole([-1.0, 1.0, 3.0], Ab)
-            B = Pole(a, Bb)
+            A = Poles([-1.0, 1.0, 3.0], Ab)
+            B = Poles(a, Bb)
             C = A - B
             # original must be untouched
             @test A.a == [-1.0, 1.0, 3.0]
             @test A.b == [5.0, 6.0, 7.0]
             @test B.a == [-1.0, 0.0, 3.0]
             @test B.b == [2.5, 3.0, 4.8]
-            # new Pole
+            # new Poles
             @test C.a == [-1.0, 0.0, 3.0]
             @test norm(C.b - [sqrt(18.75), sqrt(15), sqrt(37.96)]) < 10 * eps()
 
@@ -473,15 +473,15 @@ using Test
             a = [-1.0, 0.0, 4.0]
             Ab = [5.0, 6.0, 7.0]
             Bb = [2.5, sqrt(27), 4.8]
-            A = Pole([-1.0, 1.0, 4.0], Ab)
-            B = Pole(a, Bb)
+            A = Poles([-1.0, 1.0, 4.0], Ab)
+            B = Poles(a, Bb)
             C = A - B
             # original must be untouched
             @test A.a == [-1.0, 1.0, 4.0]
             @test A.b == [5.0, 6.0, 7.0]
             @test B.a == [-1.0, 0.0, 4.0]
             @test B.b == [2.5, sqrt(27), 4.8]
-            # new Pole
+            # new Poles
             @test C.a == [-1.0, 0.0, 4.0]
             @test norm(C.b - [sqrt(18.75), 0, sqrt(34.96)]) < 10 * eps()
 
@@ -489,15 +489,15 @@ using Test
             a = [-1.0, 0.0, 4.0]
             Ab = [5.0, 6.0, 7.0]
             Bb = [2.5, 6.0, 4.8]
-            A = Pole([-1.0, 1.0, 4.0], Ab)
-            B = Pole(a, Bb)
+            A = Poles([-1.0, 1.0, 4.0], Ab)
+            B = Poles(a, Bb)
             C = A - B
             # original must be untouched
             @test A.a == [-1.0, 1.0, 4.0]
             @test A.b == [5.0, 6.0, 7.0]
             @test B.a == [-1.0, 0.0, 4.0]
             @test B.b == [2.5, 6.0, 4.8]
-            # new Pole
+            # new Poles
             @test C.a == [-1.0, 0.0, 4.0]
             @test norm(C.b - [sqrt(11.55), 0, sqrt(33.16)]) < 10 * eps()
         end # -
@@ -524,4 +524,4 @@ using Test
             @test imag(z1) ≈ imag(z2) rtol = 7000 * eps()
         end # inv
     end # Base
-end # Pole
+end # Poles

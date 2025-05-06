@@ -29,7 +29,7 @@ end
 """
     greens_function_bethe_simple(n_bath::Int, D::Real=1.0)
 
-Return the [`Pole`](@ref) representation of the semicircular density of states
+Return the [`Poles`](@ref) representation of the semicircular density of states
 with half-bandwidth `D` on `n_bath` poles.
 
 Poles are found by diagonalizing a tridiagonal matrix with hopping ``t=D/2``.
@@ -47,13 +47,13 @@ function greens_function_bethe_simple(n_bath::Int, D::Real=1.0)
     H0 = SymTridiagonal(dv, ev)
     a, T = eigen(H0)
     b = abs.(T[:, 1]) # positive values for simplicity
-    return Pole(a, b)
+    return Poles(a, b)
 end
 
 """
     greens_function_bethe_grid(grid::AbstractVector{<:Real}, D::Real=1.0)
 
-Return the [`Pole`](@ref) representation of the semicircular density of states
+Return the [`Poles`](@ref) representation of the semicircular density of states
 with half-bandwidth `D` with poles given in `grid`.
 
 See also
@@ -71,7 +71,7 @@ function greens_function_bethe_grid(grid::AbstractVector{<:Real}, D::Real=1.0)
     b = similar(grid)
     if length(grid) == 1
         b[firstindex(b)] = 1
-        return Pole(a, b)
+        return Poles(a, b)
     end
     # For each pole location a[i] we bisect the interval to its neighbors
     # a_low = 0.5 * (a[i-1] + a[i])
@@ -91,7 +91,7 @@ function greens_function_bethe_grid(grid::AbstractVector{<:Real}, D::Real=1.0)
         end
     end
     map!(sqrt, b, b)
-    return Pole(a, b)
+    return Poles(a, b)
 end
 
 """
@@ -99,7 +99,7 @@ end
         grid::AbstractVector{<:Real}, U::Real=0.0, D::Real=1.0
     )
 
-Return the [`Pole`](@ref) representation of the Hubbard III approximation
+Return the [`Poles`](@ref) representation of the Hubbard III approximation
 with half-bandwidth `D` and poles given in `grid`.
 
 Created using two semicircles at ``±U/2``.
@@ -117,7 +117,7 @@ function greens_function_bethe_grid_hubbard3(
     b = similar(grid)
     if length(grid) == 1
         b[firstindex(b)] = 1
-        return Pole(a, b)
+        return Poles(a, b)
     end
     # For each pole location a[i] we bisect the interval to its neighbors
     # a_low = 0.5 * (a[i-1] + a[i])
@@ -143,16 +143,16 @@ function greens_function_bethe_grid_hubbard3(
     end
     b ./= 2 # noralize 2 distributions
     map!(sqrt, b, b)
-    return Pole(a, b)
+    return Poles(a, b)
 end
 
 """
     greens_function_bethe_equal_weight(n_bath::Int, D::Real=1.0)
 
-Return the [`Pole`](@ref) representation of the semicircular density of states
+Return the [`Poles`](@ref) representation of the semicircular density of states
 with half-bandwidth `D` on `n_bath` poles.
 
-Each Pole has the same hybridization ``V^2 = 1/n_b``.
+Each pole has the same hybridization ``V^2 = 1/n_b``.
 
 See also
 [`greens_function_bethe_simple`](@ref),
@@ -188,7 +188,7 @@ function greens_function_bethe_equal_weight(n_bath::Int, D::Real=1.0)
 
     a = [a; 0; -reverse(a)]
     b = fill(V, n_bath)
-    return Pole(a, b)
+    return Poles(a, b)
 end
 
 # Dispersion relation H_k supplied by user.

@@ -1,6 +1,6 @@
 """
     solve_impurity(
-        Δ::Pole{V,V},
+        Δ::Poles{V,V},
         H_int::Operator,
         ϵ_imp::Real,
         n_v_bit::Int,
@@ -17,7 +17,7 @@ Solve the Anderson impurity problem.
 The block Lanczos algorithm is then used to obtain the spectrum.
 """
 function solve_impurity(
-    Δ::Pole{V,V},
+    Δ::Poles{V,V},
     H_int::Operator,
     ϵ_imp::Real,
     n_v_bit::Int,
@@ -68,7 +68,7 @@ function g_plus(
     b0 = norm(v)
     rmul!(v, inv(b0))
     a, b = lanczos(H, v, n_kryl)
-    G_plus = _pole(a, b, E0, b0)
+    G_plus = _poles(a, b, E0, b0)
 
     # poles at negative energies (never happens on exact arithmetic)
     idx_neg = findall(<(0), G_plus.a)
@@ -90,7 +90,7 @@ function _pos(
     end
     W, S_sqrt = orthogonalize_states(V)
     A, B = block_lanczos(H, W, n_kryl)
-    return _pole(A, B, E0, S_sqrt)
+    return _poles(A, B, E0, S_sqrt)
 end
 
 """
@@ -121,7 +121,7 @@ function g_minus(
     a, b = lanczos(H, v, n_kryl)
     map!(-, a, a)
     map!(-, b, b)
-    G_minus = _pole(a, b, -E0, b0)
+    G_minus = _poles(a, b, -E0, b0)
 
     # poles at positive energies (never happens on exact arithmetic)
     idx_pos = findall(>(0), G_minus.a)
@@ -143,21 +143,21 @@ function _neg(
     end
     W, S_sqrt = orthogonalize_states(V)
     A, B = block_lanczos(H, W, n_kryl)
-    return _pole(-A, B, -E0, S_sqrt)
+    return _poles(-A, B, -E0, S_sqrt)
 end
 
-# diagonalize tridiagonal matrix given by `a`, `b` and convert to `Pole`
-function _pole(a::AbstractVector{<:Real}, b::AbstractVector{<:Real}, E0::Real, b0::Real)
+# diagonalize tridiagonal matrix given by `a`, `b` and convert to `Poles`
+function _poles(a::AbstractVector{<:Real}, b::AbstractVector{<:Real}, E0::Real, b0::Real)
     S = SymTridiagonal(a, b)
     E, T = eigen(S)
     E .-= E0
     R = b0 * T[1, :]
     map!(abs, R, R) # sign does not matter, positive is easier
-    return Pole(E, R)
+    return Poles(E, R)
 end
 
-# diagonalize blocktridiagonal matrix given by `A`, `B` and convert to `Pole`
-function _pole(
+# diagonalize blocktridiagonal matrix given by `A`, `B` and convert to `Poles`
+function _poles(
     A::AbstractVector{<:AbstractMatrix{<:Real}},
     B::AbstractVector{<:AbstractMatrix{<:T}},
     E0::Real,
@@ -178,5 +178,5 @@ function _pole(
     E, _ = LAPACK.syev!('V', 'U', X)
     E .-= E0
     R = S_sqrt * X[1:size(S_sqrt, 1), :]
-    return Pole(E, R)
+    return Poles(E, R)
 end

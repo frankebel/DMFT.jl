@@ -1,5 +1,5 @@
 """
-    Pole{A<:AbstractVector{<:Real},B<:AbstractVecOrMat{<:Number}}
+    Poles{A<:AbstractVector{<:Real},B<:AbstractVecOrMat{<:Number}}
 
 Representation of poles on the real axis with locations `a::A` and weights `b::B`.
 
@@ -15,33 +15,37 @@ If `B` is a matrix, its ``i``-th column is interpreted as a vector ``\\vec{b_i}`
 P(z) = \\sum_i \\frac{\\vec{b}_i\\vec{b}_i^\\dagger}{z-a_i}.
 ```
 """
-struct Pole{A<:AbstractVector{<:Real},B<:AbstractVecOrMat{<:Number}}
+struct Poles{A<:AbstractVector{<:Real},B<:AbstractVecOrMat{<:Number}}
     a::A
     b::B
 
     # both are vectors
-    function Pole{A,B}(a, b) where {A<:AbstractVector{<:Number},B<:AbstractVector{<:Number}}
+    function Poles{A,B}(
+        a, b
+    ) where {A<:AbstractVector{<:Number},B<:AbstractVector{<:Number}}
         eachindex(a) == eachindex(b) || throw(DimensionMismatch("index mismatch"))
         return new{A,B}(a, b)
     end
 
     # `b` is a matrix
-    function Pole{A,B}(a, b) where {A<:AbstractVector{<:Number},B<:AbstractMatrix{<:Number}}
+    function Poles{A,B}(
+        a, b
+    ) where {A<:AbstractVector{<:Number},B<:AbstractMatrix{<:Number}}
         eachindex(a) == axes(b, 2) || throw(DimensionMismatch("index mismatch"))
         return new{A,B}(a, b)
     end
 end
 
-Pole(a::A, b::B) where {A,B} = Pole{A,B}(a, b)
+Poles(a::A, b::B) where {A,B} = Poles{A,B}(a, b)
 
-Pole{A,B}(P::Pole) where {A,B} = Pole(A(P.a), B(P.b))
+Poles{A,B}(P::Poles) where {A,B} = Poles(A(P.a), B(P.b))
 
 """
-   (P::Pole)(z::Complex)
+   (P::Poles)(z::Complex)
 
 Evaluate `P` at complex frequency `z`.
 """
-function (P::Pole{<:Any,<:AbstractVector})(z::Complex)
+function (P::Poles{<:Any,<:AbstractVector})(z::Complex)
     result = zero(z)
     for i in eachindex(P.a)
         result += abs2(P.b[i]) / (z - P.a[i])
@@ -49,7 +53,7 @@ function (P::Pole{<:Any,<:AbstractVector})(z::Complex)
     return result
 end
 
-function (P::Pole{<:Any,<:AbstractMatrix})(z::Complex)
+function (P::Poles{<:Any,<:AbstractMatrix})(z::Complex)
     d = size(P.b, 1)
     result = zeros(ComplexF64, d, d)
     for i in eachindex(P.a)
@@ -60,18 +64,18 @@ function (P::Pole{<:Any,<:AbstractMatrix})(z::Complex)
 end
 
 """
-   (P::Pole)(Z::AbstractVector{<:Complex})
+   (P::Poles)(Z::AbstractVector{<:Complex})
 
 Evaluate `P` at complex frequencies `Z`.
 """
-(P::Pole)(Z::AbstractVector{<:Complex}) = map(P, Z)
+(P::Poles)(Z::AbstractVector{<:Complex}) = map(P, Z)
 
 """
-   (P::Pole)(ω::R, σ::R) where {R<:Real}
+   (P::Poles)(ω::R, σ::R) where {R<:Real}
 
 Evaluate `P` at frequency `ω` with Gaussian broadening `σ`.
 """
-function (P::Pole{<:Any,<:AbstractVector})(ω::R, σ::R) where {R<:Real}
+function (P::Poles{<:Any,<:AbstractVector})(ω::R, σ::R) where {R<:Real}
     real = zero(R)
     imag = zero(R)
     for i in eachindex(P.a)
@@ -82,7 +86,7 @@ function (P::Pole{<:Any,<:AbstractVector})(ω::R, σ::R) where {R<:Real}
     return π .* result # not spectral function
 end
 
-function (P::Pole{<:Any,<:AbstractMatrix})(ω::R, σ::R) where {R<:Real}
+function (P::Poles{<:Any,<:AbstractMatrix})(ω::R, σ::R) where {R<:Real}
     d = size(P.b, 1)
     real = zeros(R, d, d)
     imag = zero(real)
@@ -96,14 +100,14 @@ function (P::Pole{<:Any,<:AbstractMatrix})(ω::R, σ::R) where {R<:Real}
 end
 
 """
-   (P::Pole)(ω::AbstractVector{<:R}, σ::R) where {R<:Real}
+   (P::Poles)(ω::AbstractVector{<:R}, σ::R) where {R<:Real}
 
 Evaluate `P` at frequencies `ω` with Gaussian broadening `σ`.
 """
-(P::Pole)(ω::AbstractVector{<:R}, σ::R) where {R<:Real} = map(w -> P(w, σ), ω)
+(P::Poles)(ω::AbstractVector{<:R}, σ::R) where {R<:Real} = map(w -> P(w, σ), ω)
 
 """
-    spectral_function_loggauss(P::Pole{<:Any,<:AbstractVector}, ω::Real, b::Real)
+    spectral_function_loggauss(P::Poles{<:Any,<:AbstractVector}, ω::Real, b::Real)
 
 Calculate the spectral function ``A(ω) = -1/π \\mathrm{Im}[P(ω)]`` with a lognormal broadening.
 
@@ -123,7 +127,7 @@ each getting half weight
 + \\frac{|b_i|^2}{2} δ\\left(ω - \\frac{a_{i+1}}{2}\\right).
 ```
 """
-function spectral_function_loggauss(P::Pole{<:Any,<:AbstractVector}, ω::Real, b::Real)
+function spectral_function_loggauss(P::Poles{<:Any,<:AbstractVector}, ω::Real, b::Real)
     result = zero(ω)
     iszero(ω) && return result # no weight at ω == 0
     for i in eachindex(P.a)
@@ -147,15 +151,15 @@ function spectral_function_loggauss(P::Pole{<:Any,<:AbstractVector}, ω::Real, b
 end
 
 function spectral_function_loggauss(
-    P::Pole{<:Any,<:AbstractVector}, ω::V, b::Real
+    P::Poles{<:Any,<:AbstractVector}, ω::V, b::Real
 ) where {V<:AbstractVector{<:Real}}
     return map(w -> spectral_function_loggauss(P, w, b), ω)
 end
 
 """
-    to_grid_sqr(P::Pole{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
+    to_grid_sqr(P::Poles{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
 
-Create a new [`Pole`](@ref) from `P` on with locations given by `grid`.
+Create a new [`Poles`](@ref) from `P` on with locations given by `grid`.
 
 A given pole is split locally conserving the zeroth and first moment.
 If the pole is lower than the lowest value in the grid or
@@ -165,7 +169,7 @@ Assumes that weights are already squared and keeps them squred.
 
 See also [`to_grid`](@ref).
 """
-function to_grid_sqr(P::Pole{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
+function to_grid_sqr(P::Poles{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
     # check input
     length(P.a) == length(P.b) || throw(DimensionMismatch("length mismatch in P"))
     all(isreal, P.b) || throw(ArgumentError("weights must be real"))
@@ -203,13 +207,13 @@ function to_grid_sqr(P::Pole{<:Any,<:AbstractVector}, grid::AbstractVector{<:Rea
             end
         end
     end
-    return Pole(a, b)
+    return Poles(a, b)
 end
 
 """
-    to_grid(P::Pole{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
+    to_grid(P::Poles{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
 
-Create a new [`Pole`](@ref) from `P` on with locations given by `grid`.
+Create a new [`Poles`](@ref) from `P` on with locations given by `grid`.
 
 A given pole is split locally conserving the zeroth and first moment.
 If the pole is lower than the lowest value in the grid or
@@ -217,7 +221,7 @@ higher than the highest value, only the zeroth moment is conserved.
 
 See also [`to_grid_sqr`](@ref).
 """
-function to_grid(P::Pole{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
+function to_grid(P::Poles{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
     result = copy(P)
     map!(abs2, result.b, result.b) # square weights
     result = to_grid_sqr(result, grid)
@@ -226,14 +230,14 @@ function to_grid(P::Pole{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
 end
 
 """
-    move_negative_weight_to_neighbors!(P::Pole{<:Any,<:AbstractVector})
+    move_negative_weight_to_neighbors!(P::Poles{<:Any,<:AbstractVector})
 
 Move negative weights of `P` such that the zeroth moment is conserved
 and the first moment changes minimally.
 
 Assumes that weights are squared and keeps them in that form.
 """
-function move_negative_weight_to_neighbors!(P::Pole{<:Any,<:AbstractVector})
+function move_negative_weight_to_neighbors!(P::Poles{<:Any,<:AbstractVector})
     a = P.a
     b = P.b
 
@@ -300,13 +304,13 @@ function move_negative_weight_to_neighbors!(P::Pole{<:Any,<:AbstractVector})
     return P
 end
 
-# Pole in continued fraction representation
+# Poles in continued fraction representation
 # P(z) = 1 / (z - a_1 - b_1^2 / (z - a_2 - ⋯))
-function _continued_fraction(P::Pole{<:Any,<:AbstractVector})
+function _continued_fraction(P::Poles{<:Any,<:AbstractVector})
     # check input
     Base.require_one_based_indexing(P.a)
     Base.require_one_based_indexing(P.b)
-    abs(norm(P.b) - 1) < sqrt(eps()) || throw(ArgumentError("Pole P is not normalized"))
+    abs(norm(P.b) - 1) < sqrt(eps()) || throw(ArgumentError("Poles P is not normalized"))
 
     T = eltype(P.b)
     N = length(P)
@@ -340,13 +344,13 @@ function _continued_fraction(P::Pole{<:Any,<:AbstractVector})
 end
 
 """
-    merge_equal_poles!(P::Pole{<:Any,<:AbstractVector}, tol::Real=1e-10)
+    merge_equal_poles!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
 
 Merge poles which are less than `tol` apart.
 
 If `P.a[i+1] - P.a[i] < tol`, then add up weights and pop index `i+1`.
 """
-function merge_equal_poles!(P::Pole{<:Any,<:AbstractVector}, tol::Real=1e-10)
+function merge_equal_poles!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
     a, b = P.a, P.b
     tol > 0 || throw(ArgumentError("negative tol"))
     issorted(a) || throw(ArgumentError("poles are not sorted"))
@@ -367,13 +371,13 @@ function merge_equal_poles!(P::Pole{<:Any,<:AbstractVector}, tol::Real=1e-10)
 end
 
 """
-    merge_small_poles!(P::Pole{<:Any,<:AbstractVector}, tol::Real=1e-10)
+    merge_small_poles!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
 
 Merge poles with weight `< tol` to its neighbors.
 
 A given pole is split locally conserving the zeroth and first moment.
 """
-function merge_small_poles!(P::Pole{<:Any,<:AbstractVector}, tol::Real=1e-10)
+function merge_small_poles!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
     tol > 0 || throw(ArgumentError("negative tol"))
     issorted(P.a) || issorted(P.a; rev=true) || throw(ArgumentError("poles are not sorted"))
 
@@ -415,7 +419,7 @@ end
 
 """
     remove_poles_with_zero_weight!(
-        P::Pole{<:Any,<:AbstractVector}, remove_zero::Bool=true
+        P::Poles{<:Any,<:AbstractVector}, remove_zero::Bool=true
     )
 
 Remove all poles ``|b_i|^2 = 0``.
@@ -425,7 +429,7 @@ If `remove_zero`, ``a_i = b_i = 0`` is also removed.
 See also [`remove_poles_with_zero_weight`](@ref).
 """
 function remove_poles_with_zero_weight!(
-    P::Pole{<:Any,<:AbstractVector}, remove_zero::Bool=true
+    P::Poles{<:Any,<:AbstractVector}, remove_zero::Bool=true
 )
     i = firstindex(P.b)
     while i <= lastindex(P.b)
@@ -447,7 +451,7 @@ end
 
 """
     remove_poles_with_zero_weight(
-        P::Pole{<:Any,<:AbstractVector}, remove_zero::Bool=true
+        P::Poles{<:Any,<:AbstractVector}, remove_zero::Bool=true
     )
 
 Remove all poles ``|b_i|^2 = 0``.
@@ -457,14 +461,14 @@ If `remove_zero`, ``a_i = b_i = 0`` is also removed.
 See also [`remove_poles_with_zero_weight!`](@ref).
 """
 function remove_poles_with_zero_weight(
-    P::Pole{<:Any,<:AbstractVector}, remove_zero::Bool=true
+    P::Poles{<:Any,<:AbstractVector}, remove_zero::Bool=true
 )
     result = copy(P)
     remove_poles_with_zero_weight!(result, remove_zero)
     return result
 end
 
-function Core.Array(P::Pole{<:Any,<:AbstractVector{<:Real}})
+function Core.Array(P::Poles{<:Any,<:AbstractVector{<:Real}})
     T = promote_type(eltype(P.a), eltype(P.b))
     result = Matrix{T}(Diagonal([0; P.a]))
     result[1, 2:end] .= P.b
@@ -472,33 +476,33 @@ function Core.Array(P::Pole{<:Any,<:AbstractVector{<:Real}})
     return result
 end
 
-Base.copy(P::Pole) = Pole(copy(P.a), copy(P.b))
+Base.copy(P::Poles) = Poles(copy(P.a), copy(P.b))
 
-function Base.length(P::Pole{<:Any,<:AbstractVector})
+function Base.length(P::Poles{<:Any,<:AbstractVector})
     length(P.a) == length(P.b) || throw(ArgumentError("length mismatch"))
     return length(P.a)
 end
 
-function Base.length(P::Pole{<:Any,<:AbstractMatrix})
+function Base.length(P::Poles{<:Any,<:AbstractMatrix})
     length(P.a) == size(P.b, 2) || throw(ArgumentError("length mismatch"))
     return length(P.a)
 end
 
-function Base.sort!(P::Pole{<:Any,<:AbstractVector})
+function Base.sort!(P::Poles{<:Any,<:AbstractVector})
     p = sortperm(P.a)
     P.a[:] = P.a[p]
     P.b[:] = P.b[p]
     return P
 end
 
-Base.sort(P::Pole{<:Any,<:AbstractVector}) = sort!(copy(P))
+Base.sort(P::Poles{<:Any,<:AbstractVector}) = sort!(copy(P))
 
 # Subtraction of Poles `result = A - B`.
 # After squaring each weight, `A` is put on the same grid as `B`.
 # Then, each pole is subtracted `result.b = A.b - B.b.
 # If any resulting pole has negative weight,
 # it is then shifted around to make all weights non-negative.
-function Base.:-(A::Pole{<:Any,<:V}, B::Pole{<:Any,<:V}) where {V<:AbstractVector{<:Real}}
+function Base.:-(A::Poles{<:Any,<:V}, B::Poles{<:Any,<:V}) where {V<:AbstractVector{<:Real}}
     # check input
     issorted(B.a) || throw(ArgumentError("A is not sorted"))
     allunique(B.a) || throw(ArgumentError("degenerate energies in B"))
@@ -521,7 +525,7 @@ function Base.:-(A::Pole{<:Any,<:V}, B::Pole{<:Any,<:V}) where {V<:AbstractVecto
 end
 
 """
-    inv(P::Pole{<:Any,<:AbstractVector})
+    inv(P::Poles{<:Any,<:AbstractVector})
 
 Invert `P` → `P_inv` such that
 
@@ -535,12 +539,12 @@ is converted to
 P(z)^{1} = \\frac{1}{z - a_0 - \\sum_{i=1}^{N-1} \\frac{|b_i|^2}{z - a_i}} = \\frac{1}{z - a_0 - Q(z)}.
 ```
 
-Returns `a_0::Real` and `Q::Pole`.
+Returns `a_0::Real` and `Q::Poles`.
 
 !!! note
     Input `P` must be normalized.
 """
-function Base.inv(P::Pole{<:Any,<:AbstractVector})
+function Base.inv(P::Poles{<:Any,<:AbstractVector})
     a, b = _continued_fraction(P)
     a0 = a[1]
     # take all poles except first and diagonalize
@@ -548,6 +552,6 @@ function Base.inv(P::Pole{<:Any,<:AbstractVector})
     a, T = eigen(S)
     b = b[1] * view(T, 1, :)
     map!(abs, b, b) # positive weights easier
-    P = Pole(a, b)
+    P = Poles(a, b)
     return a0, P
 end

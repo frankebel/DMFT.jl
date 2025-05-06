@@ -9,7 +9,7 @@ using LinearAlgebra
     a = [-reverse(a); 0; a]
     b = fill(1 / sqrt(n_bath - 1), n_bath ÷ 2)
     b = [b; 0; b]
-    G = Pole(a, b)
+    G = Poles(a, b)
     # evaluate on grid
     ω = collect(-10:0.002:10)
     Z = ω .+ im * 0.02

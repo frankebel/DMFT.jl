@@ -1,11 +1,11 @@
-# various methods of calculating self-energy from Pole representation
+# various methods of calculating self-energy from Poles representation
 
 """
-    self_energy_pole(
-    ϵ_imp::Real, Δ0::Pole{<:V,<:V}, 𝒢::Pole{<:V,<:V}
+    self_energy_poles(
+    ϵ_imp::Real, Δ0::Poles{<:V,<:V}, 𝒢::Poles{<:V,<:V}
 ) where {V<:AbstractVector{<:Real}}
 
-Calculate the self-energy purely in [`Pole`](@ref) representation using the Dyson equation.
+Calculate the self-energy purely in [`Poles`](@ref) representation using the Dyson equation.
 
 ```math
 Σ(z) = 𝒢_0^{-1}(z) - 𝒢^{-1}(z)
@@ -17,8 +17,8 @@ with
 𝒢_0^{-1}(z) = \\frac{1}{z - ϵ_imp - Δ_0(z)}
 ```
 """
-function self_energy_pole(
-    ϵ_imp::Real, Δ0::Pole{<:V,<:V}, 𝒢::Pole{<:V,<:V}
+function self_energy_poles(
+    ϵ_imp::Real, Δ0::Poles{<:V,<:V}, 𝒢::Poles{<:V,<:V}
 ) where {V<:AbstractVector{<:Real}}
     a0, 𝒢_inv = inv(𝒢)
     Σ_H = a0 - ϵ_imp
@@ -30,13 +30,13 @@ end
 """
     self_energy_FG(
         G_plus::GF, G_minus::GF, Z::AbstractVector{<:Complex}
-    ) where {GF<:Pole{<:Any,<:AbstractMatrix{<:Number}}}
+    ) where {GF<:Poles{<:Any,<:AbstractMatrix{<:Number}}}
 
 Calculate self-energy as ``Σ(Z) = F(Z) G^{-1}(Z)``.
 """
 function self_energy_FG(
     G_plus::P, G_minus::P, Z::AbstractVector{<:Complex}
-) where {P<:Pole{<:Any,<:AbstractMatrix{<:Number}}}
+) where {P<:Poles{<:Any,<:AbstractMatrix{<:Number}}}
     gp = G_plus(Z)
     gm = G_minus(Z) # transpose to access F component
     G = map(g -> g[1, 1], gm) .+ map(g -> g[1, 1], gp)
@@ -48,13 +48,13 @@ end
 """
     self_energy_IFG(
         G_plus::GF, G_minus::GF, Z::AbstractVector{<:Complex}, Σ_H::Real
-    ) where {GF<:Pole{<:Any,<:AbstractMatrix{<:Number}}}
+    ) where {GF<:Poles{<:Any,<:AbstractMatrix{<:Number}}}
 
 Calculate self-energy as ``Σ(Z) = Σ^\\mathrm{H} + I(Z) - F^\\mathrm{L}(Z) G^{-1}(Z) F^\\mathrm{R}(Z)``.
 """
 function self_energy_IFG(
     G_plus::P, G_minus::P, Z::AbstractVector{<:Complex}, Σ_H::Real
-) where {P<:Pole{<:Any,<:AbstractMatrix{<:Number}}}
+) where {P<:Poles{<:Any,<:AbstractMatrix{<:Number}}}
     gp = G_plus(Z)
     gm = G_minus(Z) # transpose to access F components
     G = map(g -> g[1, 1], gm) .+ map(g -> g[1, 1], gp)
@@ -67,7 +67,7 @@ end
 """
     self_energy_IFG_gauss(
         G_plus::P, G_minus::P, W::AbstractVector{<:Real}, σ::Real, Σ_H::Real
-    ) where {P<:Pole{<:Any,<:AbstractMatrix{<:Number}}}
+    ) where {P<:Poles{<:Any,<:AbstractMatrix{<:Number}}}
 
 Calculate self-energy as ``Σ(W) = Σ^\\mathrm{H} + I(W) - F^\\mathrm{L}(W) G^{-1}(W) F^\\mathrm{R}(W)``
 with Gaussian broadening.
@@ -76,7 +76,7 @@ Real part is obtained by Kramers-Kronig relation.
 """
 function self_energy_IFG_gauss(
     G_plus::P, G_minus::P, W::AbstractVector{<:Real}, σ::Real, Σ_H::Real
-) where {P<:Pole{<:Any,<:AbstractMatrix{<:Number}}}
+) where {P<:Poles{<:Any,<:AbstractMatrix{<:Number}}}
     gp = G_plus(W, σ)
     gm = G_minus(W, σ) # transpose to access F components
     G = map(g -> g[1, 1], gm) .+ map(g -> g[1, 1], gp)

@@ -11,13 +11,13 @@ export
 
 """
     solve_impurity_ed(
-        Δ::Pole{V,V}, H_int::Operator, ϵ_imp::Real
+        Δ::Poles{V,V}, H_int::Operator, ϵ_imp::Real
     ) where {V<:AbstractVector{<:Real}}
 
 Solve AIM in exact diagonalization.
 """
 function solve_impurity_ed(
-    Δ::Pole{V,V}, H_int::Operator, ϵ_imp::Real
+    Δ::Poles{V,V}, H_int::Operator, ϵ_imp::Real
 ) where {V<:AbstractVector{<:Real}}
     # Get Hamiltonian
     H_nat, n_occ = to_natural_orbitals(Array(Δ))
@@ -59,7 +59,7 @@ function solve_impurity_ed(
     a_plus .-= e0
 
     # impurity GF
-    return Pole([a_minus; a_plus], [b_minus; b_plus])
+    return Poles([a_minus; a_plus], [b_minus; b_plus])
 end
 
 end

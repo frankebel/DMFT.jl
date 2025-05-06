@@ -32,7 +32,7 @@ using Test
         @testset "simple" begin
             # 101 poles
             Δ = hybridization_function_bethe_simple(101)
-            @test typeof(Δ) == Pole{V,V}
+            @test typeof(Δ) == Poles{V,V}
             @test length(Δ.a) === length(Δ.b) === 101
             @test sum(abs2.(Δ.b)) ≈ 0.25 rtol = 10 * eps()
             @test Δ.a[51] ≈ 0 atol = 10 * eps()
@@ -40,7 +40,7 @@ using Test
             @test norm(abs2.(Δ.b) - reverse(abs2.(Δ.b))) < 600 * eps()
             # 100 poles
             Δ = hybridization_function_bethe_simple(100)
-            @test typeof(Δ) === Pole{V,V}
+            @test typeof(Δ) === Poles{V,V}
             @test length(Δ.a) === length(Δ.b) === 100
             @test sum(abs2.(Δ.b)) ≈ 0.25 rtol = 10 * eps()
             @test norm(Δ.a + reverse(Δ.a)) < 100 * eps()
@@ -55,7 +55,7 @@ using Test
             # U = 0
             Δ = hybridization_function_bethe_grid_hubbard3(grid)
             Δ0 = hybridization_function_bethe_grid(grid)
-            @test typeof(Δ) === Pole{V,V}
+            @test typeof(Δ) === Poles{V,V}
             @test length(Δ.a) === length(Δ.b) === 101
             @test Δ.a == grid
             @test Δ.a !== grid
@@ -72,7 +72,7 @@ using Test
             # 101 poles
             W = collect(range(-1, 1; length=101))
             Δ = hybridization_function_bethe_grid(W)
-            @test typeof(Δ) === Pole{V,V}
+            @test typeof(Δ) === Poles{V,V}
             @test length(Δ.a) === length(Δ.b) === 101
             @test Δ.a == W
             @test Δ.a !== W
@@ -82,7 +82,7 @@ using Test
             # 100 poles
             W = collect(range(-1, 1; length=100))
             Δ = hybridization_function_bethe_grid(W)
-            @test typeof(Δ) === Pole{V,V}
+            @test typeof(Δ) === Poles{V,V}
             @test length(Δ.a) === length(Δ.b) === 100
             @test Δ.a == W
             @test Δ.a !== W
@@ -110,7 +110,7 @@ using Test
             @test_throws DomainError hybridization_function_bethe_equal_weight(2)
             # D = 1
             Δ = hybridization_function_bethe_equal_weight(101)
-            @test typeof(Δ) === Pole{V,V}
+            @test typeof(Δ) === Poles{V,V}
             @test length(Δ.a) === length(Δ.b) === 101
             @test all(i -> i === 1 / sqrt(101) / 2, Δ.b)
             @test norm(Δ.a + reverse(Δ.a)) === 0.0

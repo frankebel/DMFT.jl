@@ -30,7 +30,7 @@ using Test
         @testset "simple" begin
             # 101 poles
             G = greens_function_bethe_simple(101)
-            @test typeof(G) === Pole{V,V}
+            @test typeof(G) === Poles{V,V}
             @test length(G.a) === length(G.b) === 101
             @test sum(abs2.(G.b)) ≈ 1 rtol = 10 * eps()
             @test G.a[51] ≈ 0 atol = 10 * eps()
@@ -38,7 +38,7 @@ using Test
             @test norm(abs2.(G.b) - reverse(abs2.(G.b))) < 600 * eps()
             # 100 poles
             G = greens_function_bethe_simple(100)
-            @test typeof(G) === Pole{V,V}
+            @test typeof(G) === Poles{V,V}
             @test length(G.a) === length(G.b) === 100
             @test sum(abs2.(G.b)) ≈ 1 rtol = 10 * eps()
             @test norm(G.a + reverse(G.a)) < 100 * eps()
@@ -52,7 +52,7 @@ using Test
             # 1 pole
             W = [0.0]
             G = greens_function_bethe_grid(W)
-            @test typeof(G) === Pole{V,V}
+            @test typeof(G) === Poles{V,V}
             @test length(G.a) === length(G.b) === 1
             @test G.a == W
             @test G.a !== W
@@ -60,7 +60,7 @@ using Test
             # 101 poles
             W = collect(range(-1, 1; length=101))
             G = greens_function_bethe_grid(W)
-            @test typeof(G) === Pole{V,V}
+            @test typeof(G) === Poles{V,V}
             @test length(G.a) === length(G.b) === 101
             @test G.a == W
             @test G.a !== W
@@ -70,7 +70,7 @@ using Test
             # 100 poles
             W = collect(range(-1, 1; length=100))
             G = greens_function_bethe_grid(W)
-            @test typeof(G) === Pole{V,V}
+            @test typeof(G) === Poles{V,V}
             @test length(G.a) === length(G.b) === 100
             @test G.a == W
             @test G.a !== W
@@ -104,7 +104,7 @@ using Test
             # U = 0
             G = greens_function_bethe_grid_hubbard3(grid)
             G0 = greens_function_bethe_grid(grid)
-            @test typeof(G) === Pole{V,V}
+            @test typeof(G) === Poles{V,V}
             @test length(G.a) === length(G.b) === 101
             @test G.a == grid
             @test G.a !== grid
@@ -120,7 +120,7 @@ using Test
         @testset "equal weight" begin
             @test_throws DomainError greens_function_bethe_equal_weight(2)
             G = greens_function_bethe_equal_weight(101)
-            @test typeof(G) === Pole{V,V}
+            @test typeof(G) === Poles{V,V}
             @test length(G.a) === length(G.b) === 101
             @test all(i -> i === 1 / sqrt(101), G.b)
             @test norm(G.a + reverse(G.a)) === 0.0

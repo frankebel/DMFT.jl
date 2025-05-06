@@ -32,18 +32,18 @@ using Test
         @test read_hdf5("test.h5", Vector{Matrix{Float64}}) == v
     end # Array
 
-    @testset "Pole" begin
+    @testset "Poles" begin
         V = Vector{Float64}
         M = Matrix{Float64}
         # b::Vector
         # write
         a = sort!(rand(10))
         b = rand(10)
-        P = Pole(a, b)
+        P = Poles(a, b)
         @test write_hdf5("test.h5", P) === nothing
         # read
-        @test @inferred read_hdf5("test.h5", Pole{V,V}) isa Pole{V,V}
-        foo = read_hdf5("test.h5", Pole{V,V})
+        @test @inferred read_hdf5("test.h5", Poles{V,V}) isa Poles{V,V}
+        foo = read_hdf5("test.h5", Poles{V,V})
         @test foo.a == P.a
         @test foo.b == P.b
 
@@ -51,14 +51,14 @@ using Test
         # write
         a = sort!(rand(10))
         b = rand(10, 10)
-        P = Pole(a, b)
+        P = Poles(a, b)
         @test write_hdf5("test.h5", P) === nothing
         # read
-        @test @inferred read_hdf5("test.h5", Pole{V,M}) isa Pole{V,M}
-        @test_throws MethodError read_hdf5("test.h5", Pole{V,V})
-        foo = read_hdf5("test.h5", Pole{V,M})
+        @test @inferred read_hdf5("test.h5", Poles{V,M}) isa Poles{V,M}
+        @test_throws MethodError read_hdf5("test.h5", Poles{V,V})
+        foo = read_hdf5("test.h5", Poles{V,M})
         @test foo.a == P.a
         @test foo.b == P.b
-    end # Pole
+    end # Poles
     isfile("test.h5") && rm("test.h5")
 end # IO

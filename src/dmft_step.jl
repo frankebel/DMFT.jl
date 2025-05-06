@@ -1,8 +1,8 @@
 # multiple correlators with block Lanczos
 """
     dmft_step(
-        Δ0::Pole{V,V},
-        Δ::Pole{V,V},
+        Δ0::Poles{V,V},
+        Δ::Poles{V,V},
         H_int::Op,
         μ::Real,
         ϵ_imp::Real,
@@ -27,8 +27,8 @@ Returns
 - `Δ_grid`: new hybridization function on a grid
 """
 function dmft_step(
-    Δ0::Pole{V,V},
-    Δ::Pole{V,V},
+    Δ0::Poles{V,V},
+    Δ::Poles{V,V},
     H_int::Op,
     μ::Real,
     ϵ_imp::Real,
@@ -52,8 +52,8 @@ function dmft_step(
 end
 
 function dmft_step_gauss(
-    Δ0::Pole{V,V},
-    Δ::Pole{V,V},
+    Δ0::Poles{V,V},
+    Δ::Poles{V,V},
     H_int::Op,
     μ::Real,
     ϵ_imp::Real,
