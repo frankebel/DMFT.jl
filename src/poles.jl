@@ -1,18 +1,18 @@
 """
-    Poles{A<:AbstractVector{<:Real},B<:AbstractVecOrMat{<:Number}}
+    Poles(a::AbstractVector{<:Real}, b::AbstractVecOrMat{<:Number})
 
-Representation of poles on the real axis with locations `a::A` and weights `b::B`.
+Representation of poles on the real axis with locations `a` and amplitudes `b`.
 
-If both are `A` and `B` are vectors, it is just a sum:
+If both are `a` and `b` are vectors, it is just a sum:
 
 ```math
-P(z) = ∑_i \\frac{|b_i|^2}{z-a_i}
+P(ω) = ∑_i \\frac{|b_i|^2}{ω-a_i}
 ```
 
-If `B` is a matrix, its ``i``-th column is interpreted as a vector ``\\vec{b_i}`` with
+If `b` is a matrix, its ``i``-th column is interpreted as a vector ``\\vec{b_i}`` with
 
 ```math
-P(z) = \\sum_i \\frac{\\vec{b}_i\\vec{b}_i^\\dagger}{z-a_i}.
+P(ω) = \\sum_i \\frac{\\vec{b}_i\\vec{b}_i^\\dagger}{ω-a_i}.
 ```
 """
 struct Poles{A<:AbstractVector{<:Real},B<:AbstractVecOrMat{<:Number}}
