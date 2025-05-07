@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - rename `Pole` → `Poles`, `self_energy_pole` → `self_energy_poles` ([#76](https://github.com/frankebel/DMFT.jl/pull/76)) ([ee98b96](https://github.com/frankebel/DMFT.jl/commit/ee98b96a051d91be21990a2d2f59300735a798b4))
+- rename `move_negative_weight_to_neighbors!` → `merge_negative_weight!` ([#77](https://github.com/frankebel/DMFT.jl/pull/77)) ([5d88c89](https://github.com/frankebel/DMFT.jl/commit/5d88c898b2b0507009a78dcacb2f8dac1a36645d))
 
 ### Removed
 
