@@ -250,25 +250,35 @@ using Test
             @test imag(z1) ≈ imag(z2) rtol = 7000 * eps()
         end # continued fraction
 
-        @testset "merge equal poles!" begin
-            P = Poles([0.1, 0.2, 0.5], [0.25, 0.75, 1.5])
+        @testset "merge degenerate poles!" begin
+            P = Poles([0.2, 0.3, 0.6], [0.25, 0.75, 1.5])
             # manual tolerance
             P1 = copy(P)
-            @test merge_equal_poles!(P1, 0.11) === P1
-            @test P1.a == [0.1, 0.5]
+            @test merge_degenerate_poles!(P1, 0.11) === P1
+            @test P1.a == [0.2, 0.6]
             @test P1.b == [sqrt(0.625), 1.5]
             # default tolerance too small
             P1 = copy(P)
-            @test merge_equal_poles!(P1) === P1
-            @test P1.a == [0.1, 0.2, 0.5]
+            @test merge_degenerate_poles!(P1) === P1
+            @test P1.a == [0.2, 0.3, 0.6]
             @test P1.b == [0.25, 0.75, 1.5]
             # default tolerance
             P1 = copy(P)
-            P1.a[2] = 0.4999999999999
-            @test merge_equal_poles!(P1) === P1
-            @test P1.a == [0.1, 0.4999999999999]
+            P1.a[2] = 0.5999999999999
+            @test merge_degenerate_poles!(P1) === P1
+            @test P1.a == [0.2, 0.5999999999999]
             @test P1.b == [0.25, sqrt(2.8125)]
-        end # merge equal poles!
+            # negative poles
+            P = Poles([-0.6, -0.3, -0.2], [1.5, 0.75, 0.25])
+            @test merge_degenerate_poles!(P, 0.11) === P
+            @test P.a == [-0.6, -0.2]
+            @test P.b == [1.5, sqrt(0.625)]
+            # poles around zero
+            P = Poles([-0.03, -0.01, 0.01, 0.05], [0.25, 0.75, 1.5, 2.5])
+            @test merge_degenerate_poles!(P, 0.04) === P
+            @test P.a == [0.0, 0.05]
+            @test P.b == [sqrt(2.875), 2.5]
+        end # merge degenerate poles!
 
         @testset "merge small poles!" begin
             # first index

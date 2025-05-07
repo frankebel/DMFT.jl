@@ -40,7 +40,7 @@ export
     imagKK,
     init_system,
     mask_fe,
-    merge_equal_poles!,
+    merge_degenerate_poles!,
     merge_negative_weight!,
     merge_small_poles!,
     natural_orbital_ci_operator,

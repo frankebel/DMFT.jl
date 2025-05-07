@@ -343,30 +343,65 @@ function _continued_fraction(P::Poles{<:Any,<:AbstractVector})
     return a, b
 end
 
-"""
-    merge_equal_poles!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
-
-Merge poles which are less than `tol` apart.
-
-If `P.a[i+1] - P.a[i] < tol`, then add up weights and pop index `i+1`.
-"""
-function merge_equal_poles!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
+function _merge_degenerate_poles_square!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
     a, b = P.a, P.b
-    tol > 0 || throw(ArgumentError("negative tol"))
+    tol >= 0 || throw(ArgumentError("negative tol"))
     issorted(a) || throw(ArgumentError("poles are not sorted"))
 
-    i = firstindex(a)
+    # poles at zero
+    idx_zeros = findall(i -> abs(i) < tol, a)
+    if !isempty(idx_zeros)
+        i0 = popfirst!(idx_zeros)
+        P.a[i0] = 0
+        for i in reverse!(idx_zeros)
+            b[i0] += popat!(b, i)
+            deleteat!(a, i)
+        end
+    end
+
+    # positive frequencies
+    i = findfirst(>(0), a)
+    isnothing(i) && (i = lastindex(a))
     while i < lastindex(a)
         if a[i + 1] - a[i] < tol
             # merge
-            b[i] = sqrt(abs2(b[i]) + abs2(b[i + 1]))
-            popat!(a, i + 1)
-            popat!(b, i + 1)
+            b[i] += popat!(b, i + 1)
+            deleteat!(a, i + 1)
         else
             # increment index
             i += 1
         end
     end
+
+    # negative frequencies
+    i = findlast(<(0), a)
+    isnothing(i) && (i = firstindex(a))
+    while i > firstindex(a)
+        if a[i] - a[i - 1] < tol
+            # merge
+            b[i - 1] += popat!(b, i)
+            deleteat!(a, i - 1)
+            i -= 1
+        else
+            # decrement index
+            i -= 1
+        end
+    end
+
+    return P
+end
+
+"""
+    merge_degenerate_poles!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
+
+Merge poles which are less than `tol` apart.
+
+See also [`merge_degenerate_poles_square!`](@ref).
+"""
+function merge_degenerate_poles!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
+    P.b .= abs2.(P.b)
+    _merge_degenerate_poles_square!(P, tol)
+    P.b .= sqrt.(P.b)
     return P
 end
 
