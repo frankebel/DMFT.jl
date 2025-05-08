@@ -42,6 +42,22 @@ Poles(a::A, b::B) where {A,B} = Poles{A,B}(a, b)
 
 Poles{A,B}(P::Poles) where {A,B} = Poles(A(P.a), B(P.b))
 
+# getters
+
+"""
+    locations(P::Poles)
+
+Return the locations of poles.
+"""
+locations(P::Poles) = P.a
+
+"""
+    amplitudes(P::Poles)
+
+Return the amplitudes of poles.
+"""
+amplitudes(P::Poles) = P.b
+
 """
    (P::Poles)(z::Complex)
 

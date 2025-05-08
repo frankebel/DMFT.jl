@@ -48,6 +48,24 @@ using Test
         end # blockdiagonal
     end # constructor
 
+    @testset "getters" begin
+        a = sort(rand(10))
+        bv = rand(10) # vector
+        bm = rand(2, 10) # matrix
+        Pv = Poles(a, bv)
+        Pm = Poles(a, bm)
+
+        @testset "locations" begin
+            @test locations(Pv) === Pv.a
+            @test locations(Pm) === Pv.a
+        end # locations
+
+        @testset "amplitudes" begin
+            @test amplitudes(Pv) === Pv.b
+            @test amplitudes(Pm) === Pm.b
+        end # amplitudes
+    end # getters
+
     @testset "custom functions" begin
         @testset "evaluation" begin
             @testset "Lorentzian" begin

@@ -15,6 +15,7 @@ export
     Poles,
 
     # Functions
+    amplitudes,
     block_lanczos,
     dmft_step,
     dmft_step_gauss,
@@ -39,6 +40,7 @@ export
     hybridization_function_bethe_simple,
     imagKK,
     init_system,
+    locations,
     mask_fe,
     merge_degenerate_poles!,
     merge_negative_weight!,
