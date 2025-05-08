@@ -17,6 +17,7 @@ export
     # Functions
     amplitudes,
     block_lanczos,
+    discretize_similar_weight,
     dmft_step,
     dmft_step_gauss,
     equal_weight_discretization,
