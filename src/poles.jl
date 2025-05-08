@@ -187,6 +187,25 @@ function weights(P::Poles{<:Any,<:AbstractMatrix})
     return result
 end
 
+"""
+    moment(P::Poles, n::Int=0)
+
+Return the `n`-th moment.
+"""
+function moment(P::Poles, n::Int=0)
+    result = sum(i -> i[1]^n * i[2], zip(locations(P), weights(P)))
+    return result
+end
+
+"""
+    moments(P::Poles, ns)
+
+Return the `n`-th moment for each `n` in `ns`.
+"""
+function moments(P::Poles, ns)
+    return map(i -> moment(P, i), ns)
+end
+
 function _to_grid_square(P::Poles{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
     # check input
     length(P.a) == length(P.b) || throw(DimensionMismatch("length mismatch in P"))

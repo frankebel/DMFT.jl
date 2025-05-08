@@ -149,6 +149,29 @@ using Test
                 [[0.0625 0.25; 0.25 1.0], [2.25 3.0; 3.0 4.0], [6.25 1.875; 1.875 0.5625]]
         end # weights
 
+        @testset "moment" begin
+            # vector
+            P = Poles([-0.5, 0.0, 0.5], [0.25, 1.5, 0.25])
+            @test DMFT.moment(P) == 2.375
+            @test iszero(DMFT.moment(P, 1))
+            @test DMFT.moment(P, 2) == 0.03125
+            @test iszero(DMFT.moment(P, 101))
+            # matrix
+            P = Poles([-0.5, 0.0, 0.5], [0.25 1.5 0.25; 0.5 0.75 2.5])
+            @test DMFT.moment(P) == [2.375 1.875; 1.875 7.0625]
+            @test DMFT.moment(P, 1) == [0.0 0.25; 0.25 3.0]
+        end # moment
+
+        @testset "moments" begin
+            # vector
+            P = Poles([-0.5, 0.0, 0.5], [0.25, 1.5, 0.25])
+            @test moments(P, 0:1) == [2.375, 0]
+            @test all(iszero, moments(P, 1:2:11))
+            # matrix
+            P = Poles([-0.5, 0.0, 0.5], [0.25 1.5 0.25; 0.5 0.75 2.5])
+            @test moments(P, 0:1) == [[2.375 1.875; 1.875 7.0625], [0.0 0.25; 0.25 3.0]]
+        end # moments
+
         @testset "to_grid" begin
             # all poles within grid, middle pole centerd
             A = Poles([0.1, 0.2, 0.3], [5.0, -10.0, 1.0])

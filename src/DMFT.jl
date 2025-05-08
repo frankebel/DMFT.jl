@@ -45,6 +45,8 @@ export
     merge_degenerate_poles!,
     merge_negative_weight!,
     merge_small_poles!,
+    moment,
+    moments,
     natural_orbital_ci_operator,
     natural_orbital_operator,
     orgtr!,
