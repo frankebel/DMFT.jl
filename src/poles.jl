@@ -174,6 +174,19 @@ function spectral_function_loggauss(
     return map(w -> spectral_function_loggauss(P, w, b), ω)
 end
 
+"""
+    weights(P::Poles)
+
+Return the weight(s) of each pole.
+"""
+weights(P::Poles{<:Any,<:AbstractVector}) = abs2.(P.b)
+
+function weights(P::Poles{<:Any,<:AbstractMatrix})
+    amp = amplitudes(P)
+    result = map(i -> view(amp, :, i) * view(amp, :, i)', axes(amp, 2))
+    return result
+end
+
 function _to_grid_square(P::Poles{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
     # check input
     length(P.a) == length(P.b) || throw(DimensionMismatch("length mismatch in P"))

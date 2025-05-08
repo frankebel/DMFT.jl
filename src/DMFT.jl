@@ -68,6 +68,7 @@ export
     to_grid,
     to_natural_orbitals,
     update_hybridization_function,
+    weights,
     write_hdf5,
     η_gaussian
 

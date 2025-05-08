@@ -139,6 +139,16 @@ using Test
             end # loggauss
         end # evaluate
 
+        @testset "weights" begin
+            # vector
+            P = Poles([-1.0, 0.0, 0.5], [0.25, 1.5, 2.5])
+            @test weights(P) == [0.0625, 2.25, 6.25]
+            # matrix
+            P = Poles([-1.0, 0.0, 0.5], [0.25 1.5 2.5; 1.0 2.0 0.75])
+            @test weights(P) ==
+                [[0.0625 0.25; 0.25 1.0], [2.25 3.0; 3.0 4.0], [6.25 1.875; 1.875 0.5625]]
+        end # weights
+
         @testset "to_grid" begin
             # all poles within grid, middle pole centerd
             A = Poles([0.1, 0.2, 0.3], [5.0, -10.0, 1.0])
