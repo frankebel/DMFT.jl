@@ -1,14 +1,16 @@
 """
     Poles(a::AbstractVector{<:Real}, b::AbstractVecOrMat{<:Number})
 
-Representation of poles on the real axis with locations `a` and amplitudes `b`.
+Representation of poles on the real axis with locations `a`
+and amplitudes (not weights) `b`.
 
-If both are `a` and `b` are vectors, it is just a sum:
+`P = Poles(a, b)` represents the sum
 
 ```math
 P(ω) = ∑_i \\frac{|b_i|^2}{ω-a_i}
 ```
 
+if both are `a` and `b` are vectors.
 If `b` is a matrix, its ``i``-th column is interpreted as a vector ``\\vec{b_i}`` with
 
 ```math
