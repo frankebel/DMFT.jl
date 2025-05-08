@@ -394,9 +394,7 @@ end
 """
     merge_degenerate_poles!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
 
-Merge poles which are less than `tol` apart.
-
-See also [`merge_degenerate_poles_square!`](@ref).
+Merge poles whose locations are less than `tol` apart.
 """
 function merge_degenerate_poles!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
     P.b .= abs2.(P.b)
