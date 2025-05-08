@@ -2,27 +2,38 @@
 
 """
     self_energy_poles(
-    ϵ_imp::Real, Δ0::Poles{<:V,<:V}, 𝒢::Poles{<:V,<:V}
+    ϵ_imp::Real, Δ0::Poles{<:V,<:V}, G_imp::Poles{<:V,<:V}
 ) where {V<:AbstractVector{<:Real}}
 
 Calculate the self-energy purely in [`Poles`](@ref) representation using the Dyson equation.
 
 ```math
-Σ(z) = 𝒢_0^{-1}(z) - 𝒢^{-1}(z)
+Σ(ω)
+= G_{\\mathrm{imp},0}(ω)^{-1} - G_\\mathrm{imp}(ω)^{-1}
+= ω - ϵ_\\mathrm{imp} - Δ(ω) - G_\\mathrm{imp}(ω)^{-1}
 ```
 
-with
-
-```math
-𝒢_0^{-1}(z) = \\frac{1}{z - ϵ_imp - Δ_0(z)}
-```
+Poles with negative weight are moved into neighbors such that the zeroth and first moment
+is conserved locally.
 """
 function self_energy_poles(
-    ϵ_imp::Real, Δ0::Poles{<:V,<:V}, 𝒢::Poles{<:V,<:V}
-) where {V<:AbstractVector{<:Real}}
-    a0, 𝒢_inv = inv(𝒢)
+    ϵ_imp::Real, Δ0::Poles{<:Any,<:AbstractVector}, G_imp::Poles{<:Any,<:AbstractVector}
+)
+
+    # invert impurity Green's function
+    a0, G_imp_inv = inv(G_imp)
+
+    # Hartree term
     Σ_H = a0 - ϵ_imp
-    Σ = 𝒢_inv - Δ0
+
+    # Σ = G_imp_inv - Δ0
+    Σ = Poles([locations(G_imp_inv); locations(Δ0)], [weights(G_imp_inv); -weights(Δ0)])
+    sort!(Σ)
+    _merge_degenerate_poles_square!(Σ)
+    merge_negative_weight!(Σ)
+    remove_poles_with_zero_weight!(Σ)
+    Σ.b .= sqrt.(Σ.b) # back to amplitudes
+
     return Σ_H, Σ
 end
 

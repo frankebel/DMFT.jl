@@ -35,12 +35,16 @@ using Test
     )
 
     @testset "Poles" begin
-        G_imp = Poles([G_minus.a; G_plus.a], [G_minus.b[1, :]; G_plus.b[1, :]])
-        sort!(G_imp)
+        # impurity Green's fuction
+        G_p = Poles(copy(locations(G_plus)), abs.(G_plus.b[1, :]))
+        remove_poles_with_zero_weight!(G_p)
+        merge_degenerate_poles!(G_p)
+        merge_small_poles!(G_p)
+        G_imp = Poles([-reverse(G_p.a); G_p.a], [reverse(G_p.b); G_p.b])
+
         Σ_H, Σ = self_energy_poles(-μ, Δ0, G_imp)
-        @test abs(Σ_H - U / 2) < 100 * eps() # half-filling
-        @test Σ.a == Δ0.a
-        @test norm(sum(abs2.(Σ.b)) - U^2 / 4) < 1000 * sqrt(eps())
+        @test Σ_H ≈ U / 2 atol = 100 * eps() # half-filling
+        @test DMFT.moment(Σ, 0) ≈ U^2 / 4 atol = 1e-5 # bad agreement
     end # Poles
 
     @testset "correlator" begin
