@@ -22,15 +22,16 @@ function discretize_similar_weight(P::Poles{<:Any,<:AbstractVector}, δ0::Real, 
     result = Poles(a, b)
 
     # weight at zero is weight in [-δ0, -δ0]
-    idx_zero = findall(i -> -δ0 <= i <= δ0, l_old)
-    w0 = sum(w_old[idx_zero])
+    i_minus = searchsortedfirst(l_old, -δ0)
+    i_plus = searchsortedlast(l_old, δ0)
+    w0 = sum(w_old[i_minus:i_plus])
     a[cld(n, 2)] = 0
     b[cld(n, 2)] = sqrt(w0)
 
     # positive frequencies
     idx_new = cld(n, 2) + 1
-    l_plus = @view l_old[(last(idx_zero) + 1):end]
-    w_plus = @view w_old[(last(idx_zero) + 1):end]
+    l_plus = @view l_old[(i_plus + 1):end]
+    w_plus = @view w_old[(i_plus + 1):end]
     w_target = sum(w_plus) / (n ÷ 2)
     w = zero(T) # weight
     m = zero(T) # first moment
@@ -63,8 +64,8 @@ function discretize_similar_weight(P::Poles{<:Any,<:AbstractVector}, δ0::Real, 
 
     # discretize negative frequencies
     idx_new = n ÷ 2
-    l_minus = @view l_old[(first(idx_zero) - 1):-1:firstindex(l_old)]
-    w_minus = @view w_old[(first(idx_zero) - 1):-1:firstindex(w_old)]
+    l_minus = @view l_old[(i_minus - 1):-1:firstindex(l_old)]
+    w_minus = @view w_old[(i_minus - 1):-1:firstindex(w_old)]
     w_target = sum(w_minus) / (n ÷ 2)
     w = zero(T) # weight
     m = zero(T) # first moment

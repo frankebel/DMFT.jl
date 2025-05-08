@@ -49,5 +49,12 @@ using Test
         @test weights(Δ_new)[51] ≈ 0.002083461320853373 atol = 1e-10
         @test DMFT.moment(Δ_new, 0) ≈ 0.25 atol = 10 * eps()
         @test DMFT.moment(Δ_new, 1) ≈ 0.0 atol = 2000 * eps()
+
+        # insulating solution
+        P = Poles([rand(100) .- 2; rand(100) .+ 1], rand(200))
+        sort!(P)
+        foo = discretize_similar_weight(P, 0.01, 11)
+        @test iszero(locations(foo)[6])
+        @test iszero(weights(foo)[6])
     end # Poles
 end # discretization
