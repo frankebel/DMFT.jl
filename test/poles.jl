@@ -121,33 +121,6 @@ using Test
             end # loggauss
         end # evaluate
 
-        @testset "to_grid_sqr" begin
-            # all poles within grid, middle pole centerd
-            A = Poles([0.1, 0.2, 0.3], [5.0, -10.0, 1.0])
-            grid = [0.1, 0.3]
-            B = to_grid_sqr(A, grid)
-            @test B.a == [0.1, 0.3]
-            @test norm(B.b - [0.0, -4.0]) < 10 * eps()
-            # all poles within grid, middle pole not centered
-            A = Poles([0.1, 0.25, 0.3], [5.0, -10.0, 1.0])
-            grid = [0.1, 0.3]
-            B = to_grid_sqr(A, grid)
-            @test B.a == [0.1, 0.3]
-            @test norm(B.b - [2.5, -6.5]) < 10 * eps()
-            # pole outside grid
-            A = Poles([0.0, 1.0], [5.0, -10.0])
-            grid = [0.1, 0.3]
-            B = to_grid_sqr(A, grid)
-            @test B.a == [0.1, 0.3]
-            @test B.b == [5.0, -10.0]
-            # poles very close to grid
-            A = Poles([4e-16, 0.9999999999999998], [4.0, 5.0])
-            grid = [0.0, 1.0]
-            B = to_grid_sqr(A, grid)
-            @test B.a == [0.0, 1.0]
-            @test B.b == [4.0, 5.0]
-        end  # to_grid_sqr
-
         @testset "to_grid" begin
             # all poles within grid, middle pole centerd
             A = Poles([0.1, 0.2, 0.3], [5.0, -10.0, 1.0])

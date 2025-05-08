@@ -156,20 +156,7 @@ function spectral_function_loggauss(
     return map(w -> spectral_function_loggauss(P, w, b), ω)
 end
 
-"""
-    to_grid_sqr(P::Poles{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
-
-Create a new [`Poles`](@ref) from `P` on with locations given by `grid`.
-
-A given pole is split locally conserving the zeroth and first moment.
-If the pole is lower than the lowest value in the grid or
-higher than the highest value, only the zeroth moment is conserved.
-
-Assumes that weights are already squared and keeps them squred.
-
-See also [`to_grid`](@ref).
-"""
-function to_grid_sqr(P::Poles{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
+function _to_grid_square(P::Poles{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
     # check input
     length(P.a) == length(P.b) || throw(DimensionMismatch("length mismatch in P"))
     all(isreal, P.b) || throw(ArgumentError("weights must be real"))
@@ -213,19 +200,16 @@ end
 """
     to_grid(P::Poles{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
 
-Create a new [`Poles`](@ref) from `P` on with locations given by `grid`.
+Create a new [`Poles`](@ref) from `P` with locations given by `grid`.
 
 A given pole is split locally conserving the zeroth and first moment.
-If the pole is lower than the lowest value in the grid or
-higher than the highest value, only the zeroth moment is conserved.
-
-See also [`to_grid_sqr`](@ref).
+If a pole is outside of `grid`, only the zeroth moment is conserved.
 """
 function to_grid(P::Poles{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
     result = copy(P)
-    map!(abs2, result.b, result.b) # square weights
-    result = to_grid_sqr(result, grid)
-    map!(sqrt, result.b, result.b) # undo squaring
+    result.b .= abs2.(result.b) # use weights
+    result = _to_grid_square(result, grid)
+    result.b .= sqrt.(result.b) # return to amplitudes
     return result
 end
 
@@ -550,7 +534,7 @@ function Base.:-(A::Poles{<:Any,<:V}, B::Poles{<:Any,<:V}) where {V<:AbstractVec
     end
     A = copy(A)
     map!(abs2, A.b, A.b)
-    A = to_grid_sqr(A, B.a)
+    A = _to_grid_square(A, B.a)
     result.b .+= A.b # difference of weights
     merge_negative_weight!(result)
     map!(sqrt, result.b, result.b) # undo squaring

@@ -64,7 +64,6 @@ export
     sytrd!,
     temperature_kondo,
     to_grid,
-    to_grid_sqr,
     to_natural_orbitals,
     update_hybridization_function,
     write_hdf5,
