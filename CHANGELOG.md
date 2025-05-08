@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - merge poles with small weight to neighbors ([#72](https://github.com/frankebel/DMFT.jl/pull/72)) ([7ab44a7](https://github.com/frankebel/DMFT.jl/commit/7ab44a7076250e47c623d3530dc583485d6843c9))
 - getters for `Poles` ([#81](https://github.com/frankebel/DMFT.jl/pull/81)) ([add4ec6](https://github.com/frankebel/DMFT.jl/commit/add4ec6d421042265f42b8d9745b059a47fa5254))
 - weight(s) of each pole ([#82](https://github.com/frankebel/DMFT.jl/pull/82)) ([b1f1780](https://github.com/frankebel/DMFT.jl/commit/b1f1780830c4a11b3f340cf3a5a64fc6f40e037b))
+- moments of `Poles` ([#83](https://github.com/frankebel/DMFT.jl/pull/83)) ([1917ce2](https://github.com/frankebel/DMFT.jl/commit/1917ce246108a72562683d37832b525b1c8e5413))
 
 ### Changed
 
