@@ -29,11 +29,9 @@ Calculate the new hybridization function in [`Poles`](@ref) representation.
 ```math
 Δ(z) = Δ_0(z + μ - Σ(z))
 ```
-
-The poles are taken from the input hybridization: `Δ.a == Δ0.a`
 """
 function update_hybridization_function(
-    Δ0::Poles{<:V,<:V}, μ::R, Σ_H::R, Σ::Poles{<:V,<:V}
+    Δ0::Poles{<:Any,<:V}, μ::R, Σ_H::R, Σ::Poles{<:Any,<:V}
 ) where {V<:AbstractVector{<:Real},R<:Real}
     Σ = remove_poles_with_zero_weight(Σ)
     n = length(Σ) + 1
@@ -53,8 +51,9 @@ function update_hybridization_function(
         b[idx_low:idx_high] = Δ0.b[i] * view(T, 1, :) # multiply each weight with original b_i
     end
 
-    # put on the same grid as Δ0
-    result = to_grid(result, Δ0.a)
+    sort!(result)
+    merge_degenerate_poles!(result, eps(R))
+    b .= abs.(b) # positve amplitudes are easier
 
     return result
 end
