@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - warn if wrong spectral weight exists ([#66](https://github.com/frankebel/DMFT.jl/pull/66)) ([25da3b0](https://github.com/frankebel/DMFT.jl/commit/25da3b0bf829ba4261094e2cbc1d5bad48bb2924))
 - export `g_plus()`, `g_minus()` ([#70](https://github.com/frankebel/DMFT.jl/pull/70)) ([4ae6ad8](https://github.com/frankebel/DMFT.jl/commit/4ae6ad89343d726179fda7e85af3a90e959e20f2))
 - merge poles with small weight to neighbors ([#72](https://github.com/frankebel/DMFT.jl/pull/72)) ([7ab44a7](https://github.com/frankebel/DMFT.jl/commit/7ab44a7076250e47c623d3530dc583485d6843c9))
+- getters for `Poles` ([#81](https://github.com/frankebel/DMFT.jl/pull/81)) ([add4ec6](https://github.com/frankebel/DMFT.jl/commit/add4ec6d421042265f42b8d9745b059a47fa5254))
 
 ### Changed
 
