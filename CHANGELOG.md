@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - similar weight discretization of `Poles` ([#86](https://github.com/frankebel/DMFT.jl/pull/86)) ([0987324](https://github.com/frankebel/DMFT.jl/commit/0987324ceed55c9208cc18c6d10633dc12b129e0))
 - `Base.issorted` for `Poles` ([#89](https://github.com/frankebel/DMFT.jl/pull/89)) ([58cd09a](https://github.com/frankebel/DMFT.jl/commit/58cd09a6f8f8fa19578ca9be45a2c1175d90c42a))
 - `Base.allunique` for `Poles` ([#90](https://github.com/frankebel/DMFT.jl/pull/90)) ([b3d8e52](https://github.com/frankebel/DMFT.jl/commit/b3d8e52bee8141bc66725e5d5160af5beac5d92d))
+- moving poles with negative location to zero ([#91](https://github.com/frankebel/DMFT.jl/pull/91)) ([5dd9f13](https://github.com/frankebel/DMFT.jl/commit/5dd9f13db14f88e19f1aa0bae8aadb9e1208666f))
 
 ### Changed
 
