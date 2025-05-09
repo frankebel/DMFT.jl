@@ -438,6 +438,30 @@ function merge_degenerate_poles!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-
 end
 
 """
+    merge_negative_locations_to_zero!(P::Poles{<:Any,<:AbstractVector})
+
+Find all `locations(P) <= 0` and merge them together.
+"""
+function merge_negative_locations_to_zero!(P::Poles{<:Any,<:AbstractVector})
+    issorted(P) || throw(ArgumentError("P is not sorted"))
+    loc = locations(P)
+    b = amplitudes(P)
+    idx_zeros = findall(<=(0), loc)
+    isempty(idx_zeros) && return P
+    # add up all weights
+    w0 = sum(weights(P)[idx_zeros])
+    i0 = popfirst!(idx_zeros)
+    loc[i0] = 0
+    b[i0] = sqrt(w0) # set amplitude at zero
+    # delete degenerate locations
+    for i in reverse!(idx_zeros)
+        deleteat!(loc, i)
+        deleteat!(b, i)
+    end
+    return P
+end
+
+"""
     merge_small_poles!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
 
 Merge poles with weight `< tol` to its neighbors.

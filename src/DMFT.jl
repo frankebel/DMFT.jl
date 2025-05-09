@@ -44,6 +44,7 @@ export
     locations,
     mask_fe,
     merge_degenerate_poles!,
+    merge_negative_locations_to_zero!,
     merge_negative_weight!,
     merge_small_poles!,
     moment,

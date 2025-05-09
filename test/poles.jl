@@ -309,6 +309,23 @@ using Test
             @test P.b == [sqrt(0.625), 1.5, 2.5]
         end # merge degenerate poles!
 
+        @testset "merge negative locations to zero!" begin
+            P = Poles([-0.1, -0.0, 0.0, 0.2], [0.5, 0.75, 2.5, 1.5])
+            @test merge_negative_locations_to_zero!(P) === P
+            @test P.a == [0.0, 0.2]
+            @test P.b == [sqrt(7.0625), 1.5]
+            # degeneracy at zero
+            P = Poles([-0.0, -0.0, 0.0, 0.2], [0.5, 0.75, 2.5, 1.5])
+            @test merge_negative_locations_to_zero!(P) === P
+            @test P.a == [0.0, 0.2]
+            @test P.b == [sqrt(7.0625), 1.5]
+            # no negative location
+            P = Poles([0.1, 0.1, 0.5, 1.0], [0.5, 0.75, 2.5, 1.5])
+            @test merge_negative_locations_to_zero!(P) === P
+            @test P.a == [0.1, 0.1, 0.5, 1.0]
+            @test P.b == [0.5, 0.75, 2.5, 1.5]
+        end # merge negative locations to zero!
+
         @testset "merge small poles!" begin
             # first index
             a = [-1.0, 0.0, 1.5]
