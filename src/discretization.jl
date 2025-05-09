@@ -11,7 +11,7 @@ function discretize_similar_weight(P::Poles{<:Any,<:AbstractVector}, δ0::Real, 
     l_old = locations(P)
     w_old = weights(P)
     issorted(P) || throw(ArgumentError("P is not sorted"))
-    allunique(l_old) || throw(ArgumentError("degenerate locations in P"))
+    allunique(P) || throw(ArgumentError("P has degenerate locations"))
     δ0 >= 0 || throw(ArgumentError("negative δ0"))
     n >= 3 || throw(ArgumentError("at least 3 poles necessary"))
     isodd(n) || throw(ArgumentError("number of poles must be odd"))

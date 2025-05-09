@@ -208,10 +208,9 @@ end
 
 function _to_grid_square(P::Poles{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
     # check input
-    length(P.a) == length(P.b) || throw(DimensionMismatch("length mismatch in P"))
-    all(isreal, P.b) || throw(ArgumentError("weights must be real"))
-    issorted(grid) || throw(ArgumentError("grid is not sorted"))
-    allunique(grid) || throw(ArgumentError("degenerate locations in grid"))
+    foo = Poles(grid, grid)
+    issorted(foo) || throw(ArgumentError("grid is not sorted"))
+    allunique(foo) || throw(ArgumentError("grid has degenerate locations"))
 
     # new location of poles
     a = copy(grid)
@@ -278,7 +277,7 @@ function merge_negative_weight!(P::Poles{<:Any,<:AbstractVector})
     # check input
     length(a) == length(b) || throw(DimensionMismatch("length mismatch"))
     issorted(P) || issorted(P; rev=true) || throw(ArgumentError("P is not sorted"))
-    allunique(a) || throw(ArgumentError("degenerate locations in grid"))
+    allunique(P) || throw(ArgumentError("P has degenerate locations"))
     all(isreal, P.b) || throw(ArgumentError("weights must be real"))
     sum(b) >= 0 || throw(ArgumentError("total weight is negative"))
     firstindex(a) == firstindex(b) || throw(ArgumentError("input uses different indexing"))
@@ -556,6 +555,12 @@ function Base.length(P::Poles{<:Any,<:AbstractMatrix})
     return length(P.a)
 end
 
+function Base.allunique(P::Poles)
+    l = locations(P)
+    # allunique discrimates between ±zero(Float64)
+    return allunique(l) && length(findall(iszero, l)) <= 1
+end
+
 Base.issorted(P::Poles, args...; kwargs...) = issorted(locations(P), args...; kwargs...)
 
 function Base.sort!(P::Poles{<:Any,<:AbstractVector})
@@ -575,7 +580,7 @@ Base.sort(P::Poles{<:Any,<:AbstractVector}) = sort!(copy(P))
 function Base.:-(A::Poles{<:Any,<:V}, B::Poles{<:Any,<:V}) where {V<:AbstractVector{<:Real}}
     # check input
     issorted(B) || throw(ArgumentError("B is not sorted"))
-    allunique(B.a) || throw(ArgumentError("degenerate energies in B"))
+    allunique(B) || throw(ArgumentError("B has degenerate locations"))
     length(A.a) == length(A.b) || throw(DimensionMismatch("length mismatch in A"))
     length(B.a) == length(B.b) || throw(DimensionMismatch("length mismatch in B"))
 

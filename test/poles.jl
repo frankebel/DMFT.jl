@@ -437,6 +437,14 @@ using Test
             @test_throws ArgumentError length(P)
         end # length
 
+        @testset "allunique" begin
+            @test allunique(Poles([0.1, 0.0, -0.5], rand(3)))
+            @test !allunique(Poles([0.1, 0.0, 0.1], rand(3)))
+            @test !allunique(Poles([-0.1, 0.0, -0.1], rand(3)))
+            @test !allunique(Poles([0.0, 0.0, -0.1], rand(3)))
+            @test !allunique(Poles([-0.0, 0.0, -0.1], rand(3)))
+        end # allunique
+
         @testset "issorted" begin
             @test issorted(Poles([-0.3, 0.0, 0.1], rand(3)))
             @test issorted(Poles([-0.0, 0.0, 0.1], rand(3)))
