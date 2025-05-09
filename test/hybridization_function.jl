@@ -114,7 +114,7 @@ using Test
             @test length(Δ.a) === length(Δ.b) === 101
             @test all(i -> i === 1 / sqrt(101) / 2, Δ.b)
             @test norm(Δ.a + reverse(Δ.a)) === 0.0
-            @test issorted(Δ.a)
+            @test issorted(Δ)
             # D = 4
             Δ = hybridization_function_bethe_equal_weight(101, 4)
             @test all(i -> i === 2 / sqrt(101), Δ.b)

@@ -10,7 +10,7 @@ For the new pole at location zero, all weights of `P` in ``[-δ_0, δ_0]`` are s
 function discretize_similar_weight(P::Poles{<:Any,<:AbstractVector}, δ0::Real, n::Int)
     l_old = locations(P)
     w_old = weights(P)
-    issorted(l_old) || throw(ArgumentError("P is not sorted"))
+    issorted(P) || throw(ArgumentError("P is not sorted"))
     allunique(l_old) || throw(ArgumentError("degenerate locations in P"))
     δ0 >= 0 || throw(ArgumentError("negative δ0"))
     n >= 3 || throw(ArgumentError("at least 3 poles necessary"))

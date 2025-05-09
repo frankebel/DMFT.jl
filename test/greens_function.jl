@@ -124,7 +124,7 @@ using Test
             @test length(G.a) === length(G.b) === 101
             @test all(i -> i === 1 / sqrt(101), G.b)
             @test norm(G.a + reverse(G.a)) === 0.0
-            @test issorted(G.a)
+            @test issorted(G)
         end # equal weight
     end # Bethe lattice
 

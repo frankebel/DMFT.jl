@@ -151,7 +151,7 @@ function spectral_function_loggauss(P::Poles{<:Any,<:AbstractVector}, ω::Real, 
     for i in eachindex(P.a)
         if iszero(P.a[i])
             # special case, move half of weight to left/right repectively
-            issorted(P.a) || throw(ArgumentError("P is not sorted"))
+            issorted(P) || throw(ArgumentError("P is not sorted"))
             location = ω > 0 ? P.a[i + 1] / 2 : P.a[i - 1] / 2
             weight = abs2.(P.b[i]) / 2
         elseif sign(ω) == sign(P.a[i])
@@ -277,7 +277,7 @@ function merge_negative_weight!(P::Poles{<:Any,<:AbstractVector})
 
     # check input
     length(a) == length(b) || throw(DimensionMismatch("length mismatch"))
-    issorted(a) || issorted(a; rev=true) || throw(ArgumentError("grid is not sorted"))
+    issorted(P) || issorted(P; rev=true) || throw(ArgumentError("P is not sorted"))
     allunique(a) || throw(ArgumentError("degenerate locations in grid"))
     all(isreal, P.b) || throw(ArgumentError("weights must be real"))
     sum(b) >= 0 || throw(ArgumentError("total weight is negative"))
@@ -381,7 +381,7 @@ end
 function _merge_degenerate_poles_weights!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
     a, b = locations(P), amplitudes(P)
     tol >= 0 || throw(ArgumentError("negative tol"))
-    issorted(a) || throw(ArgumentError("poles are not sorted"))
+    issorted(P) || throw(ArgumentError("P is not sorted"))
 
     # poles at zero
     idx_zeros = findall(i -> abs(i) <= tol, a)
@@ -447,7 +447,7 @@ A given pole is split locally conserving the zeroth and first moment.
 """
 function merge_small_poles!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
     tol > 0 || throw(ArgumentError("negative tol"))
-    issorted(P.a) || issorted(P.a; rev=true) || throw(ArgumentError("poles are not sorted"))
+    issorted(P) || issorted(P; rev=true) || throw(ArgumentError("P is not sorted"))
 
     map!(abs2, P.b, P.b) # use weights
     i = firstindex(P.a)
@@ -556,6 +556,8 @@ function Base.length(P::Poles{<:Any,<:AbstractMatrix})
     return length(P.a)
 end
 
+Base.issorted(P::Poles, args...; kwargs...) = issorted(locations(P), args...; kwargs...)
+
 function Base.sort!(P::Poles{<:Any,<:AbstractVector})
     p = sortperm(P.a)
     P.a[:] = P.a[p]
@@ -572,7 +574,7 @@ Base.sort(P::Poles{<:Any,<:AbstractVector}) = sort!(copy(P))
 # it is then shifted around to make all weights non-negative.
 function Base.:-(A::Poles{<:Any,<:V}, B::Poles{<:Any,<:V}) where {V<:AbstractVector{<:Real}}
     # check input
-    issorted(B.a) || throw(ArgumentError("A is not sorted"))
+    issorted(B) || throw(ArgumentError("B is not sorted"))
     allunique(B.a) || throw(ArgumentError("degenerate energies in B"))
     length(A.a) == length(A.b) || throw(DimensionMismatch("length mismatch in A"))
     length(B.a) == length(B.b) || throw(DimensionMismatch("length mismatch in B"))

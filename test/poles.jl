@@ -437,6 +437,15 @@ using Test
             @test_throws ArgumentError length(P)
         end # length
 
+        @testset "issorted" begin
+            @test issorted(Poles([-0.3, 0.0, 0.1], rand(3)))
+            @test issorted(Poles([-0.0, 0.0, 0.1], rand(3)))
+            @test issorted(Poles([0.0, 0.0, 0.1], rand(3)))
+            @test !issorted(Poles([0.0, -0.0, 0.1], rand(3)))
+            @test !issorted(Poles([0.0, 0.2, 0.1], rand(3)))
+            @test issorted(Poles([0.2, 0.1, 0.0], rand(3)); rev=true)
+        end # issorted
+
         @testset "sort!" begin
             a = [2, 1]
             b = [3, 4]

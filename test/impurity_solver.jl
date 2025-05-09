@@ -38,14 +38,14 @@ using Test
         G_plus = g_plus(H, E0, ψ0, A, n_kryl)
         @test typeof(G_plus) === Poles{V,V}
         @test length(G_plus) === 50
-        @test issorted(G_plus.a)
+        @test issorted(G_plus)
         @test all(>=(0), G_plus.a)
         @test sum(abs2.(G_plus.b)) ≈ 0.5 atol = 100 * eps()
         # G-
         G_minus = g_minus(H, E0, ψ0, A', n_kryl)
         @test typeof(G_minus) === Poles{V,V}
         @test length(G_minus) === 50
-        @test issorted(G_minus.a)
+        @test issorted(G_minus)
         @test all(<=(0), G_minus.a)
         @test sum(abs2.(G_minus.b)) ≈ 0.5 atol = 100 * eps()
         # symmetry: first moment must be zero
@@ -59,12 +59,12 @@ using Test
             Δ0, H_int, -μ, n_v_bit, n_c_bit, e, n_kryl_gs, n_kryl, O
         )
 
-        @test issorted(G_plus.a)
+        @test issorted(G_plus)
         @test length(G_plus.a) == length(O) * n_kryl
         @test size(G_plus.b) == (length(O), length(O) * n_kryl)
 
-        @test issorted(G_minus.a)
-        @test length(G_minus.a) == length(O) * n_kryl
+        @test issorted(G_minus)
+        @test length(G_minus) == length(O) * n_kryl
         @test size(G_plus.b) == (length(O), length(O) * n_kryl)
 
         # both should have half weight
