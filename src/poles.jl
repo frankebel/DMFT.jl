@@ -377,8 +377,9 @@ function _continued_fraction(P::Poles{<:Any,<:AbstractVector})
     return a, b
 end
 
-function _merge_degenerate_poles_square!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
-    a, b = P.a, P.b
+# weights, not amplitudes are stored
+function _merge_degenerate_poles_weights!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
+    a, b = locations(P), amplitudes(P)
     tol >= 0 || throw(ArgumentError("negative tol"))
     issorted(a) || throw(ArgumentError("poles are not sorted"))
 
@@ -386,7 +387,7 @@ function _merge_degenerate_poles_square!(P::Poles{<:Any,<:AbstractVector}, tol::
     idx_zeros = findall(i -> abs(i) < tol, a)
     if !isempty(idx_zeros)
         i0 = popfirst!(idx_zeros)
-        P.a[i0] = 0
+        a[i0] = 0
         for i in reverse!(idx_zeros)
             b[i0] += popat!(b, i)
             deleteat!(a, i)
@@ -400,7 +401,7 @@ function _merge_degenerate_poles_square!(P::Poles{<:Any,<:AbstractVector}, tol::
         if a[i + 1] - a[i] < tol
             # merge
             b[i] += popat!(b, i + 1)
-            deleteat!(a, i + 1)
+            deleteat!(a, i + 1) # keep location closer to zero
         else
             # increment index
             i += 1
@@ -414,7 +415,7 @@ function _merge_degenerate_poles_square!(P::Poles{<:Any,<:AbstractVector}, tol::
         if a[i] - a[i - 1] < tol
             # merge
             b[i - 1] += popat!(b, i)
-            deleteat!(a, i - 1)
+            deleteat!(a, i - 1) # keep location closer to zero
             i -= 1
         else
             # decrement index
@@ -432,7 +433,7 @@ Merge poles whose locations are less than `tol` apart.
 """
 function merge_degenerate_poles!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
     P.b .= abs2.(P.b)
-    _merge_degenerate_poles_square!(P, tol)
+    _merge_degenerate_poles_weights!(P, tol)
     P.b .= sqrt.(P.b)
     return P
 end
