@@ -40,7 +40,7 @@ function discretize_similar_weight(P::Poles{<:Any,<:AbstractVector}, δ0::Real, 
         w += w_plus[i]
         m += l_plus[i] * w_plus[i]
         if i == lastindex(l_plus)
-            # push regardless of current weight
+            # set pole regardless of current weight
             a[idx_new] = m / w
             b[idx_new] = sqrt(w)
             idx_new
@@ -48,7 +48,7 @@ function discretize_similar_weight(P::Poles{<:Any,<:AbstractVector}, δ0::Real, 
             idx_new == n ||
                 throw(ErrorException("failed to discretize positive frequencies"))
         end
-        while w > w_target
+        while w > w_target && !(idx_new == n) # outermost pole may overshoot
             δw = w - w_target
             # remove overshoot
             m -= l_plus[i] * δw
@@ -74,14 +74,14 @@ function discretize_similar_weight(P::Poles{<:Any,<:AbstractVector}, δ0::Real, 
         w += w_minus[i]
         m += l_minus[i] * w_minus[i]
         if i == lastindex(l_minus)
-            # push regardless of current weight
+            # set pole regardless of current weight
             a[idx_new] = m / w
             b[idx_new] = sqrt(w)
             w = zero(w)
             isone(idx_new) ||
                 throw(ErrorException("failed to discretize negative frequencies"))
         end
-        while w > w_target
+        while w > w_target && !isone(idx_new) # outermost pole may overshoot
             δw = w - w_target
             # remove overshoot
             m -= l_minus[i] * δw
