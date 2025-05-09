@@ -384,7 +384,7 @@ function _merge_degenerate_poles_weights!(P::Poles{<:Any,<:AbstractVector}, tol:
     issorted(a) || throw(ArgumentError("poles are not sorted"))
 
     # poles at zero
-    idx_zeros = findall(i -> abs(i) < tol, a)
+    idx_zeros = findall(i -> abs(i) <= tol, a)
     if !isempty(idx_zeros)
         i0 = popfirst!(idx_zeros)
         a[i0] = 0
@@ -398,7 +398,7 @@ function _merge_degenerate_poles_weights!(P::Poles{<:Any,<:AbstractVector}, tol:
     i = findfirst(>(0), a)
     isnothing(i) && (i = lastindex(a))
     while i < lastindex(a)
-        if a[i + 1] - a[i] < tol
+        if a[i + 1] - a[i] <= tol
             # merge
             b[i] += popat!(b, i + 1)
             deleteat!(a, i + 1) # keep location closer to zero
@@ -412,7 +412,7 @@ function _merge_degenerate_poles_weights!(P::Poles{<:Any,<:AbstractVector}, tol:
     i = findlast(<(0), a)
     isnothing(i) && (i = firstindex(a))
     while i > firstindex(a)
-        if a[i] - a[i - 1] < tol
+        if a[i] - a[i - 1] <= tol
             # merge
             b[i - 1] += popat!(b, i)
             deleteat!(a, i - 1) # keep location closer to zero
@@ -429,7 +429,7 @@ end
 """
     merge_degenerate_poles!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
 
-Merge poles whose locations are less than `tol` apart.
+Merge poles whose locations are less than or equal `tol` apart.
 """
 function merge_degenerate_poles!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
     P.b .= abs2.(P.b)

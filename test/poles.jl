@@ -302,6 +302,11 @@ using Test
             @test merge_degenerate_poles!(P, 0.04) === P
             @test P.a == [0.0, 0.05]
             @test P.b == [sqrt(2.875), 2.5]
+            # poles at exactly same location
+            P = Poles([-0.5, -0.5, 0.0, 0.05], [0.25, 0.75, 1.5, 2.5])
+            @test merge_degenerate_poles!(P, 0) === P
+            @test P.a == [-0.5, 0.0, 0.05]
+            @test P.b == [sqrt(0.625), 1.5, 2.5]
         end # merge degenerate poles!
 
         @testset "merge small poles!" begin
