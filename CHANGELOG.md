@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - remove `to_grid_sqr!` ([#80](https://github.com/frankebel/DMFT.jl/pull/80)) ([cc71c12](https://github.com/frankebel/DMFT.jl/commit/cc71c12923534a4fe5140930780e737b4a790308))
 - calculation of self-energy using `Poles` does not enforce original grid ([#84](https://github.com/frankebel/DMFT.jl/pull/84)) ([b976fcd](https://github.com/frankebel/DMFT.jl/commit/b976fcd2b6d1a07b58fe1fb28dc0641d26929e9c))
 - calculation of new hybridization function does not enforce original grid ([#85](https://github.com/frankebel/DMFT.jl/pull/85)) ([bba8809](https://github.com/frankebel/DMFT.jl/commit/bba8809f196627f18136f2a40582b9383fe15031))
+- merge poles that are `tol` apart ([#88](https://github.com/frankebel/DMFT.jl/pull/88)) ([ad832db](https://github.com/frankebel/DMFT.jl/commit/ad832dbedb84980f8ea0352af543880ee676b7a3))
 
 ### Removed
 
