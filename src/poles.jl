@@ -14,7 +14,7 @@ if both are `a` and `b` are vectors.
 If `b` is a matrix, its ``i``-th column is interpreted as a vector ``\\vec{b_i}`` with
 
 ```math
-P(ω) = \\sum_i \\frac{\\vec{b}_i\\vec{b}_i^\\dagger}{ω-a_i}.
+P(ω) = ∑_i \\frac{\\vec{b}_i\\vec{b}_i^\\dagger}{ω-a_i}.
 ```
 """
 struct Poles{A<:AbstractVector{<:Real},B<:AbstractVecOrMat{<:Number}}
@@ -635,7 +635,7 @@ P(z) = ∑_{i=1}^N \\frac{|b_i|^2}{z-a_i}
 is converted to
 
 ```math
-P(z)^{1} = \\frac{1}{z - a_0 - \\sum_{i=1}^{N-1} \\frac{|b_i|^2}{z - a_i}} = \\frac{1}{z - a_0 - Q(z)}.
+P(z)^{1} = \\frac{1}{z - a_0 - ∑_{i=1}^{N-1} \\frac{|b_i|^2}{z - a_i}} = \\frac{1}{z - a_0 - Q(z)}.
 ```
 
 Returns `a_0::Real` and `Q::Poles`.

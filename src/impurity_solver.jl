@@ -55,7 +55,7 @@ G^+(z)
 &=
 ⟨ψ_0 d \\frac{1}{z - H + E_0} d^† ψ_0⟩ \\\\
 &≈
-\\sum_{i=1}^n \frac{|b_i|^2}{z - a_i}
+∑_{i=1}^n \\frac{|b_i|^2}{z - a_i}
 \\end{aligned}
 ```
 
@@ -106,7 +106,7 @@ G^+(z)
 &=
 ⟨ψ_0 d^† \\frac{1}{z + H - E_0} d ψ_0⟩ \\\\
 &≈
-\\sum_{i=1}^n \frac{|b_i|^2}{z - a_i}
+∑_{i=1}^n \\frac{|b_i|^2}{z - a_i}
 \\end{aligned}
 ```
 
