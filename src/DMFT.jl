@@ -62,6 +62,8 @@ export
     self_energy_IFG,
     self_energy_IFG_gauss,
     self_energy_poles,
+    shift_locations!,
+    shift_locations,
     slater_start,
     solve_impurity,
     spectral_function_gauss,

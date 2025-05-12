@@ -227,13 +227,28 @@ Reverse `P` and flip the sign of `locations(P)`.
 
 See also [`flip_locations!`](@ref).
 """
-function flip_locations(P::Poles)
-    result = copy(P)
-    reverse!(result)
-    l = locations(result)
-    @. l *= -1
-    return result
+flip_locations(P::Poles) = flip_locations!(copy(P))
+
+"""
+    shift_locations!(P::Poles, s::Real=0)
+
+Shift each location of `P` such that ``a_i → a_i + s``.
+
+See also [`shift_locations`](@ref).
+"""
+function shift_locations!(P::Poles, s::Real=0)
+    locations(P) .+= s
+    return P
 end
+
+"""
+    shift_locations(P::Poles, s::Real=0)
+
+Shift each location of `P` such that ``a_i → a_i + s``.
+
+See also [`shift_locations!`](@ref).
+"""
+shift_locations(P::Poles, s::Real=0) = shift_locations!(copy(P), s)
 
 function _to_grid_square(P::Poles{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
     # check input

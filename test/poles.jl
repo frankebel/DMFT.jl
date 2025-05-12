@@ -200,6 +200,56 @@ using Test
             @test amplitudes(foo) == [0.4 0.3; 0.6 0.5]
         end # flip_locations!
 
+        @testset "shift_locations!" begin
+            # vector
+            P = Poles([0.1, 0.2], [0.3, 0.4])
+            # default no shift
+            @test shift_locations!(P) === P
+            @test locations(P) == [0.1, 0.2]
+            @test amplitudes(P) == [0.3, 0.4]
+            # finite shift
+            @test shift_locations!(P, 0.5) === P
+            @test locations(P) == [0.6, 0.7]
+            @test amplitudes(P) == [0.3, 0.4]
+            # matrix
+            P = Poles([0.1, 0.2], [0.3 0.4; 0.5 0.6])
+            # default no shift
+            @test shift_locations!(P) === P
+            @test locations(P) == [0.1, 0.2]
+            @test amplitudes(P) == [0.3 0.4; 0.5 0.6]
+            # finite shift
+            @test shift_locations!(P, 0.5) === P
+            @test locations(P) == [0.6, 0.7]
+            @test amplitudes(P) == [0.3 0.4; 0.5 0.6]
+        end # shift_locations!
+
+        @testset "shift_locations" begin
+            # vector
+            P = Poles([0.1, 0.2], [0.3, 0.4])
+            # default no shift
+            foo = shift_locations(P)
+            @test foo !== P
+            @test locations(foo) == [0.1, 0.2]
+            @test amplitudes(foo) == [0.3, 0.4]
+            # finite shift
+            foo = shift_locations(P, 0.5)
+            @test foo !== P
+            @test locations(foo) == [0.6, 0.7]
+            @test amplitudes(foo) == [0.3, 0.4]
+            # matrix
+            P = Poles([0.1, 0.2], [0.3 0.4; 0.5 0.6])
+            # default no shift
+            foo = shift_locations(P)
+            @test foo !== P
+            @test locations(foo) == [0.1, 0.2]
+            @test amplitudes(foo) == [0.3 0.4; 0.5 0.6]
+            # finite shift
+            foo = shift_locations(P, 0.5)
+            @test foo !== P
+            @test locations(foo) == [0.6, 0.7]
+            @test amplitudes(foo) == [0.3 0.4; 0.5 0.6]
+        end # shift_locations
+
         @testset "to_grid" begin
             # all poles within grid, middle pole centerd
             A = Poles([0.1, 0.2, 0.3], [5.0, -10.0, 1.0])
