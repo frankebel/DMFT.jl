@@ -206,6 +206,35 @@ function moments(P::Poles, ns)
     return map(i -> moment(P, i), ns)
 end
 
+"""
+    flip_locations!(P::Poles)
+
+Reverse `P` and flip the sign of `locations(P)`.
+
+See also [`flip_locations`](@ref).
+"""
+function flip_locations!(P::Poles)
+    reverse!(P)
+    l = locations(P)
+    @. l *= -1
+    return P
+end
+
+"""
+    flip_locations(P::Poles)
+
+Reverse `P` and flip the sign of `locations(P)`.
+
+See also [`flip_locations!`](@ref).
+"""
+function flip_locations(P::Poles)
+    result = copy(P)
+    reverse!(result)
+    l = locations(result)
+    @. l *= -1
+    return result
+end
+
 function _to_grid_square(P::Poles{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
     # check input
     foo = Poles(grid, grid)

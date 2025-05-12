@@ -22,6 +22,8 @@ export
     dmft_step_gauss,
     equal_weight_discretization,
     find_chemical_potential,
+    flip_locations!,
+    flip_locations,
     g_minus,
     g_plus,
     get_CI_parameters,

@@ -172,6 +172,34 @@ using Test
             @test moments(P, 0:1) == [[2.375 1.875; 1.875 7.0625], [0.0 0.25; 0.25 3.0]]
         end # moments
 
+        @testset "flip_locations!" begin
+            # vector
+            P = Poles([0.1, 0.2], [0.3, 0.4])
+            @test flip_locations!(P) === P
+            @test locations(P) == [-0.2, -0.1]
+            @test amplitudes(P) == [0.4, 0.3]
+            # matrix
+            P = Poles([0.1, 0.2], [0.3 0.4; 0.5 0.6])
+            @test flip_locations!(P) === P
+            @test locations(P) == [-0.2, -0.1]
+            @test amplitudes(P) == [0.4 0.3; 0.6 0.5]
+        end # flip_locations!
+
+        @testset "flip_locations" begin
+            # vector
+            P = Poles([0.1, 0.2], [0.3, 0.4])
+            foo = flip_locations(P)
+            @test foo !== P
+            @test locations(foo) == [-0.2, -0.1]
+            @test amplitudes(foo) == [0.4, 0.3]
+            # matrix
+            P = Poles([0.1, 0.2], [0.3 0.4; 0.5 0.6])
+            foo = flip_locations(P)
+            @test foo !== P
+            @test locations(foo) == [-0.2, -0.1]
+            @test amplitudes(foo) == [0.4 0.3; 0.6 0.5]
+        end # flip_locations!
+
         @testset "to_grid" begin
             # all poles within grid, middle pole centerd
             A = Poles([0.1, 0.2, 0.3], [5.0, -10.0, 1.0])
