@@ -596,5 +596,33 @@ using Test
             @test real(z1) ≈ -real(z2) rtol = 2000 * eps()
             @test imag(z1) ≈ imag(z2) rtol = 7000 * eps()
         end # inv
+
+        @testset "reverse!" begin
+            # vector
+            P = Poles([0.1, 0.2], [0.3, 0.4])
+            @test reverse!(P) === P
+            @test locations(P) == [0.2, 0.1]
+            @test amplitudes(P) == [0.4, 0.3]
+            # matrix
+            P = Poles([0.1, 0.2], [0.3 0.4; 0.5 0.6])
+            @test reverse!(P) === P
+            @test locations(P) == [0.2, 0.1]
+            @test amplitudes(P) == [0.4 0.3; 0.6 0.5]
+        end # reverse!
+
+        @testset "reverse!" begin
+            # vector
+            P = Poles([0.1, 0.2], [0.3, 0.4])
+            foo = reverse(P)
+            @test foo !== P
+            @test locations(foo) == [0.2, 0.1]
+            @test amplitudes(foo) == [0.4, 0.3]
+            # matrix
+            P = Poles([0.1, 0.2], [0.3 0.4; 0.5 0.6])
+            foo = reverse(P)
+            @test foo !== P
+            @test locations(foo) == [0.2, 0.1]
+            @test amplitudes(foo) == [0.4 0.3; 0.6 0.5]
+        end # reverse!
     end # Base
 end # Poles

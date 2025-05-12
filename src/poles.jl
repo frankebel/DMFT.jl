@@ -654,3 +654,17 @@ function Base.inv(P::Poles{<:Any,<:AbstractVector})
     P = Poles(a, b)
     return a0, P
 end
+
+function Base.reverse!(P::Poles{<:Any,<:AbstractVector})
+    reverse!(locations(P))
+    reverse!(amplitudes(P))
+    return P
+end
+
+function Base.reverse!(P::Poles{<:Any,<:AbstractMatrix})
+    reverse!(locations(P))
+    reverse!(amplitudes(P); dims=2)
+    return P
+end
+
+Base.reverse(P::Poles) = reverse!(copy(P))
