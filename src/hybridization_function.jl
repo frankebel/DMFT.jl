@@ -12,10 +12,10 @@ given a frequency `z` in the upper complex plane,
 and half-bandwidth `D`.
 
 ```math
-Δ(z) = \\frac{1}{2} (z - \\sign(\\mathrm{Re}(z)) \\sqrt{z^2 - D^2})
+Δ(z) = \\frac{1}{2} (z - \\mathrm{sgn}(\\mathrm{Re}(z)) \\sqrt{z^2 - D^2})
 ```
 
-with ``\\sign(0) = \\sign(0^±)``.
+with ``\\mathrm{sgn}(0) = \\mathrm{sgn}(0^±)``.
 """
 function hybridization_function_bethe_analytic(z::Number, D::Real=1.0)
     return greens_function_bethe_analytic(z, D) * D^2 / 4
