@@ -30,7 +30,7 @@ function self_energy_poles(
     Σ = Poles([locations(G_imp_inv); locations(Δ0)], [weights(G_imp_inv); -weights(Δ0)])
     sort!(Σ)
     _merge_degenerate_poles_weights!(Σ, 0)
-    merge_negative_weight!(Σ)
+    _merge_negative_weight!(Σ)
     remove_poles_with_zero_weight!(Σ)
     Σ.b .= sqrt.(Σ.b) # back to amplitudes
 

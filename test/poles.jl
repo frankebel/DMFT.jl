@@ -203,7 +203,7 @@ using Test
             # equidistant grid
             a = [-0.5, 0.5, 1.5]
             b = [1.5, -0.5, 5.0]
-            foo = merge_negative_weight!(Poles(a, b))
+            foo = DMFT._merge_negative_weight!(Poles(a, b))
             @test foo.a === a
             @test foo.b === b
             @test a == [-0.5, 0.5, 1.5]
@@ -211,37 +211,37 @@ using Test
             # not equidistant grid
             a = [-0.5, 0.0, 1.5]
             b = [1.5, -0.5, 5.0]
-            merge_negative_weight!(Poles(a, b))
+            DMFT._merge_negative_weight!(Poles(a, b))
             @test a == [-0.5, 0.0, 1.5]
             @test b == [1.125, 0.0, 4.875]
             # first pole negative
             a = [0.0, 1.0, 5.0]
             b = [-1.0, 0.5, 2.25]
-            merge_negative_weight!(Poles(a, b))
+            DMFT._merge_negative_weight!(Poles(a, b))
             @test a == [0.0, 1.0, 5.0]
             @test b == [0.0, 0.0, 1.75]
             # last pole negative
             a = [0.0, 1.0, 5.0]
             b = [2.25, 0.5, -1.0]
-            merge_negative_weight!(Poles(a, b))
+            DMFT._merge_negative_weight!(Poles(a, b))
             @test a == [0.0, 1.0, 5.0]
             @test b == [1.75, 0.0, 0.0]
             # weight exactly cancel
             a = [0.0, 1.0, 5.0]
             b = [-1.0, 0.5, 0.5]
-            merge_negative_weight!(Poles(a, b))
+            DMFT._merge_negative_weight!(Poles(a, b))
             @test a == [0.0, 1.0, 5.0]
             @test b == [0.0, 0.0, 0.0]
             # symmetric case
             a = [-2.0, -0.5, 0.0, 0.5, 2.0]
             b = [5.0, -2.0, 1.0, -2.0, 5.0]
-            merge_negative_weight!(Poles(a, b))
+            DMFT._merge_negative_weight!(Poles(a, b))
             @test a == [-2.0, -0.5, 0.0, 0.5, 2.0]
             @test norm(b - [3.5, 0.0, 0.0, 0.0, 3.5]) < 10 * eps()
             # previous pole would get negative weight
             a = [-1.0, -0.5, 0.0, 1.5]
             b = [2.0, 1.5, -2.5, 5.0]
-            merge_negative_weight!(Poles(a, b))
+            DMFT._merge_negative_weight!(Poles(a, b))
             @test a == [-1.0, -0.5, 0.0, 1.5]
             @test b == [1.7, 0.0, 0.0, 4.3]
         end # merge negative weight

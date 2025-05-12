@@ -263,14 +263,14 @@ function to_grid(P::Poles{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
 end
 
 """
-    merge_negative_weight!(P::Poles{<:Any,<:AbstractVector})
+    _merge_negative_weight!(P::Poles{<:Any,<:AbstractVector})
 
 Move negative weights of `P` such that the zeroth moment is conserved
 and the first moment changes minimally.
 
 Assumes that `P.b` contains weights and not amplitudes.
 """
-function merge_negative_weight!(P::Poles{<:Any,<:AbstractVector})
+function _merge_negative_weight!(P::Poles{<:Any,<:AbstractVector})
     a = P.a
     b = P.b
 
@@ -618,7 +618,7 @@ function Base.:-(A::Poles{<:Any,<:V}, B::Poles{<:Any,<:V}) where {V<:AbstractVec
     map!(abs2, A.b, A.b)
     A = _to_grid_square(A, B.a)
     result.b .+= A.b # difference of weights
-    merge_negative_weight!(result)
+    _merge_negative_weight!(result)
     map!(sqrt, result.b, result.b) # undo squaring
     return result
 end
