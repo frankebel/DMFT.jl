@@ -515,7 +515,7 @@ end
 
 Remove all poles ``|b_i|^2 = 0``.
 
-If `remove_zero`, ``a_i = b_i = 0`` is also removed.
+If `remove_zero`, ``a_i = |b_i|^2 = 0`` is also removed.
 
 See also [`remove_poles_with_zero_weight`](@ref).
 """
@@ -635,7 +635,7 @@ P(z) = ∑_{i=1}^N \\frac{|b_i|^2}{z-a_i}
 is converted to
 
 ```math
-P(z)^{1} = \\frac{1}{z - a_0 - ∑_{i=1}^{N-1} \\frac{|b_i|^2}{z - a_i}} = \\frac{1}{z - a_0 - Q(z)}.
+P(z)^{-1} = \\frac{1}{z - a_0 - ∑_{i=1}^{N-1} \\frac{|b_i|^2}{z - a_i}} = \\frac{1}{z - a_0 - Q(z)}.
 ```
 
 Returns `a_0::Real` and `Q::Poles`.

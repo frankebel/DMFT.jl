@@ -12,7 +12,7 @@ given a frequency `z` in the upper complex plane,
 and half-bandwidth `D`.
 
 ```math
-Δ(z) = \\frac{1}{2} (z - \\mathrm{sgn}(\\mathrm{Re}(z)) \\sqrt{z^2 - D^2})
+Δ(z) = \\frac{1}{2} \\left(z - \\mathrm{sgn}(\\mathrm{Re}(z)) \\sqrt{z^2 - D^2}\\right)
 ```
 
 with ``\\mathrm{sgn}(0) = \\mathrm{sgn}(0^±)``.

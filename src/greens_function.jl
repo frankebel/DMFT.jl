@@ -11,7 +11,7 @@ given a frequency `z` in the upper complex plane,
 and half-bandwidth `D`.
 
 ```math
-G(z) = \\frac{2}{D^2} (z - \\mathrm{sgn}(\\mathrm{Re}(z)) \\sqrt{z^2 - D^2})
+G(z) = \\frac{2}{D^2} \\left(z - \\mathrm{sgn}(\\mathrm{Re}(z)) \\sqrt{z^2 - D^2}\\right)
 ```
 
 with ``\\mathrm{sgn}(0) = \\mathrm{sgn}(0^±)``.
@@ -207,7 +207,7 @@ Calculate the (non-)interacting local Green's function for a dispersion relation
 and frequency grid `W`.
 
 ```math
-G_\\mathrm{loc}(ω) = \\frac{1}{N_k} ∑_k ((ω + μ)I - H_k - Σ(ω))^{-1}
+G_\\mathrm{loc}(ω) = \\frac{1}{N_k} ∑_k [(ω + μ)I - H_k - Σ(ω)]^{-1}
 ```
 
 The self-energy `Σ` is optional.

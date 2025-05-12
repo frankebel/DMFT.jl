@@ -131,7 +131,7 @@ end
 Get chemical potential ``μ``, such that desired filling `n` is fulfilled.
 
 ```math
-∫_{-∞}^0 \\mathrm{d}ω \\mathrm{Tr}[-\\frac{1}{π}\\mathrm{Im}~G(ω)] ≡ n
+∫_{-∞}^0 \\mathrm{d}ω \\mathrm{Tr}\\left[-\\frac{1}{π}\\mathrm{Im}~G(ω)\\right] ≡ n
 ```
 
 with
