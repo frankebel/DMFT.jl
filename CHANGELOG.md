@@ -22,8 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Base.issorted` for `Poles` ([#89](https://github.com/frankebel/DMFT.jl/pull/89)) ([58cd09a](https://github.com/frankebel/DMFT.jl/commit/58cd09a6f8f8fa19578ca9be45a2c1175d90c42a))
 - `Base.allunique` for `Poles` ([#90](https://github.com/frankebel/DMFT.jl/pull/90)) ([b3d8e52](https://github.com/frankebel/DMFT.jl/commit/b3d8e52bee8141bc66725e5d5160af5beac5d92d))
 - moving poles with negative location to zero ([#91](https://github.com/frankebel/DMFT.jl/pull/91)) ([5dd9f13](https://github.com/frankebel/DMFT.jl/commit/5dd9f13db14f88e19f1aa0bae8aadb9e1208666f))
-- flip locations of `Poles` ([#95](https://github.com/frankebel/DMFT.jl/pull/95)) ([5717654](https://github.com/frankebel/DMFT.jl/commit/5717654fc8d59250b719cd43d4ac9ce99b3d8795))
-- shift locations of `Poles` ([#96](https://github.com/frankebel/DMFT.jl/pull/96)) ([5b85142](https://github.com/frankebel/DMFT.jl/commit/5b85142bb4002ed807d1ad730becf295013fe8b3))
+- flip locations of `Poles` ([#95](https://github.com/frankebel/DMFT.jl/pull/95)) ([5717654](https://github.com/frankebel/DMFT.jl/commit/5717654fc8d59250b719cd43d4ac9ce99b3d8795)) ([#97](https://github.com/frankebel/DMFT.jl/pull/97)) ([b560d33](https://github.com/frankebel/DMFT.jl/commit/b560d330969e40db73357e9a9a727c857c9a5ff1))
+- shift locations of `Poles` ([#96](https://github.com/frankebel/DMFT.jl/pull/96)) ([5b85142](https://github.com/frankebel/DMFT.jl/commit/5b85142bb4002ed807d1ad730becf295013fe8b3)) ([#97](https://github.com/frankebel/DMFT.jl/pull/97)) ([0b0ec8f](https://github.com/frankebel/DMFT.jl/commit/0b0ec8f5f7f075e4ccbd566248887f49ab33c220))
 
 ### Changed
 
