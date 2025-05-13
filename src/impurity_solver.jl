@@ -43,6 +43,32 @@ function solve_impurity(
 end
 
 """
+    correlator(
+        H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
+    ) where {CI<:CIWavefunction}
+
+Calculate the correlator
+
+```math
+C(ω) = ⟨ψ_0 O^† \\frac{1}{z - H} O ψ_0⟩.
+```
+"""
+function correlator(
+    H::CIOperator, ψ0::CI, O::Operator, n_kryl::Int
+) where {CI<:CIWavefunction}
+    v = O * ψ0
+    b0 = norm(v)
+    rmul!(v, inv(b0))
+    a, b = lanczos(H, v, n_kryl)
+
+    # look if any coefficient b is small
+    value, index = findmin(abs.(b))
+    @debug "smallest weight b=$(value) at index $(index)/$(lastindex(b))"
+
+    return _poles(a, b, 0, b0)
+end
+
+"""
     g_plus(
         H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
     ) where {CI<:CIWavefunction}
