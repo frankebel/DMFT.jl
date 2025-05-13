@@ -207,13 +207,13 @@ function moments(P::Poles, ns)
 end
 
 """
-    flip_locations!(P::Poles)
+    flip_spectrum!(P::Poles)
 
 Reverse `P` and flip the sign of `locations(P)`.
 
-See also [`flip_locations`](@ref).
+See also [`flip_spectrum`](@ref).
 """
-function flip_locations!(P::Poles)
+function flip_spectrum!(P::Poles)
     reverse!(P)
     l = locations(P)
     @. l *= -1
@@ -221,13 +221,13 @@ function flip_locations!(P::Poles)
 end
 
 """
-    flip_locations(P::Poles)
+    flip_spectrum(P::Poles)
 
 Reverse `P` and flip the sign of `locations(P)`.
 
-See also [`flip_locations!`](@ref).
+See also [`flip_spectrum!`](@ref).
 """
-flip_locations(P::Poles) = flip_locations!(copy(P))
+flip_spectrum(P::Poles) = flip_spectrum!(copy(P))
 
 """
     shift_locations!(P::Poles, s::Real=0)
