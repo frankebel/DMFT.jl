@@ -50,7 +50,7 @@ end
 Calculate the correlator
 
 ```math
-C(ω) = ⟨ψ_0 O^† \\frac{1}{z - H} O ψ_0⟩.
+C(ω) = ⟨ψ_0 O^† \\frac{1}{ω - H} O ψ_0⟩.
 ```
 """
 function correlator(
