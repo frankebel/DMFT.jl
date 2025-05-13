@@ -230,25 +230,25 @@ See also [`flip_spectrum!`](@ref).
 flip_spectrum(P::Poles) = flip_spectrum!(copy(P))
 
 """
-    shift_locations!(P::Poles, s::Real=0)
+    shift_spectrum!(P::Poles, shift::Real=0)
 
-Shift each location of `P` such that ``a_i → a_i + s``.
+Shift each location of `P` such that ``a_i → a_i - s``.
 
-See also [`shift_locations`](@ref).
+See also [`shift_spectrum`](@ref).
 """
-function shift_locations!(P::Poles, s::Real=0)
-    locations(P) .+= s
+function Fermions.shift_spectrum!(P::Poles, shift::Real=0)
+    locations(P) .-= shift
     return P
 end
 
 """
-    shift_locations(P::Poles, s::Real=0)
+    shift_spectrum(P::Poles, shift::Real=0)
 
-Shift each location of `P` such that ``a_i → a_i + s``.
+Shift each location of `P` such that ``a_i → a_i - s``.
 
-See also [`shift_locations!`](@ref).
+See also [`shift_spectrum!`](@ref).
 """
-shift_locations(P::Poles, s::Real=0) = shift_locations!(copy(P), s)
+shift_spectrum(P::Poles, shift::Real=0) = shift_spectrum!(copy(P), shift)
 
 function _to_grid_square(P::Poles{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
     # check input
