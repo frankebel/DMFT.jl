@@ -65,7 +65,13 @@ function correlator(
     value, index = findmin(abs.(b))
     @debug "smallest weight b=$(value) at index $(index)/$(lastindex(b))"
 
-    return _poles(a, b, 0, b0)
+    # diagonalize tridiagonal matrix given by `a`, `b`
+    S = SymTridiagonal(a, b)
+    E, T = eigen(S)
+    R = b0 * T[1, :]
+    @. R = abs(R) # sign does not matter, positive is easier
+
+    return Poles(E, R)
 end
 
 """
@@ -158,16 +164,6 @@ function _neg(
     W, S_sqrt = orthogonalize_states(V)
     A, B = block_lanczos(H, W, n_kryl)
     return _poles(-A, B, -E0, S_sqrt)
-end
-
-# diagonalize tridiagonal matrix given by `a`, `b` and convert to `Poles`
-function _poles(a::AbstractVector{<:Real}, b::AbstractVector{<:Real}, E0::Real, b0::Real)
-    S = SymTridiagonal(a, b)
-    E, T = eigen(S)
-    E .-= E0
-    R = b0 * T[1, :]
-    @. R = abs(R) # sign does not matter, positive is easier
-    return Poles(E, R)
 end
 
 # diagonalize blocktridiagonal matrix given by `A`, `B` and convert to `Poles`
