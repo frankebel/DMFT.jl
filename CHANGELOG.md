@@ -13,7 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - logarithmic grid and log-gaussian broadening ([#55](https://github.com/frankebel/DMFT.jl/pull/55)) ([f3a09b0](https://github.com/frankebel/DMFT.jl/commit/f3a09b01e668d3ee188530d1c88ddac1a884b2a6))
 - Hubbard-III approximation ([#64](https://github.com/frankebel/DMFT.jl/pull/64)) ([e5dbed7](https://github.com/frankebel/DMFT.jl/commit/e5dbed71f02c0949e646a6ba255a7249c2bf8de5))
 - warn if wrong spectral weight exists ([#66](https://github.com/frankebel/DMFT.jl/pull/66)) ([25da3b0](https://github.com/frankebel/DMFT.jl/commit/25da3b0bf829ba4261094e2cbc1d5bad48bb2924))
-- export `g_plus()`, `g_minus()` ([#70](https://github.com/frankebel/DMFT.jl/pull/70)) ([4ae6ad8](https://github.com/frankebel/DMFT.jl/commit/4ae6ad89343d726179fda7e85af3a90e959e20f2))
 - merge poles with small weight to neighbors ([#72](https://github.com/frankebel/DMFT.jl/pull/72)) ([7ab44a7](https://github.com/frankebel/DMFT.jl/commit/7ab44a7076250e47c623d3530dc583485d6843c9))
 - getters for `Poles` ([#81](https://github.com/frankebel/DMFT.jl/pull/81)) ([add4ec6](https://github.com/frankebel/DMFT.jl/commit/add4ec6d421042265f42b8d9745b059a47fa5254))
 - weight(s) of each pole ([#82](https://github.com/frankebel/DMFT.jl/pull/82)) ([b1f1780](https://github.com/frankebel/DMFT.jl/commit/b1f1780830c4a11b3f340cf3a5a64fc6f40e037b))
@@ -24,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - moving poles with negative location to zero ([#91](https://github.com/frankebel/DMFT.jl/pull/91)) ([5dd9f13](https://github.com/frankebel/DMFT.jl/commit/5dd9f13db14f88e19f1aa0bae8aadb9e1208666f))
 - flip locations of `Poles` ([#95](https://github.com/frankebel/DMFT.jl/pull/95)) ([5717654](https://github.com/frankebel/DMFT.jl/commit/5717654fc8d59250b719cd43d4ac9ce99b3d8795)) ([#97](https://github.com/frankebel/DMFT.jl/pull/97)) ([b560d33](https://github.com/frankebel/DMFT.jl/commit/b560d330969e40db73357e9a9a727c857c9a5ff1))
 - shift locations of `Poles` ([#96](https://github.com/frankebel/DMFT.jl/pull/96)) ([5b85142](https://github.com/frankebel/DMFT.jl/commit/5b85142bb4002ed807d1ad730becf295013fe8b3)) ([#97](https://github.com/frankebel/DMFT.jl/pull/97)) ([0b0ec8f](https://github.com/frankebel/DMFT.jl/commit/0b0ec8f5f7f075e4ccbd566248887f49ab33c220))
+- export `correlator_plus()`, `correlator_minus()` ([#98](https://github.com/frankebel/DMFT.jl/pull/98)) ([3a78427](https://github.com/frankebel/DMFT.jl/commit/3a78427753859d2a1fc34a9b4af1124be29c1260))
 
 ### Changed
 
