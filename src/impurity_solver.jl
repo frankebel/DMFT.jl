@@ -69,41 +69,33 @@ function correlator(
 end
 
 """
-    g_plus(
+    correlator_plus(
         H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
     ) where {CI<:CIWavefunction}
 
-Calculate the positive part of the Green's function.
+Calculate the positive spectrum of the correlator.
 
 ```math
-\\begin{aligned}
-G^+(z)
-&=
-⟨ψ_0 d \\frac{1}{z - H + E_0} d^† ψ_0⟩ \\\\
-&≈
-∑_{i=1}^n \\frac{|b_i|^2}{z - a_i}
-\\end{aligned}
+C^+(ω) = ⟨ψ_0 O^† \\frac{1}{ω - H + E_0} O ψ_0⟩
 ```
 
-See also [`g_minus`](@ref).
+See also [`correlator_minus`](@ref).
 """
-function g_plus(
+function correlator_plus(
     H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
 ) where {CI<:CIWavefunction}
-    v = O * ψ0
-    b0 = norm(v)
-    rmul!(v, inv(b0))
-    a, b = lanczos(H, v, n_kryl)
-    G_plus = _poles(a, b, E0, b0)
+    C = correlator(H, ψ0, O, n_kryl)
+    shift_spectrum!(C, E0)
 
     # poles at negative energies (never happens on exact arithmetic)
-    idx_neg = findall(<(0), G_plus.a)
+    idx_neg = findall(<(0), locations(C))
     if !isempty(idx_neg)
         n_neg = length(idx_neg)
-        weight_neg = sum(abs2.(G_plus.b[idx_neg]))
-        @warn "negative specral weight on G+" n_neg weight_neg
+        weight_neg = sum(weights(C)[idx_neg])
+        @warn "C+ has negative specral weight $(weight_neg) on $(n_neg) pole(s)"
     end
-    return G_plus
+
+    return C
 end
 
 # positive frequencies, block
@@ -120,43 +112,39 @@ function _pos(
 end
 
 """
-    g_minus(
+    correlator_minus(
         H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
     ) where {CI<:CIWavefunction}
 
-Calculate the negative part of the Green's function.
+Calculate the negative spectrum of the correlator.
 
 ```math
-\\begin{aligned}
-G^+(z)
-&=
-⟨ψ_0 d^† \\frac{1}{z + H - E_0} d ψ_0⟩ \\\\
-&≈
-∑_{i=1}^n \\frac{|b_i|^2}{z - a_i}
-\\end{aligned}
+C^-(ω) = ⟨ψ_0 O^† \\frac{1}{ω + H - E_0} O ψ_0⟩
 ```
 
-See also [`g_plus`](@ref).
+See also [`correlator_plus`](@ref).
 """
-function g_minus(
+function correlator_minus(
     H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
 ) where {CI<:CIWavefunction}
-    v = O * ψ0
-    b0 = norm(v)
-    rmul!(v, inv(b0))
-    a, b = lanczos(H, v, n_kryl)
-    map!(-, a, a)
-    map!(-, b, b)
-    G_minus = _poles(a, b, -E0, b0)
+    C = correlator(H, ψ0, O, n_kryl)
+
+    # H → -H
+    l = locations(C)
+    @. l = -l
+    reverse!(C) # sort in ascending order
+
+    shift_spectrum!(C, -E0)
 
     # poles at positive energies (never happens on exact arithmetic)
-    idx_pos = findall(>(0), G_minus.a)
+    idx_pos = findall(>(0), locations(C))
     if !isempty(idx_pos)
         n_pos = length(idx_pos)
-        weight_pos = sum(abs2.(G_minus.b[idx_pos]))
-        @warn "positive specral weight on G-" n_pos weight_pos
+        weight_pos = sum(weights(C)[idx_pos])
+        @warn "C- has positive specral weight $(weight_pos) on $(n_pos) pole(s)"
     end
-    return G_minus
+
+    return C
 end
 
 # negative frequencies
@@ -178,7 +166,7 @@ function _poles(a::AbstractVector{<:Real}, b::AbstractVector{<:Real}, E0::Real, 
     E, T = eigen(S)
     E .-= E0
     R = b0 * T[1, :]
-    map!(abs, R, R) # sign does not matter, positive is easier
+    @. R = abs(R) # sign does not matter, positive is easier
     return Poles(E, R)
 end
 

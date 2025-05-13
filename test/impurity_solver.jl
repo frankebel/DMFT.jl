@@ -24,34 +24,34 @@ using Test
     # Operators for positive frequencies. Negative ones are calculated by adjoint.
     fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1//2))
     c = annihilators(fs)
-    H_int = U * c[1, 1//2]' * c[1, 1//2] * c[1, -1//2]' * c[1, -1//2]
-    A = c[1, -1//2]' # f_↓^†
-    B = A' * H_int - H_int * A' # [f_↓, H_int]
-    B = B' # need to apply to ket
-    O = [A, B]
+    n = occupations(fs)
+    H_int = U * n[1, 1//2] * n[1, -1//2]
+    d_dag = c[1, -1//2]' # d_↓^†
+    q_dag = H_int * d_dag - d_dag * H_int  # q_↓^† = [H_int, d^†]
+    O = [d_dag, q_dag]
 
     H, E0, ψ0 = init_system(Δ0, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs)
 
     @testset "Lanczos" begin
         V = Vector{Float64}
         # G+
-        G_plus = g_plus(H, E0, ψ0, A, n_kryl)
+        G_plus = correlator_plus(H, E0, ψ0, d_dag, n_kryl)
         @test typeof(G_plus) === Poles{V,V}
         @test length(G_plus) === 50
         @test issorted(G_plus)
-        @test all(>=(0), G_plus.a)
-        @test sum(abs2.(G_plus.b)) ≈ 0.5 atol = 100 * eps()
+        @test all(>=(0), locations(G_plus))
+        @test all(>=(0), amplitudes(G_plus))
+        @test DMFT.moment(G_plus, 0) ≈ 0.5 atol = 100 * eps()
         # G-
-        G_minus = g_minus(H, E0, ψ0, A', n_kryl)
+        G_minus = correlator_minus(H, E0, ψ0, d_dag', n_kryl)
         @test typeof(G_minus) === Poles{V,V}
         @test length(G_minus) === 50
         @test issorted(G_minus)
-        @test all(<=(0), G_minus.a)
-        @test sum(abs2.(G_minus.b)) ≈ 0.5 atol = 100 * eps()
+        @test all(<=(0), locations(G_minus))
+        @test all(>=(0), amplitudes(G_minus))
+        @test DMFT.moment(G_minus, 0) ≈ 0.5 atol = 100 * eps()
         # symmetry: first moment must be zero
-        m1_pos = sum(G_plus.a .* abs2.(G_plus.b))
-        m1_neg = sum(G_minus.a .* abs2.(G_minus.b))
-        @test m1_pos + m1_neg < 100 * eps()
+        @test DMFT.moment(G_plus, 1) + DMFT.moment(G_minus, 1) ≈ 0 atol = 100 * eps()
     end # Lanczos
 
     @testset "block Lanczos" begin
