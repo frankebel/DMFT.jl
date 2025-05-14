@@ -34,18 +34,6 @@ using Test
         @test typeof(P_new) === Poles{Vector{Float64},Vector{Int}}
         @test P_new.a == P.a
         @test P_new.b == P.b
-
-        @testset "blockdiagonal" begin
-            A = [rand(2, 2) for _ in 1:5]
-            B = [rand(2, 2) for _ in 1:4]
-            E0 = rand(Float64)
-            S_sqrt = rand(2, 2)
-            P = DMFT._poles(A, B, E0, S_sqrt)
-            @test typeof(P.a) == Vector{Float64}
-            @test length(P.a) == 10
-            @test typeof(P.b) == Matrix{Float64}
-            @test size(P.b) == (2, 10)
-        end # blockdiagonal
     end # constructor
 
     @testset "getters" begin

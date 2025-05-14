@@ -59,36 +59,56 @@ using Test
             Δ0, H_int, -μ, n_v_bit, n_c_bit, e, n_kryl_gs, n_kryl, O
         )
 
-        @test issorted(G_plus)
-        @test length(G_plus.a) == length(O) * n_kryl
-        @test size(G_plus.b) == (length(O), length(O) * n_kryl)
+        # C+
+        C_plus = correlator_plus(H, E0, ψ0, O, n_kryl)
+        @test typeof(C_plus) === Poles{Vector{Float64},Matrix{Float64}}
+        @test issorted(C_plus)
+        @test length(locations(C_plus)) == length(O) * n_kryl
+        @test size(amplitudes(C_plus)) == (2, 2 * n_kryl)
+        @test all(>=(0), locations(C_plus))
+        # C-
+        C_minus = correlator_minus(H, E0, ψ0, map(adjoint, O), n_kryl)
+        @test typeof(C_minus) === Poles{Vector{Float64},Matrix{Float64}}
+        @test issorted(C_minus)
+        @test length(C_minus) == length(O) * n_kryl
+        @test size(amplitudes(C_minus)) == (2, 2 * n_kryl)
 
-        @test issorted(G_minus)
-        @test length(G_minus) == length(O) * n_kryl
-        @test size(G_plus.b) == (length(O), length(O) * n_kryl)
+        # G±
+        G_plus = Poles(copy(locations(C_plus)), amplitudes(C_plus)[1, :])
+        G_minus = Poles(copy(locations(C_minus)), amplitudes(C_minus)[1, :])
 
-        # both should have half weight
-        bp = G_plus.b[1, :]
-        bm = G_minus.b[1, :]
-        @test sum(abs2.(bp)) ≈ 0.5 rtol = 10 * eps()
-        @test sum(abs2.(bm)) ≈ 0.5 rtol = 10 * eps()
+        # half-filling
+        @test DMFT.moment(G_plus, 0) ≈ 0.5 rtol = 10 * eps()
+        @test DMFT.moment(G_minus, 0) ≈ 0.5 rtol = 10 * eps()
 
         # compare absolute moments of impurity Green's function
-        m_pos = [sum(abs2.(bp) .* G_plus.a .^ i) for i in 0:10]
-        m_neg = [sum(abs2.(bm) .* G_minus.a .^ i) for i in 0:10]
+        m_pos = moments(G_plus, 0:10)
+        m_neg = moments(G_minus, 0:10)
         ratio = m_pos ./ m_neg
         @test all(r -> isapprox(r, 1; rtol=100 * eps()), ratio[1:2:end])
         @test all(r -> isapprox(r, -1; rtol=100 * eps()), ratio[2:2:end])
 
+        # Hartree term
+        O_H = O[1]' * O[2] + O[2] * O[1]'
+        Σ_H = dot(ψ0, O_H, ψ0)
+        @test Σ_H ≈ U / 2 rtol = 20 * eps()
+
         # evaluation
-        gp = G_plus(Z)
-        gm = G_minus(Z)
-        G = map(g -> g[1, 1], gm) .+ map(g -> g[1, 1], gp)
-        F = map(g -> g[1, 2], gm) .+ map(g -> g[2, 1], gp)
+        c_plus = C_plus(Z)
+        c_minus = C_minus(Z)
+        G = map(g -> g[1, 1], c_minus) .+ map(g -> g[1, 1], c_plus)
+        F = map(g -> g[1, 2], c_minus) .+ map(g -> g[2, 1], c_plus)
         Σ = F ./ G
         @test all(i -> i <= 0, imag(Σ))
-        # Hartree term Re[Σ(ω=0^+)] = U/2
-        @test Σ_H ≈ U / 2 rtol = 20 * eps()
         @test real(Σ[cld(length(w), 2)]) ≈ U / 2 rtol = 200 * eps()
+
+        @testset "_flip_sign!" begin
+            # `@.` allocates, custom function does not
+            V = map(i -> rand(2, 2), 1:20)
+            DMFT._flip_sign!(V)
+            @. V = -V
+            @test iszero(@allocated DMFT._flip_sign!(V))
+            @test !iszero(@allocated @. V = -V)
+        end # _flip_sign!
     end # block Lanczos
 end # impurity_solver
