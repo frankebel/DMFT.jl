@@ -75,6 +75,29 @@ function correlator(
 end
 
 """
+    correlator(
+        H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
+    ) where {CI<:CIWavefunction}
+
+Calculate the block correlator
+
+```math
+C(ω) = ⟨ψ_0 O^† \\frac{1}{ω - H} O ψ_0⟩.
+```
+"""
+function correlator(
+    H::CIOperator, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int
+) where {CI<:CIWavefunction}
+    V = Matrix{CI}(undef, 1, length(O)) # 1×n matrix
+    for i in eachindex(V)
+        V[i] = O[i] * ψ0
+    end
+    W, S_sqrt = orthogonalize_states(V)
+    A, B = block_lanczos(H, W, n_kryl)
+    return _poles(A, B, 0, S_sqrt)
+end
+
+"""
     correlator_plus(
         H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
     ) where {CI<:CIWavefunction}
