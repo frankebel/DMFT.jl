@@ -23,7 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - moving poles with negative location to zero ([#91](https://github.com/frankebel/DMFT.jl/pull/91)) ([5dd9f13](https://github.com/frankebel/DMFT.jl/commit/5dd9f13db14f88e19f1aa0bae8aadb9e1208666f))
 - flip locations of `Poles` ([#95](https://github.com/frankebel/DMFT.jl/pull/95)) ([5717654](https://github.com/frankebel/DMFT.jl/commit/5717654fc8d59250b719cd43d4ac9ce99b3d8795)) ([#97](https://github.com/frankebel/DMFT.jl/pull/97)) ([b560d33](https://github.com/frankebel/DMFT.jl/commit/b560d330969e40db73357e9a9a727c857c9a5ff1))
 - shift locations of `Poles` ([#96](https://github.com/frankebel/DMFT.jl/pull/96)) ([5b85142](https://github.com/frankebel/DMFT.jl/commit/5b85142bb4002ed807d1ad730becf295013fe8b3)) ([#97](https://github.com/frankebel/DMFT.jl/pull/97)) ([0b0ec8f](https://github.com/frankebel/DMFT.jl/commit/0b0ec8f5f7f075e4ccbd566248887f49ab33c220))
-- export `correlator_plus()`, `correlator_minus()` ([#98](https://github.com/frankebel/DMFT.jl/pull/98)) ([3a78427](https://github.com/frankebel/DMFT.jl/commit/3a78427753859d2a1fc34a9b4af1124be29c1260))
+- `correlator_plus()`, `correlator_minus()` ([#98](https://github.com/frankebel/DMFT.jl/pull/98)) ([3a78427](https://github.com/frankebel/DMFT.jl/commit/3a78427753859d2a1fc34a9b4af1124be29c1260))
+- general block correlator ([#99](https://github.com/frankebel/DMFT.jl/pull/99)) ([4f20faa](https://github.com/frankebel/DMFT.jl/commit/4f20faa45b68c969d47491cb859d25ed7c6856a1))
 
 ### Changed
 
