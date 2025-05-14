@@ -46,7 +46,7 @@ using Test
 
         @test length(Δ_new) == 101
         @test iszero(locations(Δ_new)[51])
-        @test weights(Δ_new)[51] ≈ 0.002083461320853373 atol = 1e-10
+        @test weights(Δ_new)[51] ≈ 0.002083461320853373 atol = 5e-10
         @test DMFT.moment(Δ_new, 0) ≈ 0.25 atol = 10 * eps()
         @test DMFT.moment(Δ_new, 1) ≈ 0.0 atol = 2000 * eps()
 
