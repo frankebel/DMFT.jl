@@ -29,11 +29,9 @@ using Test
     c = annihilators(fs)
     n = occupations(fs)
     H_int = U * n[1, 1//2] * n[1, -1//2]
-    A = c[1, -1//2]' # d_↓^†
-    B = A' * H_int - H_int * A' # [f_↓, H_int]
-    B = B' # need to apply to ket
-    O = [A, B]
-    Ogs = [1.0 * n[1, -1//2], 1.0 * n[1, 1//2], 1.0 * n[1, 1//2] * n[1, -1//2]]
+    d_dag = c[1, -1//2]' # d_↓^†
+    q_dag = H_int * d_dag - d_dag * H_int  # q_↓^† = [H_int, d^†]
+    O = [d_dag, q_dag]
 
     @testset "block Lanczos" begin
         # self-energy
@@ -45,9 +43,8 @@ using Test
         @test length(Δ_new.a) === n_bath
         @test all(b -> isapprox(b, 1 / sqrt(n_bath) / 2; rtol=3E-3), Δ_new.b)
         # small weight loss due to truncated interval
-        @test 0.24 <= sum(abs2.(Δ_new.b)) <= 0.25
-        # PHS
-        @test abs(sum(abs2.(Δ_new.b) .* Δ_new.a)) < 200 * eps()
+        @test 0.24 <= DMFT.moment(Δ_new, 0) <= 0.25
+        @test DMFT.moment(Δ_new, 1) < 200 * eps() # PHS
 
         # Gaussian broadening
         G_plus2, G_minus2, Δ_new2, Δ_grid2 = dmft_step_gauss(
@@ -55,21 +52,23 @@ using Test
         )
         @test typeof(Δ_new2) === Poles{Vector{Float64},Vector{Float64}}
         @test typeof(Δ_grid2) === Vector{ComplexF64}
-        @test length(Δ_new2.a) === n_bath
-        weights_without_zero = [Δ_new2.b[1:150]; Δ_new2.b[152:end]]
-        @test all(b -> isapprox(b, 1 / sqrt(n_bath) / 2; rtol=3E-3), weights_without_zero)
-        @test Δ_new2.b[n_bath ÷ 2 + 1] ≈ 1 / sqrt(n_bath) / 2 rtol = 3e-2
+        @test length(Δ_new2) === n_bath
+        amplitudes_without_zero = copy(amplitudes(Δ_new2))
+        popat!(amplitudes_without_zero, cld(n_bath, 2))
+        @test all(
+            b -> isapprox(b, 1 / sqrt(n_bath) / 2; rtol=3E-3), amplitudes_without_zero
+        )
+        @test Δ_new2.b[cld(n_bath, 2)] ≈ 1 / sqrt(n_bath) / 2 rtol = 3e-2
         # small weight loss due to truncated interval
-        @test 0.24999 <= sum(abs2.(Δ_new2.b)) <= 0.25
-        # PHS
-        @test abs(sum(abs2.(Δ_new2.b) .* Δ_new2.a)) < 200 * eps()
+        @test 0.24999 <= DMFT.moment(Δ_new2, 0) <= 0.25
+        @test DMFT.moment(Δ_new2, 1) < 200 * eps() # PHS
 
         # test equality
-        @test G_plus.a == G_plus2.a
-        @test G_minus.b == G_minus2.b
+        @test locations(G_plus) == locations(G_plus2)
+        @test amplitudes(G_minus) == amplitudes(G_minus2)
         # they are not the same
-        @test Δ_new.a != Δ_new2.a
-        @test Δ_new.b != Δ_new2.b
+        @test locations(Δ_new) != locations(Δ_new2)
+        @test amplitudes(Δ_new) != amplitudes(Δ_new2)
         @test Δ_grid != Δ_grid2
 
         # Discretization for Gaussian returned wrong number of poles.
@@ -80,9 +79,9 @@ using Test
         for i in 3:2:1001
             # test different number of poles
             dis = equal_weight_discretization(g, w, 0.04, i)
-            length(dis.a) == i || (wrong_length += 1)
+            length(dis) == i || (wrong_length += 1)
         end
-        @test wrong_length == 0
+        @test iszero(wrong_length)
 
         # FG
         Σ_FG = self_energy_FG(G_plus, G_minus, Z)

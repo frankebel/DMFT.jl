@@ -2,8 +2,9 @@
 
 """
     self_energy_poles(
-    ϵ_imp::Real, Δ0::Poles{<:V,<:V}, G_imp::Poles{<:V,<:V}
-) where {V<:AbstractVector{<:Real}}
+        ϵ_imp::Real, Δ0::Poles{<:Any,<:AbstractVector}, G_imp::Poles{<:Any,<:AbstractVector}
+    )
+
 
 Calculate the self-energy purely in [`Poles`](@ref) representation using the Dyson equation.
 
@@ -40,38 +41,38 @@ end
 # https://doi.org/10.1088/0953-8984/10/37/021
 """
     self_energy_FG(
-        G_plus::GF, G_minus::GF, Z::AbstractVector{<:Complex}
-    ) where {GF<:Poles{<:Any,<:AbstractMatrix{<:Number}}}
+        C_plus::P, C_minus::P, Z::AbstractVector{<:Complex}
+    ) where {P<:Poles{<:Any,<:AbstractMatrix}}
 
-Calculate self-energy as ``Σ(Z) = F(Z) G^{-1}(Z)``.
+Calculate self-energy as ``Σ_z = F_z (G_z)^{-1}``.
 """
 function self_energy_FG(
-    G_plus::P, G_minus::P, Z::AbstractVector{<:Complex}
-) where {P<:Poles{<:Any,<:AbstractMatrix{<:Number}}}
-    gp = G_plus(Z)
-    gm = G_minus(Z) # transpose to access F component
-    G = map(g -> g[1, 1], gm) .+ map(g -> g[1, 1], gp)
-    F = map(g -> g[1, 2], gm) .+ map(g -> g[2, 1], gp)
+    C_plus::P, C_minus::P, Z::AbstractVector{<:Complex}
+) where {P<:Poles{<:Any,<:AbstractMatrix}}
+    cp = C_plus(Z)
+    cm = C_minus(Z) # transpose to access F component
+    G = map(c -> c[1, 1], cm) .+ map(c -> c[1, 1], cp)
+    F = map(c -> c[1, 2], cm) .+ map(c -> c[2, 1], cp)
     return F ./ G
 end
 
 # https://doi.org/10.1103/PhysRevB.105.245132
 """
     self_energy_IFG(
-        G_plus::GF, G_minus::GF, Z::AbstractVector{<:Complex}, Σ_H::Real
-    ) where {GF<:Poles{<:Any,<:AbstractMatrix{<:Number}}}
+        C_plus::P, C_minus::P, Z::AbstractVector{<:Complex}, Σ_H::Real
+    ) where {P<:Poles{<:Any,<:AbstractMatrix}}
 
-Calculate self-energy as ``Σ(Z) = Σ^\\mathrm{H} + I(Z) - F^\\mathrm{L}(Z) G^{-1}(Z) F^\\mathrm{R}(Z)``.
+Calculate self-energy as ``Σ_z = Σ^\\mathrm{H} + I_z - F^\\mathrm{L}_z (G_z)^{-1} F^\\mathrm{R}_z``.
 """
 function self_energy_IFG(
-    G_plus::P, G_minus::P, Z::AbstractVector{<:Complex}, Σ_H::Real
-) where {P<:Poles{<:Any,<:AbstractMatrix{<:Number}}}
-    gp = G_plus(Z)
-    gm = G_minus(Z) # transpose to access F components
-    G = map(g -> g[1, 1], gm) .+ map(g -> g[1, 1], gp)
-    F_R = map(g -> g[2, 1], gm) .+ map(g -> g[1, 2], gp)
-    F_L = map(g -> g[1, 2], gm) .+ map(g -> g[2, 1], gp)
-    I = map(g -> g[2, 2], gm) .+ map(g -> g[2, 2], gp)
+    C_plus::P, C_minus::P, Z::AbstractVector{<:Complex}, Σ_H::Real
+) where {P<:Poles{<:Any,<:AbstractMatrix}}
+    cp = C_plus(Z)
+    cm = C_minus(Z) # transpose to access F components
+    G = map(c -> c[1, 1], cm) .+ map(c -> c[1, 1], cp)
+    F_R = map(c -> c[2, 1], cm) .+ map(c -> c[1, 2], cp)
+    F_L = map(c -> c[1, 2], cm) .+ map(c -> c[2, 1], cp)
+    I = map(c -> c[2, 2], cm) .+ map(c -> c[2, 2], cp)
     return Σ_H .+ I - F_L ./ G .* F_R
 end
 
@@ -80,19 +81,19 @@ end
         G_plus::P, G_minus::P, W::AbstractVector{<:Real}, σ::Real, Σ_H::Real
     ) where {P<:Poles{<:Any,<:AbstractMatrix{<:Number}}}
 
-Calculate self-energy as ``Σ(W) = Σ^\\mathrm{H} + I(W) - F^\\mathrm{L}(W) G^{-1}(W) F^\\mathrm{R}(W)``
+Calculate self-energy as ``Σ_z = Σ^\\mathrm{H} + I_z - F^\\mathrm{L}_z (G_z)^{-1} F^\\mathrm{R}_z``
 with Gaussian broadening.
 
 Real part is obtained by Kramers-Kronig relation.
 """
 function self_energy_IFG_gauss(
-    G_plus::P, G_minus::P, W::AbstractVector{<:Real}, σ::Real, Σ_H::Real
-) where {P<:Poles{<:Any,<:AbstractMatrix{<:Number}}}
-    gp = G_plus(W, σ)
-    gm = G_minus(W, σ) # transpose to access F components
-    G = map(g -> g[1, 1], gm) .+ map(g -> g[1, 1], gp)
-    F_R = map(g -> g[1, 2], gm) .+ map(g -> g[2, 1], gp)
-    F_L = map(g -> g[1, 2], gm) .+ map(g -> g[2, 1], gp)
-    I = map(g -> g[2, 2], gm) .+ map(g -> g[2, 2], gp)
+    C_plus::P, C_minus::P, W::AbstractVector{<:Real}, σ::Real, Σ_H::Real
+) where {P<:Poles{<:Any,<:AbstractMatrix}}
+    cp = C_plus(W, σ)
+    cm = C_minus(W, σ) # transpose to access F components
+    G = map(c -> c[1, 1], cm) .+ map(c -> c[1, 1], cp)
+    F_R = map(c -> c[1, 2], cm) .+ map(c -> c[2, 1], cp)
+    F_L = map(c -> c[1, 2], cm) .+ map(c -> c[2, 1], cp)
+    I = map(c -> c[2, 2], cm) .+ map(c -> c[2, 2], cp)
     return Σ_H .+ I - F_L ./ G .* F_R
 end

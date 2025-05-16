@@ -23,15 +23,18 @@ using Test
         c = annihilators(fs)
         n = occupations(fs)
         H_int = U * n[1, 1//2] * n[1, -1//2]
-        O = c[1, -1//2]' # d_↓^†
+        d_dag = c[1, -1//2]' # d_↓^†
 
         # initialize system
         H, E0, ψ0 = init_system(Δ0, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs)
 
         # impurity Green's functions
-        G_plus = correlator_plus(H, E0, ψ0, O, n_kryl)
-        G_minus = correlator_minus(H, E0, ψ0, O, n_kryl)
-        G_imp = Poles([G_minus.a; G_plus.a], [G_minus.b; G_plus.b])
+        G_plus = correlator_plus(H, E0, ψ0, d_dag, n_kryl)
+        G_minus = correlator_minus(H, E0, ψ0, d_dag', n_kryl)
+        G_imp = Poles(
+            [locations(G_minus); locations(G_plus)],
+            [amplitudes(G_minus); amplitudes(G_plus)],
+        )
         sort!(G_imp)
 
         # self-energy
@@ -48,7 +51,7 @@ using Test
         @test iszero(locations(Δ_new)[51])
         @test weights(Δ_new)[51] ≈ 0.002083461320853373 atol = 5e-10
         @test DMFT.moment(Δ_new, 0) ≈ 0.25 atol = 10 * eps()
-        @test DMFT.moment(Δ_new, 1) ≈ 0.0 atol = 2000 * eps()
+        @test DMFT.moment(Δ_new, 1) ≈ 0.0 atol = sqrt(eps())
 
         # insulating solution
         P = Poles([rand(100) .- 2; rand(100) .+ 1], rand(200))

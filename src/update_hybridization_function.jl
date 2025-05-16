@@ -2,19 +2,26 @@
 
 """
     update_hybridization_function(
-        Δ0::Poles{<:V,<:V}, μ::Real, Z::AbstractVector{<:Number}, Σ::AbstractVector{<:Complex}
-    ) where {V<:AbstractVector{<:Real}}
+        Δ0::Poles{<:Any,<:AbstractVector},
+        μ::Real,
+        Z::AbstractVector{<:Number},
+        Σ::AbstractVector{<:Complex},
+    )
+
 
 Calculate the new hybridization function from the lattice hybridization `Δ0` and
 the impurity self energy `Σ` on grid `Z`.
 
 ```math
-Δ(Z) = Δ_0(Z + μ - Σ(Z))
+Δ_z = Δ_0(z + μ - Σ_z)
 ```
 """
 function update_hybridization_function(
-    Δ0::Poles{<:V,<:V}, μ::Real, Z::AbstractVector{<:Number}, Σ::AbstractVector{<:Complex}
-) where {V<:AbstractVector{<:Real}}
+    Δ0::Poles{<:Any,<:AbstractVector},
+    μ::Real,
+    Z::AbstractVector{<:Number},
+    Σ::AbstractVector{<:Complex},
+)
     return Δ0(Z .+ μ - Σ)
 end
 
@@ -27,28 +34,31 @@ end
 Calculate the new hybridization function in [`Poles`](@ref) representation.
 
 ```math
-Δ(z) = Δ_0(z + μ - Σ(z))
+Δ(ω) = Δ_0(ω + μ - Σ(ω))
 ```
 """
 function update_hybridization_function(
-    Δ0::Poles{<:Any,<:V}, μ::R, Σ_H::R, Σ::Poles{<:Any,<:V}
-) where {V<:AbstractVector{<:Real},R<:Real}
+    Δ0::P, μ::R, Σ_H::R, Σ::P
+) where {P<:Poles{<:Any,<:AbstractVector},R<:Real}
     Σ = remove_poles_with_zero_weight(Σ)
     n = length(Σ) + 1
     n_tot = length(Δ0) * n
-    a = V(undef, n_tot)
-    b = V(undef, n_tot)
+    a = Vector{R}(undef, n_tot)
+    b = Vector{R}(undef, n_tot)
     result = Poles(a, b)
     foo = Array(Σ) # create once for speed
 
+    loc = locations(Δ0)
+    amp = amplitudes(Δ0)
+
     # diagonalization for each pole in Δ0
-    Threads.@threads for i in eachindex(Δ0.a)
+    Threads.@threads for i in eachindex(loc)
         idx_low = 1 + n * (i - 1)
         idx_high = idx_low + n - 1
         bar = copy(foo)
-        bar[1, 1] = Σ_H - μ + Δ0.a[i]
+        bar[1, 1] = Σ_H - μ + loc[i]
         a[idx_low:idx_high], T = eigen!(bar)
-        b[idx_low:idx_high] = Δ0.b[i] * view(T, 1, :) # multiply each weight with original b_i
+        b[idx_low:idx_high] = amp[i] * view(T, 1, :) # multiply each weight with original b_i
     end
 
     sort!(result)

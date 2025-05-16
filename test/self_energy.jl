@@ -7,6 +7,7 @@ using Test
     n_bath = 31
     U = 4.0
     μ = U / 2
+    ϵ_imp = -μ
     n_v_bit = 1
     n_c_bit = 1
     e = 2
@@ -23,24 +24,30 @@ using Test
     # Operators for positive frequencies. Negative ones are calculated by adjoint.
     fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1//2))
     c = annihilators(fs)
-    H_int = U * c[1, 1//2]' * c[1, 1//2] * c[1, -1//2]' * c[1, -1//2]
-    A = c[1, -1//2]' # f_↓^†
-    B = A' * H_int - H_int * A' # [f_↓, H_int]
-    B = B' # need to apply to ket
-    O = [A, B]
+    n = occupations(fs)
+    H_int = U * n[1, 1//2] * n[1, -1//2]
+    d_dag = c[1, -1//2]' # d_↓^†
+    q_dag = H_int * d_dag - d_dag * H_int  # q_↓^† = [H_int, d^†]
+    O = [d_dag, q_dag]
 
     # impurity solver
-    G_plus, G_minus, Σ_H = solve_impurity(
-        Δ0, H_int, -μ, n_v_bit, n_c_bit, e, n_kryl_gs, n_kryl, O
-    )
+    H, E0, ψ0 = init_system(Δ0, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs)
+    C_plus = correlator_plus(H, E0, ψ0, O, n_kryl)
+    C_minus = correlator_minus(H, E0, ψ0, map(adjoint, O), n_kryl)
+    O_H = O[1]' * O[2] + O[2] * O[1]'
+    Σ_H = dot(ψ0, O_H, ψ0)
 
     @testset "Poles" begin
         # impurity Green's fuction
-        G_p = Poles(copy(locations(G_plus)), abs.(G_plus.b[1, :]))
-        remove_poles_with_zero_weight!(G_p)
-        merge_degenerate_poles!(G_p)
-        merge_small_poles!(G_p)
-        G_imp = Poles([-reverse(G_p.a); G_p.a], [reverse(G_p.b); G_p.b])
+        G_plus = Poles(copy(locations(C_plus)), abs.(amplitudes(C_plus)[1, :]))
+        remove_poles_with_zero_weight!(G_plus)
+        merge_degenerate_poles!(G_plus)
+        merge_small_poles!(G_plus)
+        G_minus = flip_spectrum(G_plus)
+        G_imp = Poles(
+            [locations(G_minus); locations(G_plus)],
+            [amplitudes(G_minus); amplitudes(G_plus)],
+        )
 
         Σ_H, Σ = self_energy_poles(-μ, Δ0, G_imp)
         @test Σ_H ≈ U / 2 atol = 100 * eps() # half-filling
@@ -49,9 +56,9 @@ using Test
 
     @testset "correlator" begin
         # self-energies
-        Σ_IFG = self_energy_IFG(G_plus, G_minus, Z, Σ_H)
-        Σ_IFG_gauss = self_energy_IFG_gauss(G_plus, G_minus, W, δ, Σ_H)
-        Σ_FG = self_energy_FG(G_plus, G_minus, Z)
+        Σ_IFG = self_energy_IFG(C_plus, C_minus, Z, Σ_H)
+        Σ_IFG_gauss = self_energy_IFG_gauss(C_plus, C_minus, W, δ, Σ_H)
+        Σ_FG = self_energy_FG(C_plus, C_minus, Z)
         @test Σ_IFG != Σ_IFG_gauss
         @test Σ_IFG != Σ_FG
         @test norm(Σ_IFG - Σ_FG) * step_size < 0.0004 # they should be somewhat similar

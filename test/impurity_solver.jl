@@ -55,9 +55,7 @@ using Test
     end # Lanczos
 
     @testset "block Lanczos" begin
-        G_plus, G_minus, Σ_H = solve_impurity(
-            Δ0, H_int, -μ, n_v_bit, n_c_bit, e, n_kryl_gs, n_kryl, O
-        )
+        solve_impurity(Δ0, H_int, -μ, n_v_bit, n_c_bit, e, n_kryl_gs, n_kryl, O)
 
         # C+
         C_plus = correlator_plus(H, E0, ψ0, O, n_kryl)
@@ -94,10 +92,10 @@ using Test
         @test Σ_H ≈ U / 2 rtol = 20 * eps()
 
         # evaluation
-        c_plus = C_plus(Z)
-        c_minus = C_minus(Z)
-        G = map(g -> g[1, 1], c_minus) .+ map(g -> g[1, 1], c_plus)
-        F = map(g -> g[1, 2], c_minus) .+ map(g -> g[2, 1], c_plus)
+        cp = C_plus(Z)
+        cm = C_minus(Z)
+        G = map(c -> c[1, 1], cm) .+ map(c -> c[1, 1], cp)
+        F = map(c -> c[1, 2], cm) .+ map(c -> c[2, 1], cp)
         Σ = F ./ G
         @test all(i -> i <= 0, imag(Σ))
         @test real(Σ[cld(length(w), 2)]) ≈ U / 2 rtol = 200 * eps()

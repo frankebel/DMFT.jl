@@ -18,17 +18,15 @@ using Test
         # initial system
         Δ = hybridization_function_bethe_simple(n_bath, 2)
         fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1//2))
-        n = occupations(fs)
-        H_int = U * n[1, -1//2] * n[1, 1//2]
-        H, E0, ψ0 = init_system(Δ, H_int, -μ, n_v_bit, n_c_bit, e, n_kryl_gs)
-        # operators A, B
-        fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1//2))
         c = annihilators(fs)
-        # add electron
-        A = c[1, -1//2]' # f_↓^†
-        B = c[1, -1//2] * c[1, 1//2]' * c[1, 1//2] # f_↓ n_↑
-        v1 = A * ψ0
-        v2 = B' * ψ0
+        n = occupations(fs)
+        H_int = U * n[1, 1//2] * n[1, -1//2]
+        d_dag = c[1, -1//2]' # d_↓^†
+        q_dag = H_int * d_dag - d_dag * H_int  # q_↓^† = [H_int, d^†]
+
+        H, E0, ψ0 = init_system(Δ, H_int, -μ, n_v_bit, n_c_bit, e, n_kryl_gs)
+        v1 = d_dag * ψ0
+        v2 = q_dag * ψ0
         V0 = [v1 v2]
         # Löwdin orthogonalization
         W, S_sqrt = orthogonalize_states(V0)
