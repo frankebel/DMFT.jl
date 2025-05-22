@@ -144,6 +144,10 @@ using Test
             @test iszero(DMFT.moment(P, 1))
             @test DMFT.moment(P, 2) == 0.03125
             @test iszero(DMFT.moment(P, 101))
+            # odd moment must vanish for even function
+            P = Poles([-1.0, -eps(), -2.0, 2.0, eps(), 1.0], fill(1.0, 6))
+            @test iszero(DMFT.moment(P, 1))
+            @test iszero(DMFT.moment(P, 101))
             # matrix
             P = Poles([-0.5, 0.0, 0.5], [0.25 1.5 0.25; 0.5 0.75 2.5])
             @test DMFT.moment(P) == [2.375 1.875; 1.875 7.0625]

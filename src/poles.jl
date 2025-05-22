@@ -192,7 +192,14 @@ end
 
 Return the `n`-th moment.
 """
-function moment(P::Poles, n::Int=0)
+function moment(P::Poles{<:Any,<:AbstractVector}, n::Int=0)
+    foo = map(i -> i[1]^n * i[2], zip(locations(P), weights(P)))
+    # sort by abs to guarantee that odd moments are zero for symmetric input
+    sort!(foo; by=abs)
+    return sum(foo)
+end
+
+function moment(P::Poles{<:Any,<:AbstractMatrix}, n::Int=0)
     result = sum(i -> i[1]^n * i[2], zip(locations(P), weights(P)))
     return result
 end
