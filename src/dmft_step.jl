@@ -46,7 +46,7 @@ function dmft_step(
         Δ, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs, n_kryl, O
     )
     Σ = self_energy_IFG(G_plus, G_minus, Z, Σ_H)
-    Δ_grid = update_hybridization_function(Δ0, μ, Z, Σ)
+    Δ_grid = Δ0(Z .+ μ - Σ)
     Δ_new = equal_weight_discretization(-imag(Δ_grid), real(Z), η, n_dis)
     return G_plus, G_minus, Δ_new, Δ_grid
 end
@@ -71,7 +71,7 @@ function dmft_step_gauss(
         Δ, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs, n_kryl, O
     )
     Σ = self_energy_IFG_gauss(G_plus, G_minus, ω, σ, Σ_H)
-    Δ_grid = update_hybridization_function(Δ0, μ, ω, Σ)
+    Δ_grid = Δ0(ω .+ μ - Σ)
     Δ_new = equal_weight_discretization(-imag(Δ_grid), real(ω), σ, n_dis)
     return G_plus, G_minus, Δ_new, Δ_grid
 end

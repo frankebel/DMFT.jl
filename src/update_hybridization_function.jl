@@ -2,31 +2,6 @@
 
 """
     update_hybridization_function(
-        Δ0::Poles{<:Any,<:AbstractVector},
-        μ::Real,
-        Z::AbstractVector{<:Number},
-        Σ::AbstractVector{<:Complex},
-    )
-
-
-Calculate the new hybridization function from the lattice hybridization `Δ0` and
-the impurity self energy `Σ` on grid `Z`.
-
-```math
-Δ_z = Δ_0(z + μ - Σ_z)
-```
-"""
-function update_hybridization_function(
-    Δ0::Poles{<:Any,<:AbstractVector},
-    μ::Real,
-    Z::AbstractVector{<:Number},
-    Σ::AbstractVector{<:Complex},
-)
-    return Δ0(Z .+ μ - Σ)
-end
-
-"""
-    update_hybridization_function(
         Δ0::Poles{<:V,<:V}, μ::R, Σ_H::R, Σ::Poles{<:V,<:V}
     ) where {V<:AbstractVector{<:Real},R<:Real}
 
