@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - calculation of new hybridization function does not enforce original grid ([#85](https://github.com/frankebel/DMFT.jl/pull/85)) ([bba8809](https://github.com/frankebel/DMFT.jl/commit/bba8809f196627f18136f2a40582b9383fe15031))
 - merge poles that are `tol` apart ([#88](https://github.com/frankebel/DMFT.jl/pull/88)) ([ad832db](https://github.com/frankebel/DMFT.jl/commit/ad832dbedb84980f8ea0352af543880ee676b7a3))
 - merging negative weight function private ([#93](https://github.com/frankebel/DMFT.jl/pull/93)) ([5491f81](https://github.com/frankebel/DMFT.jl/commit/5491f81924d578487557f295cc023f1814e4bcbd))
+- remove `update_hybridization_function` for grid ([#102](https://github.com/frankebel/DMFT.jl/pull/102)) ([dc23810](https://github.com/frankebel/DMFT.jl/commit/dc23810bb587498d9dff91bfedbec3a459eda58a))
 
 ### Removed
 
