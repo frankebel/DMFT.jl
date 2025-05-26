@@ -622,6 +622,10 @@ Base.copy(P::Poles) = Poles(copy(P.a), copy(P.b))
 
 Base.eltype(P::Poles) = promote_type(eltype(locations(P)), eltype(amplitudes(P)))
 
+function Base.require_one_based_indexing(P::Poles)
+    return Base.require_one_based_indexing(locations(P), amplitudes(P))
+end
+
 function Base.length(P::Poles{<:Any,<:AbstractVector})
     length(P.a) == length(P.b) || throw(ArgumentError("length mismatch"))
     return length(P.a)

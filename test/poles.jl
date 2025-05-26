@@ -518,6 +518,10 @@ using Test
             @test eltype(Poles([0.0, 1.0], [0.0im, 1.0])) === ComplexF64
         end # eltype
 
+        @testset "require_one_based_indexing" begin
+            @test Base.require_one_based_indexing(Poles([0, 1], [0, 1]))
+        end # require_one_based_indexing
+
         @testset "length" begin
             P = Poles(rand(10), rand(10))
             @test length(P) === 10
