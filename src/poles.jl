@@ -392,34 +392,38 @@ end
 # P(z) = 1 / (z - a_1 - b_1^2 / (z - a_2 - ⋯))
 function _continued_fraction(P::Poles{<:Any,<:AbstractVector})
     # check input
-    Base.require_one_based_indexing(P.a)
-    Base.require_one_based_indexing(P.b)
-    abs(norm(P.b) - 1) < sqrt(eps()) || throw(ArgumentError("Poles P is not normalized"))
+    T = eltype(P)
+    Base.require_one_based_indexing(P)
+    isapprox(moment(P, 0), 1; atol=sqrt(eps(real(T)))) ||
+        throw(ArgumentError("Poles P is not normalized"))
 
-    T = eltype(P.b)
     N = length(P)
-    A = Diagonal(P.a) # Lanczos on this matrix
+    A = Diagonal(locations(P)) # Lanczos on this matrix
     # container for Lanzcos
     a = Vector{real(T)}(undef, N)
     b = Vector{real(T)}(undef, N - 1)
     kryl = Matrix{T}(undef, N, N)
     # first Lanczos step
-    kryl[:, 1] = P.b  # input vector
-    v_new = A * P.b
-    a[1] = P.b ⋅ v_new
-    v_new .-= a[1] * P.b
+    v_old = amplitudes(P)
+    kryl[:, 1] = v_old
+    v_new = A * v_old
+    a[1] = v_old ⋅ v_new
+    v_new .-= a[1] .* v_old
     for i in 2:N
         # all other Lanczos steps
         b[i - 1] = norm(v_new)
         rmul!(v_new, inv(b[i - 1]))
         kryl[:, i] = v_new
         mul!(v_new, A, view(kryl, :, i)) # new vector
-        a[i] = view(kryl, :, i) ⋅ v_new
-        for j in 1:i
-            # orthogonalize against all previous states
+        for j in 1:(i - 1)
+            # orthogonalize against all previous states excluding last
             v_old = view(kryl, :, j)
-            v_new .-= (v_old ⋅ v_new) * v_old
+            v_new .-= (v_old ⋅ v_new) .* v_old
         end
+        # orthogonalize against previous state
+        v_old = view(kryl, :, i)
+        a[i] = v_old ⋅ v_new
+        v_new .-= a[i] .* v_old
     end
     # look if any coefficient b is small
     value, index = findmin(b)
