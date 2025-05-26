@@ -512,6 +512,12 @@ using Test
             @test B.b == [6, 7, 8, 9, 100]
         end # copy
 
+        @testset "eltype" begin
+            @test eltype(Poles([0, 1], [0, 1])) === Int64
+            @test eltype(Poles([0, 1], [0.0, 1.0])) === Float64
+            @test eltype(Poles([0.0, 1.0], [0.0im, 1.0])) === ComplexF64
+        end # eltype
+
         @testset "length" begin
             P = Poles(rand(10), rand(10))
             @test length(P) === 10
