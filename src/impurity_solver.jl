@@ -72,8 +72,8 @@ function correlator(
     end
 
     # look if any coefficient in `b` is small
-    value, index = findmin(abs.(b))
-    @debug "smallest weight |b|=$(value) at index $(index)/$(lastindex(b))"
+    value, index = findmin(b)
+    @debug "smallest weight b=$(value) at index $(index)/$(lastindex(b))"
 
     # diagonalize tridiagonal matrix given by `a`, `b`
     S = SymTridiagonal(a, b)
