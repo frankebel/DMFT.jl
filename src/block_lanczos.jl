@@ -32,6 +32,7 @@ function block_lanczos(
     # first step
     mul!(V_new, H, V)
     mul!(A[1], V', V_new)
+    hermitianpart!(A[1]) # enforce due to finite precision
     copyto!(M1, A[1])
     rmul!(M1, -1)
     mul!(V_new, V, M1, true, true)
@@ -44,20 +45,22 @@ function block_lanczos(
         V_new, SVD = SVD, V_new
         # cycle for new step
         V, V_old, V_new = V_new, V, V_old
+        # V_new = H*V
         zerovector!(V_new)
         mul!(V_new, H, V)
-        adjoint!(Adj, V)
-        mul!(A[j], Adj, V_new) # A = V' V_new
-        copyto!(M1, A[j])
-        rmul!(M1, -1)
-        mul!(V_new, V, M1, true, true) # V_new -= V*A
+        # V_new -= V_old*B'
         adjoint!(M1, B[j - 1])
         rmul!(M1, -1)
-        mul!(V_new, V_old, M1, true, true) # V_new -= V*B'
+        mul!(V_new, V_old, M1, true, true)
+        # A = V'*V_new
+        adjoint!(Adj, V)
+        mul!(A[j], Adj, V_new)
+        hermitianpart!(A[j]) # enforce due to finite precision
+        # V_new -= V*A
+        copyto!(M1, A[j])
+        rmul!(M1, -1)
+        mul!(V_new, V, M1, true, true)
     end
-    # hermitize matrices
-    map(hermitianpart!, A)
-    map(hermitianpart!, B)
     return A, B
 end
 
@@ -94,6 +97,6 @@ function _svd_orthogonalize!(
     adjoint!(B, M1) # V'
     mul!(M3, M2, B) # S_sqrt V'
     mul!(B, M1, M3) # V S_sqrt V'
-    hermitianpart!(B) # potential numerical inexactness
+    hermitianpart!(B) # enforce due to finite precision
     return nothing
 end

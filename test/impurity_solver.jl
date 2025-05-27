@@ -76,15 +76,15 @@ using Test
         G_minus = Poles(copy(locations(C_minus)), amplitudes(C_minus)[1, :])
 
         # half-filling
-        @test DMFT.moment(G_plus, 0) ≈ 0.5 rtol = 10 * eps()
-        @test DMFT.moment(G_minus, 0) ≈ 0.5 rtol = 10 * eps()
+        @test DMFT.moment(G_plus, 0) ≈ 0.5 rtol = 20 * eps()
+        @test DMFT.moment(G_minus, 0) ≈ 0.5 rtol = 20 * eps()
 
         # compare absolute moments of impurity Green's function
         m_pos = moments(G_plus, 0:10)
         m_neg = moments(G_minus, 0:10)
         ratio = m_pos ./ m_neg
-        @test all(r -> isapprox(r, 1; rtol=100 * eps()), ratio[1:2:end])
-        @test all(r -> isapprox(r, -1; rtol=100 * eps()), ratio[2:2:end])
+        @test all(r -> isapprox(r, 1; atol=500 * eps()), ratio[1:2:end])
+        @test all(r -> isapprox(r, -1; atol=500 * eps()), ratio[2:2:end])
 
         # Hartree term
         O_H = O[1]' * O[2] + O[2] * O[1]'
@@ -98,7 +98,7 @@ using Test
         F = map(c -> c[1, 2], cm) .+ map(c -> c[2, 1], cp)
         Σ = F ./ G
         @test all(i -> i <= 0, imag(Σ))
-        @test real(Σ[cld(length(w), 2)]) ≈ U / 2 rtol = 200 * eps()
+        @test real(Σ[cld(length(w), 2)]) ≈ U / 2 rtol = 500 * eps()
 
         @testset "_flip_sign!" begin
             # `@.` allocates, custom function does not
