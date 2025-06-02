@@ -704,14 +704,15 @@ Returns `a_0::Real` and `Q::Poles`.
 """
 function Base.inv(P::Poles{<:Any,<:AbstractVector})
     a, b = _continued_fraction(P)
-    a0 = a[1]
-    # take all poles except first and diagonalize
-    S = SymTridiagonal(a[2:end], b[2:end])
-    a, T = eigen(S)
-    b = b[1] * view(T, 1, :)
-    map!(abs, b, b) # positive weights easier
-    P = Poles(a, b)
-    return a0, P
+    a0 = first(a)
+    b0 = first(b)
+    # diagonalize 2:n × 2:n component
+    # `SymTridiagonal` often raises `LAPACKException(22)`, therefore call directly
+    a, T = LAPACK.stev!('V', a[2:end], b[2:end])
+    b = b0 * view(T, 1, :)
+    b .= abs.(b) # positve amplitudes are easier
+    Q = Poles(a, b)
+    return a0, Q
 end
 
 function Base.reverse!(P::Poles{<:Any,<:AbstractVector})
