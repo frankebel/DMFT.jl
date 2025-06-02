@@ -319,19 +319,17 @@ end
 Move negative weights of `P` such that the zeroth moment is conserved
 and the first moment changes minimally.
 
-Assumes that `P.b` contains weights and not amplitudes.
+Assumes that `amplitudus(P)` contains weights and not amplitudes.
 """
 function _merge_negative_weight!(P::Poles{<:Any,<:AbstractVector})
-    a = P.a
-    b = P.b
+    a = locations(P)
+    b = amplitudes(P) # interpret a weights
 
     # check input
-    length(a) == length(b) || throw(DimensionMismatch("length mismatch"))
-    issorted(P) || issorted(P; rev=true) || throw(ArgumentError("P is not sorted"))
+    issorted(P) || throw(ArgumentError("P is not sorted"))
     allunique(P) || throw(ArgumentError("P has degenerate locations"))
-    all(isreal, P.b) || throw(ArgumentError("weights must be real"))
+    all(isreal, b) || throw(ArgumentError("weights must be real"))
     sum(b) >= 0 || throw(ArgumentError("total weight is negative"))
-    firstindex(a) == firstindex(b) || throw(ArgumentError("input uses different indexing"))
 
     for i in eachindex(b)
         b[i] >= 0 && continue # no negative weight, go to next
