@@ -38,7 +38,7 @@ function update_hybridization_function(
 
     sort!(result)
     merge_degenerate_poles!(result, eps(R))
-    b .= abs.(b) # positve amplitudes are easier
+    b .= abs.(b) # positive amplitudes are easier
 
     return result
 end
