@@ -72,9 +72,9 @@ using Test
             H_avg = dot(ψ0, Hψ)
             H_sqr = dot(Hψ, Hψ)
             var_rel = H_sqr / H_avg^2 - 1
-            @test abs(E0 / E0_target - 1) < 1E-4
-            @test abs(H_avg / E0 - 1) < 1E-14
-            @test var_rel < 5E-8
+            @test abs(E0 / E0_target - 1) < 1e-4
+            @test abs(H_avg / E0 - 1) < 1e-14
+            @test var_rel < 5e-8
         end # Wavefunction
 
         @testset "CIWavefunction" begin
@@ -98,10 +98,10 @@ using Test
             H_avg = dot(ψ0, Hψ)
             H_sqr = dot(Hψ, Hψ)
             var_rel = H_sqr / H_avg^2 - 1
-            @test norm(S - I) < 2E-12 # S_ij = δ_ij
-            @test abs(E0 / E0_target - 1) < 1E-4
-            @test abs(H_avg / E0 - 1) < 1E-14
-            @test var_rel < 4E-8
+            @test norm(S - I) < 2e-12 # S_ij = δ_ij
+            @test abs(E0 / E0_target - 1) < 1e-4
+            @test abs(H_avg / E0 - 1) < 1e-14
+            @test var_rel < 4e-8
         end # CIWavefunction
     end # ground state
 end # wavefunctions

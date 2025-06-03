@@ -75,7 +75,7 @@ function _svd_orthogonalize!(
     M2::AbstractMatrix{<:T},
     M3::AbstractMatrix{<:T},
 ) where {C<:CIWavefunction,T<:Number}
-    tol = 1E-6 # potential issue with small/negative eigenvalues
+    tol = 1e-6 # potential issue with small/negative eigenvalues
     n = size(M2, 1)
     adjoint!(Adj, ψ)
     mul!(M1, Adj, ψ) # overlap matrix

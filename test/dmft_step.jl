@@ -41,7 +41,7 @@ using Test
         @test typeof(Δ_new) === Poles{Vector{Float64},Vector{Float64}}
         @test typeof(Δ_grid) === Vector{ComplexF64}
         @test length(Δ_new.a) === n_bath
-        @test all(b -> isapprox(b, 1 / sqrt(n_bath) / 2; rtol=3E-3), Δ_new.b)
+        @test all(b -> isapprox(b, 1 / sqrt(n_bath) / 2; rtol=3e-3), Δ_new.b)
         # small weight loss due to truncated interval
         @test 0.24 <= DMFT.moment(Δ_new, 0) <= 0.25
         @test DMFT.moment(Δ_new, 1) < 200 * eps() # PHS
@@ -56,7 +56,7 @@ using Test
         amplitudes_without_zero = copy(amplitudes(Δ_new2))
         popat!(amplitudes_without_zero, cld(n_bath, 2))
         @test all(
-            b -> isapprox(b, 1 / sqrt(n_bath) / 2; rtol=3E-3), amplitudes_without_zero
+            b -> isapprox(b, 1 / sqrt(n_bath) / 2; rtol=3e-3), amplitudes_without_zero
         )
         @test Δ_new2.b[cld(n_bath, 2)] ≈ 1 / sqrt(n_bath) / 2 rtol = 3e-2
         # small weight loss due to truncated interval

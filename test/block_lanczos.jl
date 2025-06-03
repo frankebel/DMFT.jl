@@ -57,7 +57,7 @@ using Test
             -11.218209037339488,
             -9.818357326067973,
         ]
-        @test norm(E - E_ref) < 3E3 * eps()
+        @test norm(E - E_ref) < 3e3 * eps()
     end # block_lanczos
 
     @testset "svd_orthogonalize!" begin

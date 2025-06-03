@@ -62,7 +62,7 @@ end
 Get approximate ground state and energy using `n_kryl` Krylov cycles.
 """
 function ground_state(H::Operator, ψ_start::Wavefunction, n_kryl::Int)
-    ψ0, E0 = Fermions.ground_state(H, ψ_start; n_kryl=n_kryl, rtol=5E-8, verbose=false)
+    ψ0, E0 = Fermions.ground_state(H, ψ_start; n_kryl=n_kryl, rtol=5e-8, verbose=false)
     return E0, ψ0
 end
 
@@ -81,7 +81,7 @@ function ground_state(H::CIOperator, ψ_start::CIWavefunction, n_kryl::Int)
     var_rel = H_sqr / H_avg^2 - 1
     # compare eigenvalue with expectation value
     rdiff = H_avg / E0 - 1
-    abs(rdiff) < 1E-14 || @warn "discrepancy eigenvalue to eigenstate"
+    abs(rdiff) < 1e-14 || @warn "discrepancy eigenvalue to eigenstate"
     @info "ground state" E0 var_rel length(ψ0)
     return E0, ψ0
 end

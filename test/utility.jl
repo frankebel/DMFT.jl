@@ -40,9 +40,9 @@ using Test
         H_sqr = dot(Hψ, Hψ)
         var_rel = H_sqr / H_avg^2 - 1
         @test H isa CIOperator
-        @test abs(E0 / E0_target - 1) < 1E-4
-        @test abs(H_avg / E0 - 1) < 1E-14
-        @test var_rel < 4E-8
+        @test abs(E0 / E0_target - 1) < 1e-4
+        @test abs(H_avg / E0 - 1) < 1e-14
+        @test var_rel < 4e-8
     end # init system
 
     @testset "orthogonalize_states" begin
