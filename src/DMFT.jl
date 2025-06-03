@@ -21,8 +21,6 @@ export
     correlator_minus,
     correlator_plus,
     discretize_similar_weight,
-    dmft_step,
-    dmft_step_gauss,
     equal_weight_discretization,
     find_chemical_potential,
     flip_spectrum!,
@@ -95,7 +93,6 @@ include("impurity_solver.jl")
 include("self_energy.jl")
 include("update_hybridization_function.jl")
 include("discretization.jl")
-include("dmft_step.jl")
 include("Combinatorics.jl")
 include("Debug.jl")
 include("ED.jl")
