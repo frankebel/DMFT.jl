@@ -35,7 +35,7 @@ using Test
     @testset "Poles" begin
         V = Vector{Float64}
         M = Matrix{Float64}
-        # b::Vector
+        # amplitudes::Vector
         # write
         a = sort!(rand(10))
         b = rand(10)
@@ -44,10 +44,10 @@ using Test
         # read
         @test @inferred read_hdf5("test.h5", Poles{V,V}) isa Poles{V,V}
         foo = read_hdf5("test.h5", Poles{V,V})
-        @test foo.a == P.a
-        @test foo.b == P.b
+        @test locations(foo) == locations(P)
+        @test amplitudes(foo) == amplitudes(P)
 
-        # b::Matrix
+        # amplitudes::Matrix
         # write
         a = sort!(rand(10))
         b = rand(10, 10)
@@ -57,8 +57,8 @@ using Test
         @test @inferred read_hdf5("test.h5", Poles{V,M}) isa Poles{V,M}
         @test_throws MethodError read_hdf5("test.h5", Poles{V,V})
         foo = read_hdf5("test.h5", Poles{V,M})
-        @test foo.a == P.a
-        @test foo.b == P.b
+        @test locations(foo) == locations(P)
+        @test amplitudes(foo) == amplitudes(P)
     end # Poles
     isfile("test.h5") && rm("test.h5")
 end # IO

@@ -5,7 +5,7 @@ using Test
 @testset "sytrd!" begin
     d = 1000
     M = rand(d, d)
-    M = M + M'
+    hermitianpart!(M)
     A = copy(M)
     d, e, τ = sytrd!('L', A)
     T = SymTridiagonal(d, e)
