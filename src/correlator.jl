@@ -1,48 +1,4 @@
 """
-    solve_impurity(
-        Δ::Poles{V,V},
-        H_int::Operator,
-        ϵ_imp::Real,
-        n_v_bit::Int,
-        n_c_bit::Int,
-        e::Int,
-        n_kryl_gs::Int,
-        n_kryl::Int,
-        O::AbstractVector{<:Operator},
-    ) where {V<:AbstractVector{<:Real}}
-
-Solve the Anderson impurity problem.
-
-`O` contains operators which should act on the ground state ``|ψ_0⟩``.
-The block Lanczos algorithm is then used to obtain the spectrum.
-"""
-function solve_impurity(
-    Δ::Poles{V,V},
-    H_int::Operator,
-    ϵ_imp::Real,
-    n_v_bit::Int,
-    n_c_bit::Int,
-    e::Int,
-    n_kryl_gs::Int,
-    n_kryl::Int,
-    O::AbstractVector{<:Operator},
-) where {V<:AbstractVector{<:Real}}
-    # initialize system
-    H, E0, ψ0 = init_system(Δ, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs)
-
-    # same thread
-    G_plus = correlator_plus(H, E0, ψ0, O, n_kryl)
-    G_minus = correlator_minus(H, E0, ψ0, map(adjoint, O), n_kryl)
-
-    # Hartree self-energy
-    # Σ_H = ⟨{[d_α, H_int], d_α^†}⟩
-    op = O[2]' * O[1] + O[1] * O[2]'
-    Σ_H = real(dot(ψ0, op * ψ0))
-
-    return G_plus, G_minus, Σ_H
-end
-
-"""
     correlator(
         H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int; minus::Bool=true
     ) where {CI<:CIWavefunction}

@@ -64,7 +64,6 @@ export
     shift_spectrum!,
     shift_spectrum,
     slater_start,
-    solve_impurity,
     spectral_function_gauss,
     spectral_function_loggauss,
     starting_CIWavefunction,

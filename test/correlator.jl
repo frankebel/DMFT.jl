@@ -3,7 +3,7 @@ using Fermions
 using LinearAlgebra
 using Test
 
-@testset "impurity_solver" begin
+@testset "correlator" begin
     # parameters
     n_bath = 31
     U = 4.0
@@ -55,8 +55,6 @@ using Test
     end # Lanczos
 
     @testset "block Lanczos" begin
-        solve_impurity(Δ0, H_int, -μ, n_v_bit, n_c_bit, e, n_kryl_gs, n_kryl, O)
-
         # C+
         C_plus = correlator_plus(H, E0, ψ0, O, n_kryl)
         @test typeof(C_plus) === Poles{Vector{Float64},Matrix{Float64}}
@@ -109,4 +107,4 @@ using Test
             @test !iszero(@allocated @. V = -V)
         end # _flip_sign!
     end # block Lanczos
-end # impurity_solver
+end # correlator
