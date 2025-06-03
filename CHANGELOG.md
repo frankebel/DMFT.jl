@@ -43,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - DMFT step with Lanczos ([#69](https://github.com/frankebel/DMFT.jl/pull/69)) ([34633dd](https://github.com/frankebel/DMFT.jl/commit/34633dd7e88e8e72aad84dbbd496677fd478c434))
 - DMFT step with block Lanczos ([#105](https://github.com/frankebel/DMFT.jl/pull/105)) ([2b7710d](https://github.com/frankebel/DMFT.jl/commit/2b7710d7c95aaa54ea09e21412f44c20156fa849))
+- `solve_impurity` ([#106](http://github.com/frankebel/DMFT.jl/pull/106)) ([c6c210f](https://github.com/frankebel/DMFT.jl/commit/c6c210f25e817ddba4c28d9f2b6035e615f86083))
 
 ### Fixed
 
