@@ -655,6 +655,13 @@ end
 
 Base.sort(P::Poles{<:Any,<:AbstractVector}) = sort!(copy(P))
 
+function Base.:+(A::Poles{<:Any,<:AbstractVector}, B::Poles{<:Any,<:AbstractVector})
+    result = Poles([locations(A); locations(B)], [amplitudes(A); amplitudes(B)])
+    sort!(result)
+    merge_degenerate_poles!(result, 0)
+    return result
+end
+
 # Subtraction of Poles `result = A - B`.
 # After squaring each weight, `A` is put on the same grid as `B`.
 # Then, each pole is subtracted `result.b = A.b - B.b.

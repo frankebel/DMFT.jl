@@ -573,6 +573,21 @@ using Test
             @test B.b == [4, 3]
         end # sort
 
+        @testset "+" begin
+            # addition must sort resulting poles
+            A = Poles([0.1, 0.3, 0.2], [0.1, 0.3, 0.2])
+            B = Poles([0.6, 0.5, 0.4], [6, 5, 4])
+            P = A + B
+            @test locations(P) == [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+            @test amplitudes(P) == [0.1, 0.2, 0.3, 4.0, 5.0, 6.0]
+            # addition must merge degenerate poles
+            A = Poles([0.1, 0.2], [0.1, 0.25])
+            B = Poles([0.2], [1])
+            P = A + B
+            @test locations(P) == [0.1, 0.2]
+            @test amplitudes(P) == [0.1, sqrt(1.0625)]
+        end
+
         @testset "-" begin
             # same pole locations, result has no negative weight
             a = [-1.0, 0.0, 5.0]
