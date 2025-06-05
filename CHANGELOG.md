@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `weight` for `Poles` ([#108](https://github.com/frankebel/DMFT.jl/pull/108)) ([dd5a5da](https://github.com/frankebel/DMFT.jl/commit/dd5a5da8d0a8704eaa0e5849854a7e0a73713254))
+
 ## [0.7.0] - 2025-06-04
 
 ### Added
