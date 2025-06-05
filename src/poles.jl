@@ -40,7 +40,7 @@ end
 
 Poles(a::A, b::B) where {A,B} = Poles{A,B}(a, b)
 
-Poles{A,B}(P::Poles) where {A,B} = Poles(A(P.a), B(P.b))
+Poles{A,B}(P::Poles) where {A,B} = Poles(A(locations(P)), B(amplitudes(P)))
 
 # getters
 
@@ -65,18 +65,18 @@ Evaluate `P` at complex frequency `z`.
 """
 function (P::Poles{<:Any,<:AbstractVector})(z::Complex)
     result = zero(z)
-    for i in eachindex(P.a)
-        result += abs2(P.b[i]) / (z - P.a[i])
+    for i in eachindex(locations(P))
+        result += abs2(amplitudes(P)[i]) / (z - locations(P)[i])
     end
     return result
 end
 
 function (P::Poles{<:Any,<:AbstractMatrix})(z::Complex)
-    d = size(P.b, 1)
+    d = size(amplitudes(P), 1)
     result = zeros(ComplexF64, d, d)
-    for i in eachindex(P.a)
-        b = view(P.b, :, i)
-        result .+= b * b' ./ (z - P.a[i])
+    for i in eachindex(locations(P))
+        b = view(amplitudes(P), :, i)
+        result .+= b * b' ./ (z - locations(P)[i])
     end
     return result
 end
@@ -96,22 +96,24 @@ Evaluate `P` at frequency `ω` with Gaussian broadening `σ`.
 function (P::Poles{<:Any,<:AbstractVector})(ω::R, σ::R) where {R<:Real}
     real = zero(R)
     imag = zero(R)
-    for i in eachindex(P.a)
-        real += abs2(P.b[i]) * sqrt(2) / (π * σ) * dawson((ω - P.a[i]) / (sqrt(2) * σ))
-        imag += abs2(P.b[i]) * pdf(Normal(P.a[i], σ), ω)
+    for i in eachindex(locations(P))
+        w = weight(P, i)
+        real += w * sqrt(2) / (π * σ) * dawson((ω - locations(P)[i]) / (sqrt(2) * σ))
+        imag += w * pdf(Normal(locations(P)[i], σ), ω)
     end
     result = real - im * imag
-    return π .* result # not spectral function
+    return π * result # not spectral function
 end
 
 function (P::Poles{<:Any,<:AbstractMatrix})(ω::R, σ::R) where {R<:Real}
-    d = size(P.b, 1)
+    d = size(amplitudes(P), 1)
     real = zeros(R, d, d)
     imag = zero(real)
-    for i in eachindex(P.a)
-        b = view(P.b, :, i)
-        real .+= b * b' .* sqrt(2) ./ (π * σ) .* dawson((ω - P.a[i]) / (sqrt(2) * σ))
-        imag .+= b * b' .* pdf(Normal(P.a[i], σ), ω)
+    for i in eachindex(locations(P))
+        b = view(amplitudes(P), :, i)
+        w = b * b'
+        real .+= w .* sqrt(2) ./ (π * σ) .* dawson((ω - locations(P)[i]) / (sqrt(2) * σ))
+        imag .+= w .* pdf(Normal(locations(P)[i], σ), ω)
     end
     result = real - im * imag
     return π .* result # not spectral function
@@ -148,22 +150,22 @@ each getting half weight
 function spectral_function_loggauss(P::Poles{<:Any,<:AbstractVector}, ω::Real, b::Real)
     result = zero(ω)
     iszero(ω) && return result # no weight at ω == 0
-    for i in eachindex(P.a)
-        if iszero(P.a[i])
+    for i in eachindex(locations(P))
+        if iszero(locations(P)[i])
             # special case, move half of weight to left/right repectively
             issorted(P) || throw(ArgumentError("P is not sorted"))
-            location = ω > 0 ? P.a[i + 1] / 2 : P.a[i - 1] / 2
-            weight = abs2.(P.b[i]) / 2
-        elseif sign(ω) == sign(P.a[i])
+            loc = ω > 0 ? locations(P)[i + 1] / 2 : locations(P)[i - 1] / 2
+            w = weight(P, i) / 2
+        elseif sign(ω) == sign(locations(P)[i])
             # only contribute weight if on same side of real axis
-            weight = abs2.(P.b[i])
-            location = P.a[i]
+            w = weight(P, i)
+            loc = locations(P)[i]
         else
             # frequency has opposite sign compared to pole location
             continue
         end
-        prefactor = weight * exp(-b^2 / 4) / (b * abs(location) * sqrt(π))
-        result += prefactor * exp(-(log(ω / location) / b)^2)
+        prefactor = w * exp(-b^2 / 4) / (b * abs(loc) * sqrt(π))
+        result += prefactor * exp(-(log(ω / loc) / b)^2)
     end
     return result
 end
@@ -195,7 +197,7 @@ Return the weight of each pole.
 
 See also [`weight`](@ref).
 """
-weights(P::Poles{<:Any,<:AbstractVector}) = abs2.(P.b)
+weights(P::Poles{<:Any,<:AbstractVector}) = abs2.(amplitudes(P))
 
 function weights(P::Poles{<:Any,<:AbstractMatrix})
     amp = amplitudes(P)
@@ -283,30 +285,30 @@ function _to_grid_square(P::Poles{<:Any,<:AbstractVector}, grid::AbstractVector{
     a = copy(grid)
     b = zero(grid)
     # run through each pole and split weight to neighbors
-    @inbounds for i in eachindex(P.a)
-        pole = P.a[i]
-        weight = P.b[i]
-        if pole <= first(grid)
+    @inbounds for i in eachindex(locations(P))
+        loc = locations(P)[i]
+        w = amplitudes(P)[i]
+        if loc <= first(grid)
             # no pole to the left
-            b[begin] += weight
-        elseif pole >= last(grid)
+            b[begin] += w
+        elseif loc >= last(grid)
             # no pole to the right
-            b[end] += weight
+            b[end] += w
         else
             # find next pole with higher location
-            i = searchsortedfirst(grid, pole)
-            if pole - grid[i - 1] < 10 * eps()
+            i = searchsortedfirst(grid, loc)
+            if loc - grid[i - 1] < 10 * eps()
                 # previous pole has same location
-                b[i - 1] += weight
-            elseif grid[i] - pole < 10 * eps()
+                b[i - 1] += w
+            elseif grid[i] - loc < 10 * eps()
                 # current pole has same location
-                b[i] += weight
+                b[i] += w
             else
                 # split such that zeroth and first moment is conserved
                 alow = grid[i - 1]
                 ahigh = grid[i]
-                b[i - 1] += (ahigh - pole) / (ahigh - alow) * weight
-                b[i] += (pole - alow) / (ahigh - alow) * weight
+                b[i - 1] += (ahigh - loc) / (ahigh - alow) * w
+                b[i] += (loc - alow) / (ahigh - alow) * w
             end
         end
     end
@@ -323,9 +325,9 @@ If a pole is outside of `grid`, only the zeroth moment is conserved.
 """
 function to_grid(P::Poles{<:Any,<:AbstractVector}, grid::AbstractVector{<:Real})
     result = copy(P)
-    result.b .= abs2.(result.b) # use weights
+    amplitudes(result) .= abs2.(amplitudes(result)) # use weights
     result = _to_grid_square(result, grid)
-    result.b .= sqrt.(result.b) # return to amplitudes
+    amplitudes(result) .= sqrt.(amplitudes(result)) # return to amplitudes
     return result
 end
 
@@ -500,9 +502,9 @@ end
 Merge poles whose locations are less than or equal `tol` apart.
 """
 function merge_degenerate_poles!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
-    P.b .= abs2.(P.b)
+    amplitudes(P) .= abs2.(amplitudes(P)) # use weights
     _merge_degenerate_poles_weights!(P, tol)
-    P.b .= sqrt.(P.b)
+    amplitudes(P) .= sqrt.(amplitudes(P)) # return to amplitudes
     return P
 end
 
@@ -541,7 +543,7 @@ function merge_small_poles!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
     tol > 0 || throw(ArgumentError("negative tol"))
     issorted(P) || issorted(P; rev=true) || throw(ArgumentError("P is not sorted"))
 
-    map!(abs2, P.b, P.b) # use weights
+    amplitudes(P) .= abs2.(amplitudes(P)) # use weights
     i = firstindex(P.a)
     while i <= lastindex(P.a)
         pole = P.a[i]
@@ -573,7 +575,7 @@ function merge_small_poles!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
             popat!(P.b, i)
         end
     end
-    map!(sqrt, P.b, P.b) # undo squaring
+    amplitudes(P) .= sqrt.(amplitudes(P)) # return to amplitudes
     return P
 end
 
@@ -591,17 +593,17 @@ See also [`remove_poles_with_zero_weight`](@ref).
 function remove_poles_with_zero_weight!(
     P::Poles{<:Any,<:AbstractVector}, remove_zero::Bool=true
 )
-    i = firstindex(P.b)
-    while i <= lastindex(P.b)
-        if iszero(P.a[i]) && !remove_zero
+    i = firstindex(amplitudes(P))
+    while i <= lastindex(amplitudes(P))
+        if iszero(locations(P)[i]) && !remove_zero
             # keep pole at zero energy
             i += 1
             continue
         end
 
-        if iszero(P.b[i])
-            popat!(P.a, i)
-            popat!(P.b, i)
+        if iszero(amplitudes(P)[i])
+            popat!(locations(P), i)
+            popat!(amplitudes(P), i)
         else
             i += 1
         end
@@ -629,14 +631,14 @@ function remove_poles_with_zero_weight(
 end
 
 function Core.Array(P::Poles{<:Any,<:AbstractVector{<:Real}})
-    T = promote_type(eltype(P.a), eltype(P.b))
-    result = Matrix{T}(Diagonal([0; P.a]))
-    result[1, 2:end] .= P.b
-    result[2:end, 1] .= P.b
+    T = promote_type(eltype(locations(P)), eltype(amplitudes(P)))
+    result = Matrix{T}(Diagonal([0; locations(P)]))
+    result[1, 2:end] .= amplitudes(P)
+    result[2:end, 1] .= amplitudes(P)
     return result
 end
 
-Base.copy(P::Poles) = Poles(copy(P.a), copy(P.b))
+Base.copy(P::Poles) = Poles(copy(locations(P)), copy(amplitudes(P)))
 
 Base.eltype(P::Poles) = promote_type(eltype(locations(P)), eltype(amplitudes(P)))
 
@@ -645,27 +647,28 @@ function Base.require_one_based_indexing(P::Poles)
 end
 
 function Base.length(P::Poles{<:Any,<:AbstractVector})
-    length(P.a) == length(P.b) || throw(ArgumentError("length mismatch"))
-    return length(P.a)
+    length(locations(P)) == length(amplitudes(P)) || throw(ArgumentError("length mismatch"))
+    return length(locations(P))
 end
 
 function Base.length(P::Poles{<:Any,<:AbstractMatrix})
-    length(P.a) == size(P.b, 2) || throw(ArgumentError("length mismatch"))
-    return length(P.a)
+    length(locations(P)) == size(amplitudes(P), 2) ||
+        throw(ArgumentError("length mismatch"))
+    return length(locations(P))
 end
 
 function Base.allunique(P::Poles)
-    l = locations(P)
+    loc = locations(P)
     # allunique discrimates between ±zero(Float64)
-    return allunique(l) && length(findall(iszero, l)) <= 1
+    return allunique(loc) && length(findall(iszero, loc)) <= 1
 end
 
 Base.issorted(P::Poles, args...; kwargs...) = issorted(locations(P), args...; kwargs...)
 
 function Base.sort!(P::Poles{<:Any,<:AbstractVector})
-    p = sortperm(P.a)
-    P.a[:] = P.a[p]
-    P.b[:] = P.b[p]
+    p = sortperm(locations(P))
+    locations(P)[:] = locations(P)[p]
+    amplitudes(P)[:] = amplitudes(P)[p]
     return P
 end
 
@@ -687,21 +690,19 @@ function Base.:-(A::Poles{<:Any,<:V}, B::Poles{<:Any,<:V}) where {V<:AbstractVec
     # check input
     issorted(B) || throw(ArgumentError("B is not sorted"))
     allunique(B) || throw(ArgumentError("B has degenerate locations"))
-    length(A.a) == length(A.b) || throw(DimensionMismatch("length mismatch in A"))
-    length(B.a) == length(B.b) || throw(DimensionMismatch("length mismatch in B"))
 
     # create copies to keep original unchanged
     # work with squared weights from here on
     result = copy(B)
-    for i in eachindex(result.b)
-        result.b[i] = -abs2(result.b[i])
+    for i in eachindex(amplitudes(result))
+        result.b[i] = -weight(result, i)
     end
     A = copy(A)
-    map!(abs2, A.b, A.b)
-    A = _to_grid_square(A, B.a)
-    result.b .+= A.b # difference of weights
+    amplitudes(A) .= abs2.(amplitudes(A)) # use weights
+    A = _to_grid_square(A, locations(B))
+    amplitudes(result) .+= amplitudes(A) # difference of weights
     _merge_negative_weight!(result)
-    map!(sqrt, result.b, result.b) # undo squaring
+    amplitudes(result) .= sqrt.(amplitudes(result)) # return to amplitudes
     return result
 end
 
