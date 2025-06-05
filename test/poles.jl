@@ -127,6 +127,23 @@ using Test
             end # loggauss
         end # evaluate
 
+        @testset "weight" begin
+            # vector
+            P = Poles([-1.0, 0.0, 0.5], [0.25, 1.5, 2.5])
+            @test_throws BoundsError weight(P, 0)
+            @test weight(P, 1) == 0.0625
+            @test weight(P, 2) == 2.25
+            @test weight(P, 3) == 6.25
+            @test_throws BoundsError weight(P, 4)
+            # matrix
+            P = Poles([-1.0, 0.0, 0.5], [0.25 1.5 2.5; 1.0 2.0 0.75])
+            @test_throws BoundsError weight(P, 0)
+            @test weight(P, 1) == [0.0625 0.25; 0.25 1.0]
+            @test weight(P, 2) == [2.25 3.0; 3.0 4.0]
+            @test weight(P, 3) == [6.25 1.875; 1.875 0.5625]
+            @test_throws BoundsError weight(P, 4)
+        end # weight
+
         @testset "weights" begin
             # vector
             P = Poles([-1.0, 0.0, 0.5], [0.25, 1.5, 2.5])

@@ -175,9 +175,25 @@ function spectral_function_loggauss(
 end
 
 """
+    weight(P::Poles, i::Integer)
+
+Return the weight of `P` at index `i`.
+
+See also [`weights`](@ref).
+"""
+weight(P::Poles{<:Any,<:AbstractVector}, i::Integer) = abs2(amplitudes(P)[i])
+
+function weight(P::Poles{<:Any,<:AbstractMatrix}, i::Integer)
+    foo = view(amplitudes(P), :, i)
+    return foo * foo'
+end
+
+"""
     weights(P::Poles)
 
-Return the weight(s) of each pole.
+Return the weight of each pole.
+
+See also [`weight`](@ref).
 """
 weights(P::Poles{<:Any,<:AbstractVector}) = abs2.(P.b)
 
