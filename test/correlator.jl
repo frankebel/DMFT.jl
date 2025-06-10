@@ -97,14 +97,5 @@ using Test
         Σ = F ./ G
         @test all(i -> i <= 0, imag(Σ))
         @test real(Σ[cld(length(w), 2)]) ≈ U / 2 rtol = 500 * eps()
-
-        @testset "_flip_sign!" begin
-            # `@.` allocates, custom function does not
-            V = map(i -> rand(2, 2), 1:20)
-            DMFT._flip_sign!(V)
-            @. V = -V
-            @test iszero(@allocated DMFT._flip_sign!(V))
-            @test !iszero(@allocated @. V = -V)
-        end # _flip_sign!
     end # block Lanczos
 end # correlator

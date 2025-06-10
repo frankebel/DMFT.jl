@@ -22,10 +22,6 @@ function correlator(
     b0 = norm(v)
     rmul!(v, inv(b0))
     a, b = lanczos(H, v, n_kryl)
-    if !minus
-        @. a = -a
-        @. b = -b
-    end
 
     # look if any coefficient in `b` is small
     value, index = findmin(b)
@@ -36,6 +32,13 @@ function correlator(
     E, T = eigen(S)
     R = b0 * T[1, :]
     @. R = abs(R) # sign does not matter, positive is easier
+
+    if !minus
+        @. E = -E
+        # reverse to list locations from smallest to largest
+        reverse!(E)
+        reverse!(R)
+    end
 
     return Poles(E, R)
 end
@@ -66,11 +69,6 @@ function correlator(
     end
     W, S_sqrt = orthogonalize_states(V)
     A, B = block_lanczos(H, W, n_kryl)
-    if !minus
-        # H → -H
-        _flip_sign!(A)
-        _flip_sign!(B)
-    end
 
     # diagonalize blocktridiagonal matrix given by `A`, `B` and convert to `Poles`
     n1 = length(A)
@@ -88,14 +86,14 @@ function correlator(
     E, _ = LAPACK.syev!('V', 'U', X)
     R = S_sqrt * X[1:size(S_sqrt, 1), :]
 
-    return Poles(E, R)
-end
-
-function _flip_sign!(V::Vector{<:Matrix{<:Number}})
-    for M in V
-        @. M = -M
+    if !minus
+        @. E = -E
+        # reverse to list locations from smallest to largest
+        reverse!(E)
+        reverse!(R; dims=2)
     end
-    return V
+
+    return Poles(E, R)
 end
 
 """
