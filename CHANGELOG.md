@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `weight` for `Poles` ([#108](https://github.com/frankebel/DMFT.jl/pull/108)) ([dd5a5da](https://github.com/frankebel/DMFT.jl/commit/dd5a5da8d0a8704eaa0e5849854a7e0a73713254))
 
+### Changed
+
+- rename `η_gaussian` to `δ_gaussian` ([#110](https://github.com/frankebel/DMFT.jl/pull/110)) ([c8911ae](https://github.com/frankebel/DMFT.jl/commit/c8911aefa8a51f1cef2b9f2a143571b3e68c78c6))
+
 ## [0.7.0] - 2025-06-04
 
 ### Added
