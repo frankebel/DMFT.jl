@@ -76,7 +76,7 @@ export
     weight,
     weights,
     write_hdf5,
-    η_gaussian
+    δ_gaussian
 
 include("bits.jl")
 include("poles.jl")
