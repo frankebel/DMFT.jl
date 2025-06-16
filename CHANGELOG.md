@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - rename `η_gaussian` to `δ_gaussian` ([#110](https://github.com/frankebel/DMFT.jl/pull/110)) ([c8911ae](https://github.com/frankebel/DMFT.jl/commit/c8911aefa8a51f1cef2b9f2a143571b3e68c78c6))
+- `grid_log` needs positive initial value ([#111](https://github.com/frankebel/DMFT.jl/pull/111)) ([ebef3fc](https://github.com/frankebel/DMFT.jl/commit/ebef3fc36df73b4dcd0107c412e724a4966ba8ce))
 
 ## [0.7.0] - 2025-06-04
 
