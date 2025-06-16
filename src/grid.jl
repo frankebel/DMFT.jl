@@ -19,3 +19,42 @@ function grid_log(ω_max::Real, Λ::Real, n::Int)
     reverse!(result) # from small to big values
     return result
 end
+
+"""
+    grid_interpolate(a::AbstractVector{<:R}, n::Int) where {R<:Real}
+
+For each point ``a_i`` linearly interpolate `n` point in the interval
+
+```math
+\\left[\\frac{a_{i-1} + a_i}{2}, \\frac{a_i + a_{i+1}}{2}\\right].
+```
+"""
+function grid_interpolate(a::AbstractVector{<:Real}, n::Int)
+    # check input
+    issorted(a) || throw(ArgumentError("a is not sorted"))
+    allunique(a) || throw(ArgumentError("a has duplicate locations"))
+    count(iszero, a) <= 1 || throw(ArgumentError("a has dublicate zeros"))
+    Base.require_one_based_indexing(a)
+    n >= 1 || throw(ArgumentError("n must be positive"))
+
+    result = similar(a, length(a) * n + 1)
+    for i in eachindex(a)
+        # calculate end points of interval
+        if i == firstindex(a)
+            ω_low = a[i]
+            ω_high = 0.5 * (a[i] + a[i + 1])
+        elseif i == lastindex(a)
+            ω_low = 0.5 * (a[i - 1] + a[i])
+            ω_high = a[i]
+        else
+            ω_low = 0.5 * (a[i - 1] + a[i])
+            ω_high = 0.5 * (a[i] + a[i + 1])
+        end
+        Δ = ω_high - ω_low # interval width
+        # calculate points
+        result[(1 + (i - 1) * n):(i * n)] = range(ω_low; step=Δ / n, length=n)
+    end
+    result[end] = last(a)
+
+    return result
+end
