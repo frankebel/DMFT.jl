@@ -59,6 +59,7 @@ export
     realKK,
     remove_poles_with_zero_weight!,
     remove_poles_with_zero_weight,
+    remove_small_poles!,
     self_energy_FG,
     self_energy_IFG,
     self_energy_IFG_gauss,

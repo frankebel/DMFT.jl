@@ -437,6 +437,41 @@ using Test
             @test P.b == [sqrt(25.15), sqrt(6.35)]
         end # merge small poles!
 
+        @testset "remove small poles!" begin
+            P = Poles([-0.1, 0.0, 1.0], [1.0, 3.0, 2.0])
+            # no pole removed
+            foo = copy(P)
+            @test remove_small_poles!(foo) === foo
+            @test locations(foo) == [-0.1, 0.0, 1.0]
+            @test amplitudes(foo) == [1.0, 3.0, 2.0]
+            # 1 pole removed
+            foo = copy(P)
+            @test remove_small_poles!(foo, 1.0) === foo
+            @test locations(foo) == [0.0, 1.0]
+            @test amplitudes(foo) == [3.0, 2.0] .* sqrt(14 / 13)
+            # 1 poles removed
+            foo = copy(P)
+            @test remove_small_poles!(foo, 4.1) === foo
+            @test locations(foo) == [0.0]
+            @test norm(amplitudes(foo) - [sqrt(14)]) < 10 * eps()
+            # all poles removed
+            foo = copy(P)
+            @test remove_small_poles!(foo, 10.0) === foo
+            @test isempty(locations(foo))
+            @test isempty(amplitudes(foo))
+
+            # (don't) keep pole at zero
+            P = Poles([-1.0, 0.0, 2.0], [2.0, eps(), 5.0])
+            foo = copy(P)
+            remove_small_poles!(foo, 1e-10)
+            @test locations(foo) == [-1.0, 2.0]
+            @test amplitudes(foo) == [2.0, 5.0]
+            foo = copy(P)
+            remove_small_poles!(foo, 1e-10, false)
+            @test locations(foo) == [-1.0, 0.0, 2.0]
+            @test amplitudes(foo) == [2.0, eps(), 5.0]
+        end # reomve small poles!
+
         @testset "remove poles with zero weight!" begin
             a = collect(1:6)
             b = [0, 7, 0, 9, 0, -0.0]

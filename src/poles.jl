@@ -580,6 +580,44 @@ function merge_small_poles!(P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10)
 end
 
 """
+    remove_small_poles!(
+        P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10, remove_zero::Bool=true
+    )
+
+
+Remove poles with weight `<= tol` and rescale remaining poles to conserve zeroth moment.
+
+If `remove_zero`, ``a_i = 0`` with ``|b_i|^2 ≤ 0`` is also removed.
+"""
+function remove_small_poles!(
+    P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10, remove_zero::Bool=true
+)
+    # check input
+    tol > 0 || throw(ArgumentError("negative tol"))
+    issorted(P) || throw(ArgumentError("P is not sorted"))
+
+    w_old = moment(P, 0) # old weight
+
+    i = firstindex(amplitudes(P))
+    while i <= lastindex(amplitudes(P))
+        if iszero(locations(P)[i]) && !remove_zero
+            # keep pole at zero energy
+            i += 1
+        elseif weight(P, i) <= tol
+            deleteat!(locations(P), i)
+            deleteat!(amplitudes(P), i)
+        else
+            i += 1
+        end
+    end
+
+    w_new = moment(P, 0) # new weight
+    factor = sqrt(w_old / w_new)
+    amplitudes(P) .*= factor
+    return P
+end
+
+"""
     remove_poles_with_zero_weight!(
         P::Poles{<:Any,<:AbstractVector}, remove_zero::Bool=true
     )
