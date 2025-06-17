@@ -21,6 +21,7 @@ export
     correlator_minus,
     correlator_plus,
     discretize_similar_weight,
+    discretize_to_grid,
     equal_weight_discretization,
     find_chemical_potential,
     flip_spectrum!,
