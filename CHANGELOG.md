@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `weight` for `Poles` ([#108](https://github.com/frankebel/DMFT.jl/pull/108)) ([dd5a5da](https://github.com/frankebel/DMFT.jl/commit/dd5a5da8d0a8704eaa0e5849854a7e0a73713254))
 - DMFT with poles on a fixed grid ([#112](https://github.com/frankebel/DMFT.jl/pull/112)) ([ecf0680](https://github.com/frankebel/DMFT.jl/commit/ecf06808eb7ec206da841559b7c75ecd2f69c1e2))
+- `Core.Array` for `Poles` with complex amplitudes ([#113](https://github.com/frankebel/DMFT.jl/pull/113)) ([1ba6b19](https://github.com/frankebel/DMFT.jl/commit/1ba6b19f994693be1dfc6375ca3fdb8cd6ad1985))
 
 ### Changed
 
