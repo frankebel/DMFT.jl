@@ -587,7 +587,7 @@ end
 
 Remove poles with weight `<= tol` and rescale remaining poles to conserve zeroth moment.
 
-If `remove_zero`, ``a_i = 0`` with ``|b_i|^2 ≤ 0`` is also removed.
+If `remove_zero`, ``a_i = 0`` with ``|b_i|^2 ≤ tol`` is also removed.
 """
 function remove_small_poles!(
     P::Poles{<:Any,<:AbstractVector}, tol::Real=1e-10, remove_zero::Bool=true
