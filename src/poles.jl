@@ -668,11 +668,13 @@ function remove_poles_with_zero_weight(
     return result
 end
 
-function Core.Array(P::Poles{<:Any,<:AbstractVector{<:Real}})
-    T = promote_type(eltype(locations(P)), eltype(amplitudes(P)))
+function Core.Array(P::Poles{<:Any,<:AbstractVector})
+    T = eltype(P)
     result = Matrix{T}(Diagonal([0; locations(P)]))
     result[1, 2:end] .= amplitudes(P)
-    result[2:end, 1] .= amplitudes(P)
+    foo = @view(result[2:end, 1])
+    foo .= amplitudes(P)
+    foo .= adjoint.(foo) # complex conjugate
     return result
 end
 

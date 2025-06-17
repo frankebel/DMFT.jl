@@ -543,6 +543,16 @@ using Test
                 1.1 1 0
                 5.5 0 2
             ]
+            # complex amplitudes
+            a = collect(1:2)
+            b = [0.1 + 0.2im, 0.5 - 2.5im]
+            P = Poles(a, b)
+            m = Array(P)
+            @test m == [
+                0 0.1+0.2im 0.5-2.5im
+                0.1-0.2im 1 0
+                0.5+2.5im 0 2
+            ]
         end # Array
     end # Core
 
