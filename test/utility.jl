@@ -95,4 +95,15 @@ using Test
         @test μ ≈ 0 atol = 2e-3
         @test filling ≈ n_tot / 2 atol = 2e-2
     end # find chemical potential
+
+    @testset "moment" begin
+        ref = [0.1, 0.2, 0.3, 0.4, 0.5] # must not matter
+        imf = [-0.2, -0.4, 0.0, -0.6, -0.8] # asymmetric input
+        f = ref + im * imf
+        W = [-0.4, -0.1, 0.0, 0.5, 1.0] # non-equidistant grid
+        @test DMFT.moment(f, W) == 0.61 / π
+        @test DMFT.moment(f, W, 0) == 0.61 / π
+        @test DMFT.moment(f, W, 1) == 0.33 / π
+        @test DMFT.moment(f, W, 2) == 0.2806 / π
+    end # moment
 end # util

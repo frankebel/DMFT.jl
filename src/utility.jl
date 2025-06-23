@@ -222,3 +222,35 @@ function _get_filling(
     dω = real(W[2] - W[1]) # assume equidistant grid
     return -imag(filling) / π / nk * dω
 end
+
+"""
+    moment(f::AbstractVector{<:Complex}, W::AbstractVector{<:Real}, n::Int=0)
+
+Return the `n`-th moment of `f`
+
+```math
+-frac{1}{π} ∫_{-∞}^∞ mathrm{d}ω ω^n mathrm{Im}f(ω).
+```
+
+The function `f` is defined over the grid `W`.
+"""
+function moment(f::AbstractVector{<:Complex}, W::AbstractVector{<:Real}, n::Int=0)
+    # check input
+    eachindex(f) == eachindex(W) || throw(ArgumentError("f, W use different indexing"))
+
+    # weight by ω^n
+    imf = -imag(f)
+    @. imf *= W^n
+
+    # add area by trapezoidal rule
+    result = zero(eltype(imf))
+    for i in eachindex(imf)
+        i == firstindex(imf) && continue # no point to the left
+        result += (W[i] - W[i - 1]) * (imf[i - 1] + imf[i]) / 2
+    end
+
+    # 1/π factor
+    result /= π
+
+    return result
+end
