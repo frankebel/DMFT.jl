@@ -63,18 +63,10 @@ using Test
     end # orthogonalize_states
 
     @testset "δ_gaussian" begin
-        δ_0 = 0.01
-        δ_∞ = 0.04
-        w = collect(-10:0.08:10)
-        δ1 = δ_gaussian(δ_0, δ_∞, 1.0, w)
-        @test typeof(δ1) === typeof(w)
-        @test length(δ1) === length(w)
-        @test norm(δ1 - reverse(δ1)) === 0.0 # symmetric
-        @test δ1[126] ≈ δ_0 rtol = 5 * eps() # w = 0
-        @test δ1[1] == δ_∞
-        # smaller broadening
-        δ2 = δ_gaussian(δ_0, δ_∞, 0.5, w)
-        @test all(δ2 .>= δ1)
+        @test δ_gaussian(0.01, 0.04, 1.0, 0.0) ≈ 0.01 atol = 2 * eps() # ω = 0
+        @test δ_gaussian(0.01, 0.04, 1.0, 10.0) ≈ 0.04 atol = 2 * eps() # ω → ∞
+        @test δ_gaussian(0.01, 0.04, 1.0, 0.5) === δ_gaussian(0.01, 0.04, 1.0, -0.5) # symmetry
+        @test δ_gaussian(0.01, 0.04, 1.0, 0.2) < δ_gaussian(0.01, 0.04, 1.0, 0.3)
     end # δ_gaussian
 
     @testset "Kondo temperature" begin
