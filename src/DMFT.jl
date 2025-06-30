@@ -12,9 +12,13 @@ using Statistics
 
 export
     # Types
+    AbstractPoles,
+    AbstractPolesSum,
     Poles,
+    PolesSum,
 
     # Functions
+    amplitude,
     amplitudes,
     block_lanczos,
     correlator,
@@ -23,6 +27,8 @@ export
     discretize_similar_weight,
     discretize_to_grid,
     equal_weight_discretization,
+    evaluate_gaussian,
+    evaluate_lorentzian,
     find_chemical_potential,
     flip_spectrum!,
     flip_spectrum,
@@ -48,6 +54,7 @@ export
     mask_fe,
     merge_degenerate_poles!,
     merge_negative_locations_to_zero!,
+    merge_negative_weight!,
     merge_small_poles!,
     moment,
     moments,
@@ -68,6 +75,7 @@ export
     shift_spectrum,
     slater_start,
     spectral_function_gauss,
+    spectral_function_loggaussian,
     spectral_function_loggauss,
     starting_CIWavefunction,
     starting_Wavefunction,
@@ -83,6 +91,9 @@ export
 
 include("bits.jl")
 include("poles.jl")
+include("Poles/abstractpoles.jl")
+include("Poles/abstractpolessum.jl")
+include("Poles/polessum.jl")
 include("io.jl")
 include("sytrd.jl")
 include("natural_orbitals.jl")
