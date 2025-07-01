@@ -16,6 +16,7 @@ export
     AbstractPolesSum,
     Poles,
     PolesSum,
+    PolesSumBlock,
 
     # Functions
     amplitude,
@@ -94,6 +95,7 @@ include("poles.jl")
 include("Poles/abstractpoles.jl")
 include("Poles/abstractpolessum.jl")
 include("Poles/polessum.jl")
+include("Poles/polessumblock.jl")
 include("io.jl")
 include("sytrd.jl")
 include("natural_orbitals.jl")

@@ -7,6 +7,8 @@ and weights ``w_i`` of type `B`
 ```math
 P(ω) = ∑_i \\frac{w_i}{ω-a_i}.
 ```
+
+For a block variant see [`PolesSumBlock`](@ref).
 """
 struct PolesSum{A<:Real,B<:Number} <: AbstractPolesSum
     loc::Vector{A} # locations of poles
