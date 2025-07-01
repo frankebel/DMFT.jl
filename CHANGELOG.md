@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - DMFT with poles on a fixed grid ([#112](https://github.com/frankebel/DMFT.jl/pull/112)) ([ecf0680](https://github.com/frankebel/DMFT.jl/commit/ecf06808eb7ec206da841559b7c75ecd2f69c1e2))
 - `Core.Array` for `Poles` with complex amplitudes ([#113](https://github.com/frankebel/DMFT.jl/pull/113)) ([1ba6b19](https://github.com/frankebel/DMFT.jl/commit/1ba6b19f994693be1dfc6375ca3fdb8cd6ad1985))
 - moment of function defined on a grid ([#114](https://github.com/frankebel/DMFT.jl/pull/114)) ([44c6495](https://github.com/frankebel/DMFT.jl/commit/44c6495ddb31a1ffe0a7bcf533c66f5dfdd5d862))
+- `PolesSum`, `PolesSumBlock` which will replace `Poles` ([#116](https://github.com/frankebel/DMFT.jl/pull/116)) ([0570d85](https://github.com/frankebel/DMFT.jl/commit/0570d8567a17704dbdf282ca670b90dbb6b5670f))
 
 ### Changed
 
