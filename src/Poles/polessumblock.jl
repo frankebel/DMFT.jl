@@ -2,59 +2,97 @@
     PolesSumBlock{A<:Real,B<:Number} <: AbstractPolesSum
 
 Representation of block of poles on the real axis with locations ``a_i`` of type `A`
-and amplitudes ``b_i`` of type `B`
+and weights ``B_i`` of type `Matrix{B}`.
 
 ```math
-P(ω) = ∑_i \\frac{\\vec{b}_i \\vec{b}^†_i}{ω-a_i}.
+P(ω) = ∑_i \\frac{B_i}{ω-a_i}.
 ```
 
 For a scalar variant see [`PolesSum`](@ref).
 """
 struct PolesSumBlock{A<:Real,B<:Number} <: AbstractPolesSum
     loc::Vector{A} # locations of poles
-    amp::Matrix{B} # amplitudes of poles
+    wgt::Vector{Matrix{B}} # weights of poles
 
-    function PolesSumBlock{A,B}(loc, amp) where {A,B}
-        length(loc) == size(amp, 2) || throw(DimensionMismatch("length mismatch"))
-        return new{A,B}(loc, amp)
+    function PolesSumBlock{A,B}(loc, wgt) where {A,B}
+        length(loc) == length(wgt) || throw(DimensionMismatch("length mismatch"))
+        all(ishermitian, wgt) || throw(ArgumentError("weights are not hermitian"))
+        allequal(size, wgt) || throw(DimensionMismatch("weights do not have matching size"))
+        return new{A,B}(loc, wgt)
     end
 end
 
 """
-    PolesSumBlock(loc::Vector{A}, amp::Matrix{B}) where {A,B}
+    PolesSumBlock(loc::AbstractVector{A}, wgt::Vector{<:AbstractMatrix{B}}) where {A,B}
 
 Create a new instance of [`PolesSumBlock`](@ref) by supplying locations `loc`
-and amplitudes `amp`.
+and weights `wgt`.
 
 ```jldoctest
-julia> loc = collect(0:5);
+julia> loc = collect(0:2);
 
-julia> amp = reshape(collect(-5:6), (2, 6));
+julia> wgt = [[1 0; 0 1], [2 1; 1 2], [2 -1; -1 2]];
 
-julia> P = PolesSumBlock(loc, amp)
-2×5 PolesSum{Int64, Int64}
+julia> P = PolesSumBlock(loc, wgt)
+PolesSumBlock{Int64, Int64} with 3 poles of size 2×2
 
 julia> locations(P) === loc
 true
 
-julia> amplitudes(P) === amp
+julia> weights(P) === wgt
 true
 ```
 """
-PolesSumBlock(loc::Vector{A}, amp::Matrix{B}) where {A,B} = PolesSumBlock{A,B}(loc, amp)
+PolesSumBlock(loc::AbstractVector{A}, wgt::Vector{<:AbstractMatrix{B}}) where {A,B} =
+    PolesSumBlock{A,B}(loc, wgt)
 
-function PolesSumBlock{A,B}(P::PolesSumBlock) where {A,B}
-    return PolesSumBlock(Vector{A}(locations(P)), Matrix{B}(amplitudes(P)))
+"""
+    PolesSumBlock(loc::AbstractVector, amp::AbstractMatrix{B}) where {B}
+
+Create a new instance of [`PolesSumBlock`](@ref) by supplying locations `loc`
+and amplitudes `amp`.
+
+The ``i``-th column of `amp` is interpreted as the vector ``\\vec{b}_i`` and the weight
+as ``B_i = \\vec{b}_i \\vec{b}^†_i``.
+
+```jldoctest
+julia> loc = collect(0:1);
+
+julia> amp = [1+2im 3im; 4 5+6im];
+
+julia> P = PolesSumBlock(loc, amp)
+PolesSumBlock{Int64, Complex{Int64}} with 2 poles of size 2×2
+
+julia> locations(P) === loc
+true
+
+julia> weights(P) == [[5 4+8im; 4-8im 16], [9 18+15im; 18-15im 61]]
+true
+```
+"""
+function PolesSumBlock(loc::AbstractVector, amp::AbstractMatrix{B}) where {B}
+    wgt = Vector{Matrix{B}}(undef, size(amp, 2))
+    for i in axes(amp, 2)
+        foo = view(amp, :, i)
+        wgt[i] = foo * foo'
+    end
+    return PolesSumBlock(loc, wgt)
 end
 
-amplitudes(P::PolesSumBlock) = P.amp
+function PolesSumBlock{A,B}(P::PolesSumBlock) where {A,B}
+    return PolesSumBlock(Vector{A}(locations(P)), map(i -> Matrix{B}(i), weights(P)))
+end
+
+amplitude(P::PolesSumBlock, i::Integer) = sqrt(weights(P)[i])
+
+amplitudes(P::PolesSumBlock) = map(sqrt, weights(P))
 
 function evaluate_gaussian(P::PolesSumBlock, ω::Real, σ::Real)
     d = size(P, 1)
     real = zeros(Float64, d, d)
     imag = zero(real)
     for i in eachindex(P)
-        w = weight(P, i)
+        w = weights(P)[i]
         real .+= w .* sqrt(2) ./ (π * σ) .* dawson((ω - locations(P)[i]) / (sqrt(2) * σ))
         imag .+= w .* pdf(Normal(locations(P)[i], σ), ω)
     end
@@ -67,7 +105,7 @@ function evaluate_lorentzian(P::PolesSumBlock, ω::Real, δ::Real)
     d = size(P, 1)
     result = zeros(ComplexF64, d, d)
     for i in eachindex(P)
-        w = weight(P, i)
+        w = weights(P)[i]
         result .+= w ./ (ω + im * δ - locations(P)[i])
     end
     return result
@@ -77,16 +115,17 @@ function moment(P::PolesSumBlock, n::Int=0)
     return sum(i -> i[1]^n * i[2], zip(locations(P), weights(P)))
 end
 
-function weight(P::PolesSumBlock, i::Integer)
-    foo = view(amplitudes(P), :, i)
-    return foo * foo'
-end
-
-weights(P::PolesSumBlock) = map(i -> weight(P, i), eachindex(P))
+weights(P::PolesSumBlock) = P.wgt
 
 function Base.show(io::IO, P::PolesSumBlock)
-    return print(io, size(P, 1), "×", size(P, 2), " ", summary(P))
+    return print(
+        io, summary(P), " with ", length(P), " poles of size ", size(P, 1), "×", size(P, 2)
+    )
 end
 
-Base.size(P::PolesSumBlock) = size(amplitudes(P))
-Base.size(P::PolesSumBlock, i) = size(amplitudes(P), i)
+Base.size(P::PolesSumBlock) = size(first(weights(P)))
+Base.size(P::PolesSumBlock, i) = size(first(weights(P)), i)
+
+function Base.transpose(P::PolesSumBlock)
+    return PolesSumBlock(locations(P), map(transpose, weights(P)))
+end
