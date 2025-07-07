@@ -13,8 +13,10 @@ using Statistics
 export
     # Types
     AbstractPoles,
+    AbstractPolesContinuedFraction,
     AbstractPolesSum,
     Poles,
+    PolesContinuedFraction,
     PolesSum,
     PolesSumBlock,
 
@@ -68,6 +70,7 @@ export
     remove_poles_with_zero_weight!,
     remove_poles_with_zero_weight,
     remove_small_poles!,
+    scale,
     self_energy_FG,
     self_energy_IFG,
     self_energy_IFG_gauss,
@@ -76,8 +79,8 @@ export
     shift_spectrum,
     slater_start,
     spectral_function_gauss,
-    spectral_function_loggaussian,
     spectral_function_loggauss,
+    spectral_function_loggaussian,
     starting_CIWavefunction,
     starting_Wavefunction,
     sytrd!,
@@ -96,6 +99,8 @@ include("Poles/abstractpoles.jl")
 include("Poles/abstractpolessum.jl")
 include("Poles/polessum.jl")
 include("Poles/polessumblock.jl")
+include("Poles/abstractpolescontinuedfraction.jl")
+include("Poles/polescontinuedfraction.jl")
 include("io.jl")
 include("sytrd.jl")
 include("natural_orbitals.jl")
