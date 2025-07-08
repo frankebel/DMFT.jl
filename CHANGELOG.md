@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - moment of function defined on a grid ([#114](https://github.com/frankebel/DMFT.jl/pull/114)) ([44c6495](https://github.com/frankebel/DMFT.jl/commit/44c6495ddb31a1ffe0a7bcf533c66f5dfdd5d862))
 - `PolesSum`, `PolesSumBlock` which will replace `Poles` ([#116](https://github.com/frankebel/DMFT.jl/pull/116)) ([0570d85](https://github.com/frankebel/DMFT.jl/commit/0570d8567a17704dbdf282ca670b90dbb6b5670f)) ([#117](https://github.com/frankebel/DMFT.jl/pull/117)) ([4445404](https://github.com/frankebel/DMFT.jl/commit/44454047e0b661ad23d010ab0e3b2ed225acfcf6))
 - `PolesContinuedFraction` ([#118](https://github.com/frankebel/DMFT.jl/pull/118)) ([7dea995](https://github.com/frankebel/DMFT.jl/commit/7dea9950644707fbc0211d61075c06197e19a7c4))
+- `PolesContinuedFractionBlock` ([#119](https://github.com/frankebel/DMFT.jl/pull/119)) ([edd8060](https://github.com/frankebel/DMFT.jl/commit/edd80600f59d27978d055162c85f71dd217fe094))
 
 ### Changed
 
