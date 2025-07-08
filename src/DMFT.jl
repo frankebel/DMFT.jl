@@ -17,6 +17,7 @@ export
     AbstractPolesSum,
     Poles,
     PolesContinuedFraction,
+    PolesContinuedFractionBlock,
     PolesSum,
     PolesSumBlock,
 
@@ -101,6 +102,7 @@ include("Poles/polessum.jl")
 include("Poles/polessumblock.jl")
 include("Poles/abstractpolescontinuedfraction.jl")
 include("Poles/polescontinuedfraction.jl")
+include("Poles/polescontinuedfractionblock.jl")
 include("io.jl")
 include("sytrd.jl")
 include("natural_orbitals.jl")
