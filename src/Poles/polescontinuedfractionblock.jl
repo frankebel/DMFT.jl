@@ -4,11 +4,10 @@
 Representation of poles on the real axis with as a continued fraction with
 locations ``A_i`` of type `A` and amplitudes ``B_i`` of type `B`.
 
-All matrices must be hermitian.
 The scale factor ``S`` rescales the whole object.
 
 ```math
-P(ω) = S \\frac{1}{ω-A_1-B_1\\frac{1}{ω-A_2-…}B_1} S
+P(ω) = S^† \\frac{1}{ω - A_1 - B^†_1 \\frac{1}{ω - A_2 - …} B_1 } S
 ```
 """
 struct PolesContinuedFractionBlock{A<:Number,B<:Number} <: AbstractPolesContinuedFraction
@@ -18,10 +17,7 @@ struct PolesContinuedFractionBlock{A<:Number,B<:Number} <: AbstractPolesContinue
 
     function PolesContinuedFractionBlock{A,B}(loc, amp, scl) where {A,B}
         length(loc) == length(amp) + 1 || throw(ArgumentError("length mismatch"))
-        # hermitian
         all(ishermitian, loc) || throw(ArgumentError("locations are not hermitian"))
-        all(ishermitian, amp) || throw(ArgumentError("amplitudes are not hermitian"))
-        ishermitian(scl) || throw(ArgumentError("scale is not hermitian"))
         # size
         s = size(first(loc))
         all(i -> size(i) == s, loc) ||
@@ -75,9 +71,9 @@ function evaluate_lorentzian(P::PolesContinuedFractionBlock, ω::Real, δ::Real)
     loc = Iterators.reverse(locations(P))
     amp = Iterators.reverse(amplitudes(P))
     for (A, B) in zip(loc, amp)
-        result = B * inv((ω + im * δ) * I - A - result) * B
+        result = B' * inv((ω + im * δ) * I - A - result) * B
     end
-    result = scale(P) * inv((ω + im * δ) * I - locations(P)[1] - result) * scale(P)
+    result = scale(P)' * inv((ω + im * δ) * I - locations(P)[1] - result) * scale(P)
     return result
 end
 
@@ -89,7 +85,7 @@ function Core.Array(P::PolesContinuedFractionBlock)
     for i in 1:(n1 - 1)
         i1 = 1 + (i - 1) * n2
         i2 = i * n2
-        result[i1:i2, (i1 + n2):(i2 + n2)] = amplitudes(P)[i] # upper diagonal
+        result[i1:i2, (i1 + n2):(i2 + n2)] = amplitudes(P)[i]' # upper diagonal
         result[i1:i2, i1:i2] = locations(P)[i] # main diagonal
         result[(i1 + n2):(i2 + n2), i1:i2] = amplitudes(P)[i] # lower diagonal
     end
