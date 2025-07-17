@@ -83,9 +83,40 @@ function PolesSumBlock{A,B}(P::PolesSumBlock) where {A,B}
     return PolesSumBlock(Vector{A}(locations(P)), map(i -> Matrix{B}(i), weights(P)))
 end
 
-amplitude(P::PolesSumBlock, i::Integer) = sqrt(weights(P)[i])
+# `sqrt(matrix)` would work but is very slow on first run.
+# Annotating as symmetric or hermitian makes it much faster.
+# But general Julia code still does not know about semipositive eigenvalues
+# and gives eltype as union of Float64 and ComplexF64.
+# Therefore, decompose by hand and apply square root in-place.
+function amplitude(P::PolesSumBlock{<:Real,<:Real}, i::Integer)
+    m = Symmetric(Matrix{Float64}(weights(P)[i])) # symmetric and Float64
+    F = eigen!(m)
+    tol = maximum(F.values) * sqrt(eps())
+    # NOTE: use `map!` in Julia 1.12 or higher
+    for i in eachindex(F.values)
+        # set small eigenvalues to zero
+        F.values[i] = F.values[i] > tol ? sqrt(F.values[i]) : 0
+    end
+    result = F.vectors * Diagonal(F.values) * F.vectors'
+    hermitianpart!(result)
+    return result
+end
+function amplitude(P::PolesSumBlock, i::Integer)
+    # use Hermitian matrix
+    m = Hermitian(Matrix{ComplexF64}(weights(P)[i])) # hermitian and ComplexF64
+    F = eigen!(m)
+    tol = maximum(F.values) * sqrt(eps())
+    # NOTE: use `map!` in Julia 1.12 or higher
+    for i in eachindex(F.values)
+        # set small eigenvalues to zero
+        F.values[i] = F.values[i] > tol ? sqrt(F.values[i]) : 0
+    end
+    result = F.vectors * Diagonal(F.values) * F.vectors'
+    hermitianpart!(result)
+    return result
+end
 
-amplitudes(P::PolesSumBlock) = map(sqrt, weights(P))
+amplitudes(P::PolesSumBlock) = map(i -> amplitude(P, i), eachindex(P))
 
 function evaluate_gaussian(P::PolesSumBlock, ω::Real, σ::Real)
     d = size(P, 1)

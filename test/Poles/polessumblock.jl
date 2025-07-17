@@ -33,15 +33,24 @@ using Test
 
     @testset "custom functions" begin
         @testset "amplitude" begin
-            v = [1 + 2im, 4] # vector from which first weights are constructed
-            P = PolesSumBlock(0:1, [1+2im 3im; 4 5+6im])
-            @test norm(amplitude(P, 1) - 1 / sqrt(21) * v * v') < 10 * eps()
+            # real
+            P = PolesSumBlock(0:1, [[2 0; 0 1], [0 0; 0 0]])
+            @inferred amplitude(P, 1)
+            @test amplitude(P, 1) == [sqrt(2) 0; 0 1]
+            # complex
+            P = PolesSumBlock(0:1, [[1 0.5im; -0.5im 1], [0 0; 0 0]])
+            @inferred amplitude(P, 1)
+            @test norm(
+                amplitude(P, 1) -
+                [1+sqrt(3) (sqrt(3) - 1)im; -(sqrt(3) - 1)im 1+sqrt(3)] ./ (2 * sqrt(2)),
+            ) < 10 * eps()
         end # amplitude
 
         @testset "amplitudes" begin
             v1 = [1 + 2im, 4] # vector from which first weights are constructed
             v2 = [3im, 5 + 6im] # vector from which second weights are constructed
             P = PolesSumBlock(0:1, [1+2im 3im; 4 5+6im])
+            @inferred amplitudes(P)
             amp = amplitudes(P)
             @test norm(amp[1] - 1 / sqrt(21) * v1 * v1') < 20 * eps()
             @test norm(amp[2] - 1 / sqrt(70) * v2 * v2') < 20 * eps()
