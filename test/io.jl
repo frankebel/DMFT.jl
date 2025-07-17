@@ -5,7 +5,7 @@ using Test
     @testset "Number" begin
         s = 1 + 2im
         @test write_hdf5("test.h5", s) === nothing
-        @test @inferred read_hdf5("test.h5", Complex{Int}) isa Complex{Int}
+        @inferred read_hdf5("test.h5", Complex{Int})
         @test read_hdf5("test.h5", Complex{Int}) === 1 + 2im
         @test read_hdf5("test.h5", ComplexF64) === 1.0 + 2.0im
         @test_throws InexactError read_hdf5("test.h5", Int)
@@ -15,20 +15,19 @@ using Test
         # Vector{Number}
         v = rand(10)
         @test write_hdf5("test.h5", v) === nothing
-        @test @inferred read_hdf5("test.h5", Vector{Float64}) isa Vector{Float64}
+        @inferred read_hdf5("test.h5", Vector{Float64})
         @test read_hdf5("test.h5", Vector{Float64}) == v
 
         # Matrix{Number}
         m = rand(10, 10)
         @test write_hdf5("test.h5", m) === nothing
-        @test @inferred read_hdf5("test.h5", Matrix{Float64}) isa Matrix{Float64}
+        @inferred read_hdf5("test.h5", Matrix{Float64})
         @test read_hdf5("test.h5", Matrix{Float64}) == m
 
         # Vector{Matrix{Number}}
         v = [rand(2, 2) for _ in 1:10]
         @test write_hdf5("test.h5", v) === nothing
-        @test @inferred read_hdf5("test.h5", Vector{Matrix{Float64}}) isa
-            Vector{Matrix{Float64}}
+        @inferred read_hdf5("test.h5", Vector{Matrix{Float64}})
         @test read_hdf5("test.h5", Vector{Matrix{Float64}}) == v
     end # Array
 
@@ -42,7 +41,7 @@ using Test
         P = Poles(a, b)
         @test write_hdf5("test.h5", P) === nothing
         # read
-        @test @inferred read_hdf5("test.h5", Poles{V,V}) isa Poles{V,V}
+        @inferred read_hdf5("test.h5", Poles{V,V})
         foo = read_hdf5("test.h5", Poles{V,V})
         @test locations(foo) == locations(P)
         @test amplitudes(foo) == amplitudes(P)
@@ -54,7 +53,7 @@ using Test
         P = Poles(a, b)
         @test write_hdf5("test.h5", P) === nothing
         # read
-        @test @inferred read_hdf5("test.h5", Poles{V,M}) isa Poles{V,M}
+        @inferred read_hdf5("test.h5", Poles{V,M})
         @test_throws MethodError read_hdf5("test.h5", Poles{V,V})
         foo = read_hdf5("test.h5", Poles{V,M})
         @test locations(foo) == locations(P)

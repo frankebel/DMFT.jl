@@ -21,7 +21,7 @@ See also [`read_hdf5`](@ref).
 function write_hdf5 end
 
 # Number
-function read_hdf5(filename::AbstractString, T::Type{<:Number})
+function read_hdf5(filename::AbstractString, ::Type{T}) where {T<:Number}
     h5open(filename, "r") do fid
         scalar::T = read(fid, "s")
         return scalar
