@@ -21,7 +21,7 @@ struct PolesSum{A<:Real,B<:Number} <: AbstractPolesSum
 end
 
 """
-    PolesSum(loc::Vector{A}, wgt::Vector{B}) where {A,B}
+    PolesSum(loc::AbstractVector{A}, wgt::AbstractVector{B}) where {A,B}
 
 Create a new instance of [`PolesSum`](@ref) by supplying the locations `loc`
 and weights `wgt`.
@@ -41,7 +41,7 @@ julia> weights(P) === wgt
 true
 ```
 """
-function PolesSum(loc::Vector{A}, wgt::Vector{B}) where {A,B}
+function PolesSum(loc::AbstractVector{A}, wgt::AbstractVector{B}) where {A,B}
     return PolesSum{A,B}(loc, wgt)
 end
 

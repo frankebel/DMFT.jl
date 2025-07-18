@@ -32,8 +32,8 @@ using Test
 
     @testset "custom functions" begin
         @testset "amplitude" begin
-            loc = collect(0:5)
-            wgt = collect(5:10)
+            loc = 0:5
+            wgt = 5:10
             P = PolesSum(loc, wgt)
             @test_throws BoundsError amplitude(P, 0)
             @test amplitude(P, 1) == sqrt(5)
@@ -46,8 +46,8 @@ using Test
         end # amplitude
 
         @testset "amplitudes" begin
-            loc = collect(0:5)
-            wgt = collect(5:10)
+            loc = 0:5
+            wgt = 5:10
             P = PolesSum(loc, wgt)
             @test amplitudes(P) == sqrt.(5:10)
             # errors
@@ -69,7 +69,7 @@ using Test
             # TODO: use new struct `PolesSum`
             # semicircular DOS
             G = greens_function_bethe_simple(3001)
-            ω = collect(-3:0.01:3)
+            ω = -3:0.01:3
             σ = 0.01
             # constant broadening
             h = G(ω, σ)
@@ -80,7 +80,7 @@ using Test
         end # evaluate_gaussian
 
         @testset "evaluate_lorentzian" begin
-            loc = collect(1.0:10)
+            loc = 1.0:10
             wgt = abs2.(0.1:0.1:1)
             P = PolesSum(loc, wgt)
             # single point
@@ -107,7 +107,7 @@ using Test
         end # flip_spectrum
 
         @testset "locations" begin
-            P = PolesSum(collect(0:5), collect(5:10))
+            P = PolesSum(0:5, 5:10)
             @test locations(P) === P.loc
         end # locations
 
@@ -262,7 +262,7 @@ using Test
         end # moments
 
         @testset "remove_poles_with_zero_weight!" begin
-            P = PolesSum(collect(1:6), [0, 7, 0, 9, 0, -0.0])
+            P = PolesSum(1:6, [0, 7, 0, 9, 0, -0.0])
             @test remove_poles_with_zero_weight!(P) === P
             @test locations(P) == [2, 4]
             @test weights(P) == [7, 9]
@@ -280,12 +280,12 @@ using Test
         end # remove_poles_with_zero_weight!
 
         @testset "remove_poles_with_zero_weight" begin
-            P = PolesSum(collect(1:6), [0, 7, 0, 9, 0, -0.0])
+            P = PolesSum(1:6, [0, 7, 0, 9, 0, -0.0])
             P_new = remove_poles_with_zero_weight(P)
             @test P_new !== P
             @test locations(P_new) == [2, 4]
             @test weights(P_new) == [7, 9]
-            @test locations(P) == collect(1:6)
+            @test locations(P) == 1:6
             @test weights(P) == [0, 7, 0, 9, 0, 0]
         end # remove_poles_with_zero_weight
 
@@ -384,15 +384,15 @@ using Test
         end # weight
 
         @testset "weights" begin
-            P = PolesSum(collect(0:5), collect(5:10))
+            P = PolesSum(0:5, 5:10)
             @test weights(P) === P.wgt
         end # weights
     end # custom functions
 
     @testset "Core" begin
         @testset "Array" begin
-            loc = collect(1:5)
-            amp = collect(6:10)
+            loc = 1:5
+            amp = 6:10
             P = PolesSum(loc, abs2.(amp))
             m = Array(P)
             @test typeof(m) === Matrix{Int}
@@ -405,7 +405,7 @@ using Test
                 10 0 0 0 0 5
             ]
             # poles with zero weight
-            loc = collect(1:5)
+            loc = 1:5
             amp = [6, 7, 0, 9, 0]
             P = PolesSum(loc, abs2.(amp))
             m = Array(P)
@@ -418,7 +418,7 @@ using Test
                 0 0 0 0 0 5
             ]
             # correct promotion
-            loc = collect(1:2)
+            loc = 1:2
             amp = [1.1, 5.5]
             P = PolesSum(loc, abs2.(amp))
             m = Array(P)
@@ -470,15 +470,15 @@ using Test
         end # allunique
 
         @testset "copy" begin
-            loc = collect(1:5)
-            wgt = collect(6:10)
+            loc = 1:5
+            wgt = 6:10
             P = PolesSum(loc, wgt)
             foo = copy(P)
             @test typeof(foo) === typeof(P)
-            @test foo.loc !== loc
-            @test foo.loc == loc
-            @test foo.wgt !== wgt
-            @test foo.wgt == wgt
+            @test locations(foo) !== locations(P)
+            @test locations(foo) == locations(P)
+            @test weights(foo) !== weights(P)
+            @test weights(foo) == weights(P)
         end # copy
 
         @testset "eltype" begin
