@@ -148,6 +148,8 @@ end
 
 weights(P::PolesSumBlock) = P.wgt
 
+Base.eltype(::Type{<:PolesSumBlock{A,B}}) where {A,B} = promote_type(A, B)
+
 function Base.show(io::IO, P::PolesSumBlock)
     return print(
         io, summary(P), " with ", length(P), " poles of size ", size(P, 1), "×", size(P, 2)

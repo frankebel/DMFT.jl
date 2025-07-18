@@ -109,6 +109,11 @@ using Test
     end # custom functions
 
     @testset "Base" begin
+        @testset "eltype" begin
+            @test eltype(PolesSumBlock(1:2, [[1 0; 0 0], [0 0; 0 0]])) === Int
+            @test eltype(PolesSumBlock(1.0:2, [[1 0; 0 0], [0 0; 0 0]])) === Float64
+        end # eltype
+
         @testset "length" begin
             P = PolesSumBlock(rand(10), rand(4, 10))
             @test length(P) === 10
