@@ -130,4 +130,4 @@ using Test
             @test SymTridiagonal(P) == SymTridiagonal(loc, amp)
         end # SymTridiagonal
     end # LinearAlgebra
-end
+end # PolesContinuedFraction

@@ -4,10 +4,10 @@
 Representation of poles on the real axis as a continued fraction with
 locations ``a_i`` of type `A` and amplitudes ``b_i`` of type `B`.
 
-The scale factor of type rescales the whole object.
+The scale factor ``s`` of type `B` rescales the whole object.
 
 ```math
-P(ω) = \\frac{s^2}{ω-a_1-\\frac{b_1^2}{ω-a_2-…}}
+P(ω) = \\frac{s^2}{ω - a_1 - \\frac{b_1^2}{ω - a_2 - …}}
 ```
 """
 struct PolesContinuedFraction{A<:Real,B<:Real} <: AbstractPolesContinuedFraction
@@ -15,9 +15,9 @@ struct PolesContinuedFraction{A<:Real,B<:Real} <: AbstractPolesContinuedFraction
     amp::Vector{B} # amplitudes of poles
     scl::B # scale
 
-    function PolesContinuedFraction{A,B}(loc, amp, scale) where {A,B}
+    function PolesContinuedFraction{A,B}(loc, amp, scl) where {A,B}
         length(loc) == length(amp) + 1 || throw(ArgumentError("length mismatch"))
-        return new{A,B}(loc, amp, scale)
+        return new{A,B}(loc, amp, scl)
     end
 end
 
