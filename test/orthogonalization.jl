@@ -31,4 +31,21 @@ using Test
         end
         @test issymmetric(S_sqrt)
     end # _orthonormalize_SVD
+
+    @testset "_orthonormalize_GramSchmidt!" begin
+        V = [0 3 1; 0 0 1; 100*eps() 8 0]
+        @test DMFT._orthonormalize_GramSchmidt!(V) === V
+        @test view(V, :, 1) == zeros(3)
+        @test view(V, :, 2) == 1 / sqrt(73) * [3, 0, 8]
+        v3 = [64, 73, -24] / 73
+        normalize!(v3)
+        @test norm(view(V, :, 3) - v3) < eps()
+        # applying again has small changes
+        foo = copy(V)
+        @test DMFT._orthonormalize_GramSchmidt!(V) != foo
+        @test V' * V == Diagonal([0, 1, 1])
+        # applying again should keep it equal
+        foo = copy(V)
+        @test DMFT._orthonormalize_GramSchmidt!(V) == foo
+    end # _orthonormalize_GramSchmidt!
 end # orthogonalization
