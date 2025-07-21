@@ -67,7 +67,7 @@ function correlator(
     for i in eachindex(V)
         V[i] = O[i] * ψ0
     end
-    W, S_sqrt = orthogonalize_states(V)
+    W, S_sqrt = _orthonormalize_SVD(V)
     A, B = block_lanczos(H, W, n_kryl)
 
     # diagonalize blocktridiagonal matrix given by `A`, `B` and convert to `Poles`

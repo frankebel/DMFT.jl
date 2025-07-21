@@ -65,7 +65,6 @@ export
     natural_orbital_ci_operator,
     natural_orbital_operator,
     orgtr!,
-    orthogonalize_states,
     read_hdf5,
     realKK,
     remove_poles_with_zero_weight!,
@@ -109,6 +108,7 @@ include("natural_orbitals.jl")
 include("wavefunctions.jl")
 include("kramers_kronig.jl")
 include("grid.jl")
+include("orthogonalization.jl")
 include("utility.jl")
 include("greens_function.jl")
 include("hybridization_function.jl")

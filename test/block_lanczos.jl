@@ -28,8 +28,8 @@ using Test
         v1 = d_dag * ψ0
         v2 = q_dag * ψ0
         V0 = [v1 v2]
-        # Löwdin orthogonalization
-        W, S_sqrt = orthogonalize_states(V0)
+        # Löwdin orthonormalization
+        W, S_sqrt = DMFT._orthonormalize_SVD(V0)
         # Block Lanczos
         a, b = DMFT.block_lanczos(H, W, n_kryl)
         @test length(a) === n_kryl

@@ -45,23 +45,6 @@ using Test
         @test var_rel < 4e-8
     end # init system
 
-    @testset "orthogonalize_states" begin
-        v1 = CIWavefunction(Dict(zero(UInt8) => rand(5), one(UInt8) => rand(5)), 4, 1, 1, 1)
-        v2 = CIWavefunction(Dict(zero(UInt8) => rand(5)), 4, 1, 1, 1)
-        V = [v1 v2]
-        W, S_sqrt = orthogonalize_states(V)
-        # W^† W = 𝟙
-        foo = Matrix{Float64}(undef, 2, 2)
-        mul!(foo, W', W)
-        @test norm(foo - I) < 8 * eps()
-        # V = W S^{1/2}
-        bar = zero(V)
-        mul!(bar, W, S_sqrt)
-        for i in eachindex(V)
-            @test norm(bar[i] - V[i]) < 8 * eps()
-        end
-    end # orthogonalize_states
-
     @testset "δ_gaussian" begin
         @test δ_gaussian(0.01, 0.04, 1.0, 0.0) ≈ 0.01 atol = 2 * eps() # ω = 0
         @test δ_gaussian(0.01, 0.04, 1.0, 10.0) ≈ 0.04 atol = 2 * eps() # ω → ∞
