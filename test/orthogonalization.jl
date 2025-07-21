@@ -48,4 +48,22 @@ using Test
         foo = copy(V)
         @test DMFT._orthonormalize_GramSchmidt!(V) == foo
     end # _orthonormalize_GramSchmidt!
+
+    @testset "_orthogonalize_states!" begin
+        Q_new = rand(ComplexF64, 8, 4)
+        Q_old = rand(ComplexF64, 8, 4)
+        Q_old, _ = DMFT._orthonormalize_SVD(Q_old)
+        DMFT._orthonormalize_GramSchmidt!(Q_old)
+        DMFT._orthonormalize_GramSchmidt!(Q_old) # twice because unstable
+        M1 = Matrix{ComplexF64}(undef, 4, 4)
+        @test DMFT._orthogonalize_states!(M1, Q_new, Q_old) === Q_new
+        # overlap to previous state
+        foo = norm(Q_old' * Q_new)
+        @test foo < 10 * eps()
+        # orthogonalize again
+        DMFT._orthogonalize_states!(M1, Q_new, Q_old)
+        bar = norm(Q_old' * Q_new)
+        @test bar <= foo
+        @test bar < eps()
+    end # _orthogonalize_states!
 end # orthogonalization

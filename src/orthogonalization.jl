@@ -81,3 +81,20 @@ function _orthonormalize_GramSchmidt!(V::AbstractMatrix{<:Number})
     end
     return V
 end
+
+"""
+    _orthogonalize_states!(
+        M1::AbstractMatrix, Q_new::AbstractMatrix, Q_old::AbstractMatrix
+    )
+
+Orthogonalize `Q_new` against `Q_old`.
+
+Overwrites `M1`.
+"""
+function _orthogonalize_states!(
+    M1::AbstractMatrix, Q_new::AbstractMatrix, Q_old::AbstractMatrix
+)
+    mul!(M1, Q_old', Q_new)
+    mul!(Q_new, Q_old, M1, -1, 1) # Q_new -= Q_old^† Q_old Q_new
+    return Q_new
+end
