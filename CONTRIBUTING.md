@@ -25,7 +25,7 @@ For consistency use the following conventions:
   - Define the struct.
   - Define constructor(s).
   - Define custom functions in alphabetical order.
-  - Define functions from `Core` in alphabetical order.
-  - Define functions from `Base` in alphabetical order.
-  - Define functions from the standard library (e.g. `LinearAlgebra`) in alphabetical order.
-  - Define functions from other packages in alphabetical order.
+  - Define methods from `Core` in alphabetical order.
+  - Define methods from `Base` in alphabetical order.
+  - Define methods from the standard library (e.g. `LinearAlgebra`) in alphabetical order.
+  - Define methods from other packages in alphabetical order.
