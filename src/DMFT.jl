@@ -25,6 +25,7 @@ export
     amplitude,
     amplitudes,
     block_lanczos,
+    block_lanczos_full_ortho,
     correlator,
     correlator_minus,
     correlator_plus,

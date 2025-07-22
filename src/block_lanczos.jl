@@ -62,3 +62,77 @@ function block_lanczos(
     end
     return A, B
 end
+
+"""
+    block_lanczos_full_ortho(
+        H::AbstractMatrix{T1}, Q1::Matrix{T2}, N::Integer
+    ) where {T1<:Number,T2<:Number}
+
+Block Lanczos ``\\mathrm{span}{Q_1, H Q_1, …, H^N Q_1}`` with full reorthogonalization.
+
+If the off-diagonal element ``B_i`` gets small, the algorithm is stopped early
+and not all `N` steps are run.
+
+Returns main diagonal `A`, lower diagonal `B` and states `Q`.
+"""
+function block_lanczos_full_ortho(
+    H::AbstractMatrix{T1}, Q1::Matrix{T2}, N::Integer
+) where {T1<:Number,T2<:Number}
+    tol = sqrt(1000 * eps())
+    T = promote_type(T1, T2)
+    n, q = size(Q1)
+
+    # check input
+    ishermitian(H) || throw(ArgumentError("H is not hermitian"))
+    size(H, 2) == n || throw(DimensionMismatch("dimensions of H and Q1 don't match"))
+    N >= 1 || throw(ArgumentError("N must be >= 1"))
+
+    A = Vector{Matrix{T}}(undef, N)
+    B = Vector{Matrix{T}}(undef, N - 1)
+    Q = Vector{Matrix{T}}(undef, N)
+    # containers to reduce allocations
+    V1 = Vector{real(T)}(undef, q)
+    M1 = Matrix{T}(undef, q, q)
+
+    # first step
+    Q[1] = copy(Q1)
+    Q_new = H * Q1
+    A[1] = Q1' * Q_new
+    hermitianpart!(A[1])
+    mul!(Q_new, Q1, A[1], -1, 1)
+
+    # successive steps
+    for j in 2:N
+        for k in axes(Q_new, 2)
+            # check for vectors with small magnitude and set to zero
+            v = view(Q_new, :, k)
+            norm(v) < tol && (v .= 0)
+        end
+
+        @inline B[j - 1] = Matrix{T}(undef, q, q)
+        @inline Q[j] = Matrix{T}(undef, n, q)
+        _orthonormalize_SVD!(V1, M1, B[j - 1], Q[j], Q_new)
+        if norm(B[j - 1]) < tol
+            # stop early
+            @info "block Lanczos stopping early: norm(B[$(j-1)]) = $(norm(B[j-1]))"
+            deleteat!(A, j:N)
+            deleteat!(B, (j - 1):(N - 1))
+            deleteat!(Q, j:N)
+            break
+        end
+        # new states
+        mul!(Q_new, H, Q[j])
+        for l in 1:(j - 1)
+            # orthogonalize against all previous states exluding last
+            # do twice because it is unstable
+            _orthogonalize_states!(M1, Q_new, Q[l])
+            _orthogonalize_states!(M1, Q_new, Q[l])
+        end
+        # orthogonalize against last state
+        A[j] = Q[j]' * Q_new
+        hermitianpart!(A[1])
+        mul!(Q_new, Q[j], A[j], -1, 1)
+    end
+
+    return A, B, Q
+end

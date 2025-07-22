@@ -59,4 +59,18 @@ using Test
         ]
         @test norm(E - E_ref) < 3e3 * eps()
     end # block_lanczos
+
+    @testset "block_lanczos_full_ortho" begin
+        H = Diagonal([1, 1, 2, 2])
+        Q1 = [1 0; 0 1/sqrt(2); 0 0; 0 1/sqrt(2)]
+        A, B, Q = block_lanczos_full_ortho(H, Q1, 4)
+        @test length(A) == 2
+        @test norm(A[1] - [1 0; 0 1.5]) < 10 * eps()
+        @test norm(A[2] - [0 0; 0 1.5]) < 10 * eps()
+        @test length(B) == 1
+        @test norm(B[1] - [0 0; 0 0.5]) < 10 * eps()
+        @test length(Q) == 2
+        @test Q[1] == Q1
+        @test norm(Q[2] - [0 0; 0 -1/sqrt(2); 0 0; 0 1/sqrt(2)]) < 10 * eps()
+    end # block_lanczos_full_ortho
 end # block_lanczos
