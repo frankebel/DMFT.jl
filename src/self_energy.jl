@@ -32,7 +32,7 @@ function self_energy_poles(
     sort!(Σ)
     _merge_degenerate_poles_weights!(Σ, 0)
     _merge_negative_weight!(Σ)
-    remove_poles_with_zero_weight!(Σ)
+    remove_zero_weight!(Σ)
     Σ.b .= sqrt.(Σ.b) # back to amplitudes
 
     return Σ_H, Σ

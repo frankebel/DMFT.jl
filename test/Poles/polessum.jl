@@ -261,33 +261,33 @@ using Test
             @test all(iszero, moments(P, 1:2:11))
         end # moments
 
-        @testset "remove_poles_with_zero_weight!" begin
+        @testset "remove_zero_weight!" begin
             P = PolesSum(1:6, [0, 7, 0, 9, 0, -0.0])
-            @test remove_poles_with_zero_weight!(P) === P
+            @test remove_zero_weight!(P) === P
             @test locations(P) == [2, 4]
             @test weights(P) == [7, 9]
             # pole at origin
             loc = [-1, 0, 1]
             wgt = [2, 0, 0]
             P = PolesSum(copy(loc), copy(wgt))
-            remove_poles_with_zero_weight!(P)
+            remove_zero_weight!(P)
             @test locations(P) == [-1]
             @test weights(P) == [2]
             P = PolesSum(copy(loc), copy(wgt))
-            remove_poles_with_zero_weight!(P, false)
+            remove_zero_weight!(P, false)
             @test locations(P) == [-1, 0]
             @test weights(P) == [2, 0]
-        end # remove_poles_with_zero_weight!
+        end # remove_zero_weight!
 
-        @testset "remove_poles_with_zero_weight" begin
+        @testset "remove_zero_weight" begin
             P = PolesSum(1:6, [0, 7, 0, 9, 0, -0.0])
-            P_new = remove_poles_with_zero_weight(P)
+            P_new = remove_zero_weight(P)
             @test P_new !== P
             @test locations(P_new) == [2, 4]
             @test weights(P_new) == [7, 9]
             @test locations(P) == 1:6
             @test weights(P) == [0, 7, 0, 9, 0, 0]
-        end # remove_poles_with_zero_weight
+        end # remove_zero_weight
 
         @testset "remove_small_poles!" begin
             P = PolesSum([-0.1, 0.0, 1.0], [1.0, 9.0, 4.0])

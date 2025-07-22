@@ -310,15 +310,15 @@ function moment(P::PolesSum, n::Int=0)
 end
 
 """
-    remove_poles_with_zero_weight!(P::PolesSum, remove_zero::Bool=true)
+    remove_zero_weight!(P::PolesSum, remove_zero::Bool=true)
 
 Remove all poles which have zero weight.
 
 If `remove_zero`, the pole at ``a_i = 0`` with zero weight is also removed.
 
-See also [`remove_poles_with_zero_weight`](@ref).
+See also [`remove_zero_weight`](@ref).
 """
-function remove_poles_with_zero_weight!(P::PolesSum, remove_zero::Bool=true)
+function remove_zero_weight!(P::PolesSum, remove_zero::Bool=true)
     i = 1
     while i <= length(P)
         if iszero(locations(P)[i]) && !remove_zero
@@ -338,16 +338,16 @@ function remove_poles_with_zero_weight!(P::PolesSum, remove_zero::Bool=true)
 end
 
 """
-    remove_poles_with_zero_weight(P::PolesSum, remove_zero::Bool=true)
+    remove_zero_weight(P::PolesSum, remove_zero::Bool=true)
 
 Remove all poles which have zero weight.
 
 If `remove_zero`, the pole at ``a_i = 0`` with zero weight is also removed.
 
-See also [`remove_poles_with_zero_weight!`](@ref).
+See also [`remove_zero_weight!`](@ref).
 """
-function remove_poles_with_zero_weight(P::PolesSum, remove_zero::Bool=true)
-    return remove_poles_with_zero_weight!(copy(P), remove_zero)
+function remove_zero_weight(P::PolesSum, remove_zero::Bool=true)
+    return remove_zero_weight!(copy(P), remove_zero)
 end
 
 """

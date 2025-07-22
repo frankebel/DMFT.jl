@@ -15,7 +15,7 @@ Calculate the new hybridization function in [`Poles`](@ref) representation.
 function update_hybridization_function(
     Δ0::P, μ::R, Σ_H::R, Σ::P
 ) where {P<:Poles{<:Any,<:AbstractVector},R<:Real}
-    Σ = remove_poles_with_zero_weight(Σ)
+    Σ = remove_zero_weight(Σ)
     n = length(Σ) + 1
     n_tot = length(Δ0) * n
     a = Vector{R}(undef, n_tot)

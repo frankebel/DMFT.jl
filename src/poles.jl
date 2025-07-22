@@ -618,19 +618,15 @@ function remove_small_poles!(
 end
 
 """
-    remove_poles_with_zero_weight!(
-        P::Poles{<:Any,<:AbstractVector}, remove_zero::Bool=true
-    )
+    remove_zero_weight!(P::Poles{<:Any,<:AbstractVector}, remove_zero::Bool=true)
 
 Remove all poles ``|b_i|^2 = 0``.
 
 If `remove_zero`, ``a_i = |b_i|^2 = 0`` is also removed.
 
-See also [`remove_poles_with_zero_weight`](@ref).
+See also [`remove_zero_weight`](@ref).
 """
-function remove_poles_with_zero_weight!(
-    P::Poles{<:Any,<:AbstractVector}, remove_zero::Bool=true
-)
+function remove_zero_weight!(P::Poles{<:Any,<:AbstractVector}, remove_zero::Bool=true)
     i = firstindex(amplitudes(P))
     while i <= lastindex(amplitudes(P))
         if iszero(locations(P)[i]) && !remove_zero
@@ -650,21 +646,17 @@ function remove_poles_with_zero_weight!(
 end
 
 """
-    remove_poles_with_zero_weight(
-        P::Poles{<:Any,<:AbstractVector}, remove_zero::Bool=true
-    )
+    remove_zero_weight(P::Poles{<:Any,<:AbstractVector}, remove_zero::Bool=true)
 
 Remove all poles ``|b_i|^2 = 0``.
 
 If `remove_zero`, ``a_i = b_i = 0`` is also removed.
 
-See also [`remove_poles_with_zero_weight!`](@ref).
+See also [`remove_zero_weight!`](@ref).
 """
-function remove_poles_with_zero_weight(
-    P::Poles{<:Any,<:AbstractVector}, remove_zero::Bool=true
-)
+function remove_zero_weight(P::Poles{<:Any,<:AbstractVector}, remove_zero::Bool=true)
     result = copy(P)
-    remove_poles_with_zero_weight!(result, remove_zero)
+    remove_zero_weight!(result, remove_zero)
     return result
 end
 

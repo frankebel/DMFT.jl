@@ -476,18 +476,18 @@ using Test
             a = collect(1:6)
             b = [0, 7, 0, 9, 0, -0.0]
             P = Poles(a, b)
-            @test remove_poles_with_zero_weight!(P, true) === P
+            @test remove_zero_weight!(P, true) === P
             @test P.a == [2, 4]
             @test P.b == [7, 9]
             # pole at a=0
             a = [-1, 0, 1]
             b = [2, 0, 0]
             P = Poles(copy(a), copy(b))
-            @test remove_poles_with_zero_weight!(P) === P
+            @test remove_zero_weight!(P) === P
             @test P.a == [-1]
             @test P.b == [2]
             P = Poles(copy(a), copy(b))
-            @test remove_poles_with_zero_weight!(P, false) === P
+            @test remove_zero_weight!(P, false) === P
             @test P.a == [-1, 0]
             @test P.b == [2, 0]
         end # remove poles with zero weight!
@@ -496,7 +496,7 @@ using Test
             a = collect(1:6)
             b = [0, 7, 0, 9, 0, -0.0]
             P = Poles(a, b)
-            P_new = remove_poles_with_zero_weight(P)
+            P_new = remove_zero_weight(P)
             @test typeof(P_new) === Poles{Vector{Int},Vector{Float64}}
             @test P_new.a == [2, 4]
             @test P_new.b == [7, 9]

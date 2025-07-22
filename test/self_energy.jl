@@ -40,7 +40,7 @@ using Test
     @testset "Poles" begin
         # impurity Green's fuction
         G_plus = Poles(copy(locations(C_plus)), abs.(amplitudes(C_plus)[1, :]))
-        remove_poles_with_zero_weight!(G_plus)
+        remove_zero_weight!(G_plus)
         merge_degenerate_poles!(G_plus)
         merge_small_poles!(G_plus)
         G_minus = flip_spectrum(G_plus)
