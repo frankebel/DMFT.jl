@@ -9,94 +9,56 @@ Block Lanczos algorithm for given operator `H`, states in `W` and `n_kryl` Krylo
 Returns main diagonal `A` and subdiagonal `B`.
 """
 function block_lanczos(
-    H::CIOperator, W::AbstractMatrix{<:CWF}, n_kryl::Int
+    H::CIOperator, Q1::AbstractMatrix{<:CWF}, N::Integer
 ) where {CWF<:CIWavefunction}
-    A = Vector{Matrix{Float64}}(undef, n_kryl)
-    B = Vector{Matrix{Float64}}(undef, n_kryl - 1)
-    for i in eachindex(A)
-        @inbounds A[i] = Matrix{Float64}(undef, 2, 2)
-    end
-    for i in eachindex(B)
-        @inbounds B[i] = Matrix{Float64}(undef, 2, 2)
-    end
-    V = deepcopy(W)
-    V_new = zero(W)
-    V_old = zero(W)
-    # dummy containers to reduce allocations
-    SVD = zero(W)
-    M1 = Matrix{Float64}(undef, length(W), length(W))
-    M2 = similar(M1)
-    M3 = similar(M1)
-    Adj = Vector{CWF}(undef, length(W))
+    foo, q = size(Q1)
+    isone(foo) || throw(ArgumentError("input matrix must have 1 row"))
+    A = Vector{Matrix{Float64}}(undef, N)
+    B = Vector{Matrix{Float64}}(undef, N - 1)
+    N >= 1 || throw(ArgumentError("N must be >= 1"))
+    T = scalartype(CWF)
+    Q_curr = deepcopy(Q1)
+    Q_new = similar(Q1)
+    Q_old = similar(Q1)
+    # containers to reduce allocations
+    Q_int = zero(Q1) # int ≙ intermediate
+    V1 = Vector{T}(undef, q)
+    M1 = Matrix{T}(undef, q, q)
 
     # first step
-    mul!(V_new, H, V)
-    mul!(A[1], V', V_new)
+    mul!(Q_new, H, Q_curr)
+    @inbounds A[1] = Matrix{T}(undef, q, q)
+    mul!(A[1], Q_curr', Q_new)
     hermitianpart!(A[1]) # enforce due to finite precision
     copyto!(M1, A[1])
     rmul!(M1, -1)
-    mul!(V_new, V, M1, true, true)
+    mul!(Q_new, Q_curr, M1, true, true)
 
     # successive steps
-    for j in 2:n_kryl
-        # orthonormalize V_new
-        zerovector!(SVD)
-        _svd_orthogonalize!(B[j - 1], V_new, SVD, Adj, M1, M2, M3)
-        V_new, SVD = SVD, V_new
+    for j in 2:N
+        # orthonormalize Q_new
+        zerovector!(Q_int)
+        @inline B[j - 1] = Matrix{T}(undef, q, q)
+        _orthonormalize_SVD!(V1, M1, B[j - 1], Q_int, Q_new)
+        # TODO: Stop early if norm is small.
+        Q_new, Q_int = Q_int, Q_new
         # cycle for new step
-        V, V_old, V_new = V_new, V, V_old
-        # V_new = H*V
-        zerovector!(V_new)
-        mul!(V_new, H, V)
-        # V_new -= V_old*B'
+        Q_curr, Q_old, Q_new = Q_new, Q_curr, Q_old
+        # Q_new = H Q
+        zerovector!(Q_new)
+        mul!(Q_new, H, Q_curr)
+        # Q_new -= Q_old B^†_{j-1}
         adjoint!(M1, B[j - 1])
         rmul!(M1, -1)
-        mul!(V_new, V_old, M1, true, true)
-        # A = V'*V_new
-        adjoint!(Adj, V)
-        mul!(A[j], Adj, V_new)
+        mul!(Q_new, Q_old, M1, true, true)
+        # A_j = Q^† Q_new
+        @inline A[j] = Matrix{T}(undef, q, q)
+        mul!(A[j], Q_curr', Q_new)
         hermitianpart!(A[j]) # enforce due to finite precision
-        # V_new -= V*A
+        # Q_new -= Q A_j
         copyto!(M1, A[j])
         rmul!(M1, -1)
-        mul!(V_new, V, M1, true, true)
+        mul!(Q_new, Q_curr, M1, true, true)
     end
     return A, B
-end
-
-# Explanation available under ch. 3.2 of Martin's thesis.
-# https://archiv.ub.uni-heidelberg.de/volltextserver/29305/2/Thesis_V5.pdf
-function _svd_orthogonalize!(
-    B::AbstractMatrix{<:T},
-    ψ::AbstractMatrix{<:C},
-    SVD::AbstractMatrix{<:C},
-    Adj::AbstractVector{<:C},
-    M1::AbstractMatrix{<:T},
-    M2::AbstractMatrix{<:T},
-    M3::AbstractMatrix{<:T},
-) where {C<:CIWavefunction,T<:Number}
-    tol = 1e-6 # potential issue with small/negative eigenvalues
-    n = size(M2, 1)
-    adjoint!(Adj, ψ)
-    mul!(M1, Adj, ψ) # overlap matrix
-    S, _ = LAPACK.syev!('V', 'U', M1) # How to avoid allocations in diagonalization?
-    # orthonormalized states in SVD
-    rmul!(M2, false) # S_sqrt_inv
-    for i in 1:n
-        M2[i, i] = S[i] > tol ? 1 / sqrt(S[i]) : zero(T)
-    end
-    adjoint!(B, M1) # V'
-    mul!(M3, M2, B) # S_sqrt_inv V'
-    mul!(M2, M1, M3) # V S_sqrt_inv V'
-    mul!(SVD, ψ, M2) # ψ V S_sqrt_inv V'
-    # B matrix
-    rmul!(M2, false) # M2 = S_sqrt
-    for i in 1:n
-        M2[i, i] = S[i] > tol ? sqrt(S[i]) : zero(T)
-    end
-    adjoint!(B, M1) # V'
-    mul!(M3, M2, B) # S_sqrt V'
-    mul!(B, M1, M3) # V S_sqrt V'
-    hermitianpart!(B) # enforce due to finite precision
-    return nothing
 end

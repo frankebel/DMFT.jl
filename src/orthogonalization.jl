@@ -1,57 +1,68 @@
 # Methods for orthogonalization and orthonormalization of states.
 
+# Explanation available under ch. 3.2 of Martin's thesis.
+# https://doi.org/10.11588/heidok.00029305
+function _orthonormalize_SVD!(
+    # user supplies all containers to calculate in-place
+    V1::AbstractVector{<:Real}, # container for Λ^{±1/2}
+    M1::AbstractMatrix{<:T}, # container
+    S_sqrt::AbstractMatrix{<:T}, # store S^{1/2}
+    Q_new::AbstractMatrix, # store orthonormal states
+    Q::AbstractMatrix, # states to orthonormalize
+) where {T<:Number}
+    mul!(M1, Q', Q) # overlap matrix
+    F = eigen(hermitianpart!(M1))
+    tol = maximum(F.values) * sqrt(eps(real(T)))
+    # orthonormalize states
+    map!(λ -> λ >= tol ? 1 / sqrt(λ) : zero(λ), V1, F.values) # Λ^{-1/2}
+    mul!(M1, Diagonal(V1), F.vectors')
+    mul!(S_sqrt, F.vectors, M1)
+    hermitianpart!(S_sqrt) # S^{-1/2}
+    mul!(Q_new, Q, S_sqrt) # Q_new = Q S^{-1/2}
+    # B = S^{1/2}
+    map!(λ -> λ >= tol ? sqrt(λ) : zero(λ), V1, F.values) # Λ^{1/2}
+    mul!(M1, Diagonal(V1), F.vectors')
+    mul!(S_sqrt, F.vectors, M1) # S^{1/2}
+    hermitianpart!(S_sqrt)
+    return nothing
+end
+
 """
-    _orthonormalize_SVD(V::AbstractMatrix)
+    _orthonormalize_SVD(Q::AbstractMatrix)
 
-Löwdin orthonormalization (Singular value decomposition SVD) for given states in `V`.
+Löwdin orthonormalization (Singular value decomposition SVD) for given states `Q`.
 
-Calulate overlap matrix ``S = V^† V`` and diagonalize
+Calulate overlap matrix ``S = Q^† Q`` and diagonalize
 
 ```math
 \\begin{aligned}
-S        &= T Λ T^† \\\\
-S^{1/2}  &= T Λ^{1/2} T^† \\\\
-S^{-1/2} &= T Λ^{-1/2} T^†.
+S        &= U Λ U^† \\\\
+S^{1/2}  &= U Λ^{1/2} U^† \\\\
+S^{-1/2} &= U Λ^{-1/2} U^†.
 \\end{aligned}
 ```
 
-Returns ``W = V S^{-1/2}`` and ``S^{1/2}``.
+Objects of interest are ``Q S^{-1/2}`` and ``S^{1/2}``.
 """
-function _orthonormalize_SVD(V::AbstractMatrix{<:T}) where {T<:Number}
-    S = hermitianpart!(V' * V)
-    F = eigen!(S)
-    tol = sqrt(eps()) * maximum(F.values)
-    S_sqrt =
-        F.vectors * Diagonal(map(i -> i >= tol ? sqrt(i) : zero(i), F.values)) * F.vectors'
-    S_sqrt_inv =
-        F.vectors *
-        Diagonal(map(i -> i >= tol ? 1 / sqrt(i) : zero(i), F.values)) *
-        F.vectors'
-    hermitianpart!(S_sqrt)
-    hermitianpart!(S_sqrt_inv)
-    W = V * S_sqrt_inv
-    return W, S_sqrt
+function _orthonormalize_SVD(Q::AbstractMatrix{<:T}) where {T<:Number}
+    q = size(Q, 2)
+    Q_new = similar(Q)
+    V1 = Vector{real(T)}(undef, q)
+    M1 = Matrix{T}(undef, q, q)
+    S_sqrt = similar(M1)
+    _orthonormalize_SVD!(V1, M1, S_sqrt, Q_new, Q)
+    return Q_new, S_sqrt
 end
-function _orthonormalize_SVD(V::AbstractMatrix{<:C}) where {C<:CIWavefunction}
-    size(V, 1) == 1 || throw(ArgumentError("input matrix must have 1 row"))
-    n = size(V, 2)
+function _orthonormalize_SVD(Q::AbstractMatrix{<:C}) where {C<:CIWavefunction}
+    foo, q = size(Q)
+    isone(foo) || throw(ArgumentError("input matrix must have 1 row"))
     T = scalartype(C)
-    S_old = Matrix{T}(undef, n, n)
-    mul!(S_old, V', V)
-    S = T <: Real ? Symmetric(S_old) : Hermitian(S_old)
-    F = eigen(S)
-    tol = maximum(F.values) * sqrt(eps())
-    S_sqrt =
-        F.vectors * Diagonal(map(i -> i >= tol ? sqrt(i) : zero(i), F.values)) * F.vectors'
-    S_sqrt_inv =
-        F.vectors *
-        Diagonal(map(i -> i >= tol ? 1 / sqrt(i) : zero(i), F.values)) *
-        F.vectors'
-    hermitianpart!(S_sqrt)
-    hermitianpart!(S_sqrt_inv)
-    W = zero(V)
-    mul!(W, V, S_sqrt_inv)
-    return W, S_sqrt
+    Q_new = similar(Q)
+    V1 = Vector{real(T)}(undef, q)
+    M1 = Matrix{T}(undef, q, q)
+    S_sqrt = similar(M1)
+    _orthonormalize_SVD!(V1, M1, S_sqrt, Q_new, Q)
+    return Q_new, S_sqrt
 end
 
 """

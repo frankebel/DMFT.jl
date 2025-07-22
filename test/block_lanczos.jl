@@ -39,7 +39,7 @@ using Test
 
         X = zeros(2 * n_kryl, 2 * n_kryl)
         for i in 1:(n_kryl - 1)
-            X[(2 * i - 1):(2 * i), (2 * i - 1 + 2):(2 * i + 2)] = b[i] # upper diagonal, don't need adjoint
+            X[(2 * i - 1):(2 * i), (2 * i - 1 + 2):(2 * i + 2)] = b[i]' # upper diagonal
             X[(2 * i - 1):(2 * i), (2 * i - 1):(2 * i)] = a[i] # main diagonal
             X[(2 * i + 1):(2 * i + 2), (2 * i - 1):(2 * i)] = b[i] # lower diagonal
         end
@@ -59,28 +59,4 @@ using Test
         ]
         @test norm(E - E_ref) < 3e3 * eps()
     end # block_lanczos
-
-    @testset "svd_orthogonalize!" begin
-        v1 = CIWavefunction(Dict(zero(UInt8) => rand(5), one(UInt8) => rand(5)), 4, 1, 1, 1)
-        v2 = CIWavefunction(Dict(zero(UInt8) => rand(5)), 4, 1, 1, 1)
-        V = [v1 v2]
-        SVD = zero(V)
-        Adj = Vector{eltype(V)}(undef, 2)
-        B = Matrix{Float64}(undef, 2, 2)
-        M1 = similar(B)
-        M2 = similar(B)
-        M3 = similar(B)
-        DMFT._svd_orthogonalize!(B, V, SVD, Adj, M1, M2, M3)
-        @test ishermitian(B)
-        # SVD^† SVD = 𝟙
-        foo = Matrix{Float64}(undef, 2, 2)
-        mul!(foo, SVD', SVD)
-        @test norm(foo - I) < 8 * eps()
-        # V = SVD B^{1/2}
-        bar = zero(V)
-        mul!(bar, SVD, B)
-        for i in eachindex(V)
-            @test norm(bar[i] - V[i]) < 10 * eps()
-        end
-    end # svd_orthogonalize!
 end # block_lanczos
