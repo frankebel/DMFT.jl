@@ -109,6 +109,15 @@ using Test
     end # custom functions
 
     @testset "Base" begin
+        @testset "copy" begin
+            P = PolesSumBlock(rand(2), [rand(1, 1) for _ in 1:2])
+            foo = copy(P)
+            @test locations(foo) == locations(P)
+            @test locations(foo) !== locations(P)
+            @test weights(foo) == weights(P)
+            @test weights(foo) !== weights(P)
+        end # copy
+
         @testset "eltype" begin
             @test eltype(PolesSumBlock(1:2, [[1 0; 0 0], [0 0; 0 0]])) === Int
             @test eltype(PolesSumBlock(1.0:2, [[1 0; 0 0], [0 0; 0 0]])) === Float64
