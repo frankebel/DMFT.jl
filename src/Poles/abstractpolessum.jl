@@ -5,7 +5,12 @@ Supertype which represents a (block) function on the real axis as a sum of poles
 """
 abstract type AbstractPolesSum <: AbstractPoles end
 
-Base.eachindex(P::AbstractPolesSum) = eachindex(locations(P))
+"""
+    merge_degenerate_poles!(P::AbstractPolesSum, tol::Real=0)
+
+Merge poles whose locations are `≤ tol` apart.
+"""
+function merge_degenerate_poles! end
 
 """
     moment(P::AbstractPolesSum, n::Int=0)
@@ -69,6 +74,8 @@ function Base.allunique(P::AbstractPolesSum)
     # allunique discrimates between ±zero(Float64)
     return allunique(loc) && length(findall(iszero, loc)) <= 1
 end
+
+Base.eachindex(P::AbstractPolesSum) = eachindex(locations(P))
 
 function Base.issorted(P::AbstractPolesSum, args...; kwargs...)
     return issorted(locations(P), args...; kwargs...)

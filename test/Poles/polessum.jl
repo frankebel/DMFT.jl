@@ -120,6 +120,7 @@ using Test
             @test weights(P1) == [0.625, 2.25]
             # default tolerance too small
             P1 = copy(P)
+            merge_degenerate_poles!(P1)
             @test locations(P1) == [0.2, 0.3, 0.6]
             @test weights(P1) == [0.0625, 0.5625, 2.25]
             # custom tolerance

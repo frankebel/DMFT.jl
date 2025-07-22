@@ -142,6 +142,53 @@ function evaluate_lorentzian(P::PolesSumBlock, ω::Real, δ::Real)
     return result
 end
 
+function merge_degenerate_poles!(P::PolesSumBlock, tol::Real=0)
+    # check input
+    tol >= 0 || throw(ArgumentError("tol must not be negative"))
+    issorted(P) || throw(ArgumentError("P must be sorted"))
+    # get information from P
+    loc = locations(P)
+    wgt = weights(P)
+    # pole(s) at [-tol, tol]
+    idx_zeros = findall(i -> abs(i) <= tol, loc)
+    if !isempty(idx_zeros)
+        i0 = popfirst!(idx_zeros)
+        loc[i0] = 0
+        for i in reverse!(idx_zeros)
+            wgt[i0] .+= popat!(wgt, i)
+            deleteat!(loc, i)
+        end
+    end
+    # pole(s) at tol → ∞
+    i = findfirst(>(0), loc)
+    isnothing(i) && (i = lastindex(loc)) # enforce `i` to be a number
+    while i < lastindex(loc)
+        if loc[i + 1] - loc[i] <= tol
+            # merge
+            wgt[i] .+= popat!(wgt, i + 1)
+            deleteat!(loc, i + 1) # keep location closer to zero
+        else
+            # increment index
+            i += 1
+        end
+    end
+    # pole(s) at -tol → -∞
+    i = findlast(<(0), loc)
+    isnothing(i) && (i = firstindex(loc)) # enforce `i` to be a number
+    while i > firstindex(loc)
+        if loc[i] - loc[i - 1] <= tol
+            # merge
+            wgt[i - 1] .+= popat!(wgt, i)
+            deleteat!(loc, i - 1) # keep location closer to zero
+            i -= 1
+        else
+            # decrement index
+            i -= 1
+        end
+    end
+    return P
+end
+
 function moment(P::PolesSumBlock, n::Int=0)
     return sum(i -> i[1]^n * i[2], zip(locations(P), weights(P)))
 end

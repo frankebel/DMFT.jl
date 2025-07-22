@@ -111,11 +111,6 @@ See also [`flip_spectrum!`](@ref).
 """
 flip_spectrum(P::PolesSum) = flip_spectrum!(copy(P))
 
-"""
-    merge_degenerate_poles!(P::PolesSum, tol::Real=0)
-
-Merge poles whose locations are `≤ tol` apart.
-"""
 function merge_degenerate_poles!(P::PolesSum, tol::Real=0)
     # check input
     tol >= 0 || throw(ArgumentError("tol must not be negative"))

@@ -89,6 +89,21 @@ using Test
                 [evaluate_lorentzian(P, ω[1], δ), evaluate_lorentzian(P, ω[2], δ)]
         end # evaluate_lorentzian
 
+        @testset "merge_degenerate_poles!" begin
+            loc = [0.2, 0.3, 0.6]
+            wgt = [[1 0; 0 1], [1 0; 0 0], [2 1; 1 2]]
+            P = PolesSumBlock(loc, wgt)
+            # default tolerance too small
+            foo = copy(P)
+            @test merge_degenerate_poles!(foo) === foo
+            @test locations(foo) == loc
+            @test weights(foo) == wgt
+            # merge 2 poles
+            @test merge_degenerate_poles!(foo, 0.11) === foo
+            @test locations(foo) == [0.2, 0.6]
+            @test weights(foo) == [[2 0; 0 1], [2 1; 1 2]]
+        end # merge_degenerate_poles!
+
         @testset "moment" begin
             P = PolesSumBlock([-0.5, 0.0, 0.5], [0.25 1.5 0.25; 0.5 0.75 2.5])
             @test DMFT.moment(P) == [2.375 1.875; 1.875 7.0625]
