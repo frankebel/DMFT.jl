@@ -100,6 +100,32 @@ using Test
             @test moments(P, 0:1) == [[2.375 1.875; 1.875 7.0625], [0.0 0.25; 0.25 3.0]]
         end # moments
 
+        @testset "remove_zero_weight!" begin
+            P = PolesSumBlock([0, 1], [[0 0; 0 0], [1 0; 0 0]])
+            # remove zero location
+            foo = copy(P)
+            @test remove_zero_weight!(foo) === foo
+            @test locations(foo) == [1]
+            @test weights(foo) == [[1 0; 0 0]]
+            # keep zero location
+            foo = copy(P)
+            @test remove_zero_weight!(foo, false) === foo
+            @test locations(foo) == [0, 1]
+            @test weights(foo) == [[0 0; 0 0], [1 0; 0 0]]
+        end # remove_zero_weight!
+
+        @testset "remove_zero_weight" begin
+            P = PolesSumBlock([0, 1], [[0 0; 0 0], [1 0; 0 0]])
+            # remove zero location
+            foo = remove_zero_weight(P)
+            @test locations(foo) == [1]
+            @test weights(foo) == [[1 0; 0 0]]
+            # keep zero location
+            foo = remove_zero_weight(P, false)
+            @test locations(foo) == [0, 1]
+            @test weights(foo) == [[0 0; 0 0], [1 0; 0 0]]
+        end # remove_zero_weight
+
         @testset "weights" begin
             loc = 0:1
             wgt = [[1 2; 2 1], [3 4; 4 3]]

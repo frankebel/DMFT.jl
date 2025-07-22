@@ -23,6 +23,47 @@ function moments(P::AbstractPolesSum, ns)
     return map(i -> moment(P, i), ns)
 end
 
+"""
+    remove_zero_weight!(P::AbstractPolesSum, remove_zero::Bool=true)
+
+Remove all poles which have zero weight.
+
+If `remove_zero`, the pole at ``a_i = 0`` with zero weight is also removed.
+
+See also [`remove_zero_weight`](@ref).
+"""
+function remove_zero_weight!(P::AbstractPolesSum, remove_zero::Bool=true)
+    i = 1
+    while i <= length(P)
+        if iszero(locations(P)[i]) && !remove_zero
+            # keep pole at origin
+            i += 1
+            continue
+        end
+
+        if iszero(weights(P)[i])
+            deleteat!(locations(P), i)
+            deleteat!(weights(P), i)
+        else
+            i += 1
+        end
+    end
+    return P
+end
+
+"""
+    remove_zero_weight(P::AbstractPolesSum, remove_zero::Bool=true)
+
+Remove all poles which have zero weight.
+
+If `remove_zero`, the pole at ``a_i = 0`` with zero weight is also removed.
+
+See also [`remove_zero_weight!`](@ref).
+"""
+function remove_zero_weight(P::AbstractPolesSum, remove_zero::Bool=true)
+    return remove_zero_weight!(copy(P), remove_zero)
+end
+
 function Base.allunique(P::AbstractPolesSum)
     loc = locations(P)
     # allunique discrimates between ±zero(Float64)
