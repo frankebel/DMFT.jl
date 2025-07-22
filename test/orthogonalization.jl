@@ -68,6 +68,10 @@ using Test
         # applying again should keep it equal
         foo = copy(V)
         @test DMFT._orthonormalize_GramSchmidt!(V) == foo
+
+        # no allocations
+        V = [0 3 1; 0 0 1; 100*eps() 8 0]
+        @test iszero(@allocated(DMFT._orthonormalize_GramSchmidt!(V)))
     end # _orthonormalize_GramSchmidt!
 
     @testset "_orthogonalize_states!" begin
@@ -86,5 +90,9 @@ using Test
         bar = norm(Q_old' * Q_new)
         @test bar <= foo
         @test bar < eps()
+
+        # no allocations
+        Q_new = rand(ComplexF64, 8, 4)
+        @test iszero(@allocated(DMFT._orthogonalize_states!(M1, Q_new, Q_old)))
     end # _orthogonalize_states!
 end # orthogonalization
