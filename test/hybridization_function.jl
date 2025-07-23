@@ -4,8 +4,6 @@ using Test
 
 @testset "hybridization" begin
     @testset "Bethe lattice" begin
-        V = Vector{Float64}
-
         @testset "analytic" begin
             # test different number types
             @test hybridization_function_bethe_analytic(-2) == -0.1339745962155614
@@ -32,7 +30,7 @@ using Test
         @testset "simple" begin
             # 101 poles
             Δ = hybridization_function_bethe_simple(101)
-            @test typeof(Δ) == Poles{V,V}
+            @test typeof(Δ) == PolesSum{Float64,Float64}
             @test length(Δ) === 101
             @test DMFT.moment(Δ, 0) ≈ 0.25 rtol = 10 * eps()
             @test locations(Δ)[51] ≈ 0 atol = 10 * eps()
@@ -40,7 +38,7 @@ using Test
             @test norm(weights(Δ) - reverse(weights(Δ))) < 600 * eps()
             # 100 poles
             Δ = hybridization_function_bethe_simple(100)
-            @test typeof(Δ) === Poles{V,V}
+            @test typeof(Δ) === PolesSum{Float64,Float64}
             @test length(Δ) === 100
             @test DMFT.moment(Δ, 0) ≈ 0.25 rtol = 10 * eps()
             @test norm(locations(Δ) + reverse(locations(Δ))) < 100 * eps()
@@ -55,7 +53,7 @@ using Test
             # U = 0
             Δ = hybridization_function_bethe_grid_hubbard3(grid)
             Δ0 = hybridization_function_bethe_grid(grid)
-            @test typeof(Δ) === Poles{V,V}
+            @test typeof(Δ) === PolesSum{Float64,Float64}
             @test length(Δ) === 101
             @test locations(Δ) == grid
             @test locations(Δ) !== grid
@@ -72,7 +70,7 @@ using Test
             # 101 poles
             W = collect(range(-1, 1; length=101))
             Δ = hybridization_function_bethe_grid(W)
-            @test typeof(Δ) === Poles{V,V}
+            @test typeof(Δ) === PolesSum{Float64,Float64}
             @test length(Δ) === 101
             @test locations(Δ) == W
             @test locations(Δ) !== W
@@ -82,7 +80,7 @@ using Test
             # 100 poles
             W = collect(range(-1, 1; length=100))
             Δ = hybridization_function_bethe_grid(W)
-            @test typeof(Δ) === Poles{V,V}
+            @test typeof(Δ) === PolesSum{Float64,Float64}
             @test length(Δ) === 100
             @test locations(Δ) == W
             @test locations(Δ) !== W
@@ -110,7 +108,7 @@ using Test
             @test_throws DomainError hybridization_function_bethe_equal_weight(2)
             # D = 1
             Δ = hybridization_function_bethe_equal_weight(101)
-            @test typeof(Δ) === Poles{V,V}
+            @test typeof(Δ) === PolesSum{Float64,Float64}
             @test length(Δ) === 101
             @test all(i -> i === 1 / sqrt(101) / 2, amplitudes(Δ))
             @test norm(locations(Δ) + reverse(locations(Δ))) === 0.0

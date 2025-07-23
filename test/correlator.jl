@@ -14,11 +14,8 @@ using Test
     e = 2
     n_kryl = 50
     n_kryl_gs = 20
-    w = collect(-10:0.0002:10)
-    η = 0.08
-    # do not change parameters below
-    n_sites = 1 + n_bath
-    Z = w .+ im * η
+    W = collect(-10:0.002:10)
+    δ = 0.08
 
     Δ0 = hybridization_function_bethe_simple(n_bath)
     # Operators for positive frequencies. Negative ones are calculated by adjoint.
@@ -33,45 +30,44 @@ using Test
     H, E0, ψ0 = init_system(Δ0, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs)
 
     @testset "Lanczos" begin
-        V = Vector{Float64}
         # G+
         G_plus = correlator_plus(H, E0, ψ0, d_dag, n_kryl)
-        @test typeof(G_plus) === Poles{V,V}
+        @test typeof(G_plus) === PolesSum{Float64,Float64}
         @test length(G_plus) === 50
         @test issorted(G_plus)
         @test all(>=(0), locations(G_plus))
-        @test all(>=(0), amplitudes(G_plus))
+        @test all(>=(0), weights(G_plus))
         @test DMFT.moment(G_plus, 0) ≈ 0.5 atol = 100 * eps()
         # G-
         G_minus = correlator_minus(H, E0, ψ0, d_dag', n_kryl)
-        @test typeof(G_minus) === Poles{V,V}
+        @test typeof(G_minus) === PolesSum{Float64,Float64}
         @test length(G_minus) === 50
         @test issorted(G_minus)
         @test all(<=(0), locations(G_minus))
-        @test all(>=(0), amplitudes(G_minus))
+        @test all(>=(0), weights(G_minus))
         @test DMFT.moment(G_minus, 0) ≈ 0.5 atol = 100 * eps()
         # symmetry: first moment must be zero
-        @test DMFT.moment(G_plus, 1) + DMFT.moment(G_minus, 1) ≈ 0 atol = 100 * eps()
+        G = G_plus + G_minus
+        @test DMFT.moment(G, 1) ≈ 0 atol = 100 * eps()
     end # Lanczos
 
     @testset "block Lanczos" begin
         # C+
         C_plus = correlator_plus(H, E0, ψ0, O, n_kryl)
-        @test typeof(C_plus) === Poles{Vector{Float64},Matrix{Float64}}
+        @test typeof(C_plus) === PolesSumBlock{Float64,Float64}
         @test issorted(C_plus)
-        @test length(locations(C_plus)) == length(O) * n_kryl
-        @test size(amplitudes(C_plus)) == (2, 2 * n_kryl)
+        @test length(C_plus) == length(O) * n_kryl
         @test all(>=(0), locations(C_plus))
         # C-
         C_minus = correlator_minus(H, E0, ψ0, map(adjoint, O), n_kryl)
-        @test typeof(C_minus) === Poles{Vector{Float64},Matrix{Float64}}
+        @test typeof(C_minus) === PolesSumBlock{Float64,Float64}
         @test issorted(C_minus)
         @test length(C_minus) == length(O) * n_kryl
-        @test size(amplitudes(C_minus)) == (2, 2 * n_kryl)
+        @test all(<=(0), locations(C_minus))
 
         # G±
-        G_plus = Poles(copy(locations(C_plus)), amplitudes(C_plus)[1, :])
-        G_minus = Poles(copy(locations(C_minus)), amplitudes(C_minus)[1, :])
+        G_plus = PolesSum(copy(locations(C_plus)), map(i -> i[1, 1], weights(C_plus)))
+        G_minus = PolesSum(copy(locations(C_minus)), map(i -> i[1, 1], weights(C_minus)))
 
         # half-filling
         @test DMFT.moment(G_plus, 0) ≈ 0.5 rtol = 20 * eps()
@@ -90,12 +86,12 @@ using Test
         @test Σ_H ≈ U / 2 rtol = 20 * eps()
 
         # evaluation
-        cp = C_plus(Z)
-        cm = C_minus(Z)
-        G = map(c -> c[1, 1], cm) .+ map(c -> c[1, 1], cp)
-        F = map(c -> c[1, 2], cm) .+ map(c -> c[2, 1], cp)
+        C = transpose(C_minus) + C_plus
+        c = evaluate_lorentzian(C, W, δ)
+        G = map(i -> i[1, 1], c)
+        F = map(i -> i[1, 2], c)
         Σ = F ./ G
         @test all(i -> i <= 0, imag(Σ))
-        @test real(Σ[cld(length(w), 2)]) ≈ U / 2 rtol = 500 * eps()
+        @test real(Σ[cld(length(W), 2)]) ≈ U / 2 rtol = 500 * eps()
     end # block Lanczos
 end # correlator

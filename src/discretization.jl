@@ -7,7 +7,7 @@ Discretize `P` to `n` poles such that each new pole has approximately equal weig
 
 For the new pole at location zero, all weights of `P` in ``[-δ_0, δ_0]`` are summed up.
 """
-function discretize_similar_weight(P::Poles{<:Any,<:AbstractVector}, δ0::Real, n::Int)
+function discretize_similar_weight(P::PolesSum, δ0::Real, n::Integer)
     l_old = locations(P)
     w_old = weights(P)
     issorted(P) || throw(ArgumentError("P is not sorted"))
@@ -16,17 +16,17 @@ function discretize_similar_weight(P::Poles{<:Any,<:AbstractVector}, δ0::Real, 
     n >= 3 || throw(ArgumentError("at least 3 poles necessary"))
     isodd(n) || throw(ArgumentError("number of poles must be odd"))
 
-    T = real(promote_type(eltype(l_old), eltype(w_old)))
-    a = Vector{T}(undef, n)
-    b = Vector{T}(undef, n)
-    result = Poles(a, b)
+    T = eltype(P)
+    loc_new = Vector{T}(undef, n)
+    wgt_new = Vector{T}(undef, n)
+    result = PolesSum(loc_new, wgt_new)
 
     # weight at zero is weight in [-δ0, -δ0]
     i_minus = searchsortedfirst(l_old, -δ0)
     i_plus = searchsortedlast(l_old, δ0)
     w0 = sum(w_old[i_minus:i_plus])
-    a[cld(n, 2)] = 0
-    b[cld(n, 2)] = sqrt(w0)
+    loc_new[cld(n, 2)] = 0
+    wgt_new[cld(n, 2)] = w0
 
     # positive frequencies
     idx_new = cld(n, 2) + 1
@@ -41,9 +41,8 @@ function discretize_similar_weight(P::Poles{<:Any,<:AbstractVector}, δ0::Real, 
         m += l_plus[i] * w_plus[i]
         if i == lastindex(l_plus)
             # set pole regardless of current weight
-            a[idx_new] = m / w
-            b[idx_new] = sqrt(w)
-            idx_new
+            loc_new[idx_new] = m / w
+            wgt_new[idx_new] = w
             w = zero(w)
             idx_new == n ||
                 throw(ErrorException("failed to discretize positive frequencies"))
@@ -52,8 +51,8 @@ function discretize_similar_weight(P::Poles{<:Any,<:AbstractVector}, δ0::Real, 
             δw = w - w_target
             # remove overshoot
             m -= l_plus[i] * δw
-            a[idx_new] = m / w_target
-            b[idx_new] = sqrt(w_target)
+            loc_new[idx_new] = m / w_target
+            wgt_new[idx_new] = w_target
             idx_new += 1
             # overshoot to next pole
             w = δw
@@ -75,8 +74,8 @@ function discretize_similar_weight(P::Poles{<:Any,<:AbstractVector}, δ0::Real, 
         m += l_minus[i] * w_minus[i]
         if i == lastindex(l_minus)
             # set pole regardless of current weight
-            a[idx_new] = m / w
-            b[idx_new] = sqrt(w)
+            loc_new[idx_new] = m / w
+            wgt_new[idx_new] = w
             w = zero(w)
             isone(idx_new) ||
                 throw(ErrorException("failed to discretize negative frequencies"))
@@ -85,8 +84,8 @@ function discretize_similar_weight(P::Poles{<:Any,<:AbstractVector}, δ0::Real, 
             δw = w - w_target
             # remove overshoot
             m -= l_minus[i] * δw
-            a[idx_new] = m / w_target
-            b[idx_new] = sqrt(w_target)
+            loc_new[idx_new] = m / w_target
+            wgt_new[idx_new] = w_target
             idx_new -= 1
             # overshoot to next pole
             w = δw
@@ -151,14 +150,14 @@ function equal_weight_discretization(
         if δv > 0 # if vp exceeds v carry over the difference for next pole
             pp -= w[M + i - 1] * δv
             partial += v
-            push!(V_plus, sqrt(v / π))
+            push!(V_plus, v / π)
             push!(P_plus, pp / v)
             vp = δv
             pp = w[M + i - 1] * δv
         elseif vp > 10 * eps()
             # no overshoot, but still some weight
             partial += vp
-            push!(V_plus, sqrt(vp / π))
+            push!(V_plus, vp / π)
             push!(P_plus, pp / vp)
             vp = 0.0
             pp = 0.0
@@ -182,22 +181,22 @@ function equal_weight_discretization(
         if δv > 0 # if vm exceeds v carry over the difference for next pole
             pm -= w[M - j + 1] * δv
             partial += v
-            push!(V_minus, sqrt(v / π))
+            push!(V_minus, v / π)
             push!(P_minus, pm / v)
             vm = δv
             pm = w[M - j + 1] * δv
         elseif vm > 10 * eps()
             # no overshoot, but still some weight
             partial += vm
-            push!(V_minus, sqrt(vm / π))
+            push!(V_minus, vm / π)
             push!(P_minus, pm / vm)
             vm = 0.0
             pm = 0.0
         end
     end
-    a = [reverse!(P_minus); 0; P_plus]
-    b = [reverse!(V_minus); sqrt(v0 / π); V_plus]
-    return Poles(a, b)
+    loc = [reverse!(P_minus); 0; P_plus]
+    wgt = [reverse!(V_minus); v0 / π; V_plus]
+    return PolesSum(loc, wgt)
 end
 
 """
@@ -219,7 +218,7 @@ function discretize_to_grid(
     eachindex(f) == eachindex(W) || throw(ArgumentError("f and W must have same indexing"))
     Base.require_one_based_indexing(grid)
 
-    amplitudes = zero(grid)
+    weights = zero(grid)
     ig = firstindex(grid)
     border_next = (ig + 1) > lastindex(grid) ? typemax(R) : (grid[1] + grid[2]) / 2
     for i in eachindex(f)
@@ -230,10 +229,9 @@ function discretize_to_grid(
             border_next = ig == lastindex(grid) ? typemax(R) : (grid[ig] + grid[ig + 1]) / 2
         end
         # add area by trapezoidal rule
-        amplitudes[ig] += (W[i] - W[i - 1]) * (f[i - 1] + f[i]) / 2
+        weights[ig] += (W[i] - W[i - 1]) * (f[i - 1] + f[i]) / 2
     end
-    amplitudes ./= π # correct norm
-    amplitudes .= sqrt.(amplitudes) # weight → amplitude
+    weights ./= π # correct norm
 
-    return Poles(copy(grid), amplitudes)
+    return PolesSum(copy(grid), weights)
 end

@@ -72,7 +72,7 @@ using Test
             ω = -3:0.01:3
             σ = 0.01
             # constant broadening
-            h = G(ω, σ)
+            h = evaluate_gaussian(G, ω, σ)
             ex = π .* pdf.(Semicircle(1), ω) # exact solution
             @test norm(ex + imag(h)) < 0.2
             @test maximum(abs.(ex + imag(h))) < 0.12
@@ -338,7 +338,7 @@ using Test
             G = greens_function_bethe_grid(grid)
             W = collect(-2:0.001:2)
             popat!(W, findfirst(iszero, W)) # exclude ω == 0
-            P = spectral_function_loggauss(G, W, 0.2)
+            P = spectral_function_loggaussian(G, W, 0.2)
             P .*= π
             @test all(>=(0), P) # positive semidefinite
             @test norm(P - reverse(P)) * 0.001 < 10 * eps() # symmetry
@@ -491,7 +491,6 @@ using Test
         @testset "inv" begin
             grid = collect(range(-1, 1; length=101))
             G = greens_function_bethe_grid(grid)
-            G = PolesSum(locations(G), weights(G))
             a0, P = inv(G)
             @test length(P) === 100 # originally 101 poles
             # poles are symmetric

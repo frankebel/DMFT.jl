@@ -27,7 +27,7 @@ function amplitudes end
 Evaluate `P` with Gaussian broadening ``σ``.
 """
 function evaluate_gaussian end
-function evaluate_gaussian(P::AbstractPoles, ω::Vector{<:Real}, σ)
+function evaluate_gaussian(P::AbstractPoles, ω::AbstractVector{<:Real}, σ)
     # map for each point in given grid
     return map(i -> evaluate_gaussian(P, i, σ), ω)
 end
@@ -38,7 +38,7 @@ end
 Evaluate `P` with Lorentzian broadening ``P(ω + \\mathrm{i}δ)``.
 """
 function evaluate_lorentzian end
-function evaluate_lorentzian(P::AbstractPoles, ω::Vector{<:Real}, δ)
+function evaluate_lorentzian(P::AbstractPoles, ω::AbstractVector{<:Real}, δ)
     # map for each point in given grid
     return map(i -> evaluate_lorentzian(P, i, δ), ω)
 end

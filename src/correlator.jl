@@ -1,99 +1,55 @@
 """
     correlator(
-        H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int; minus::Bool=true
+        H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
     ) where {CI<:CIWavefunction}
 
-If `minus` calculate the correlator
+Calculate the correlator
 
 ```math
-C(ω) = \\left⟨ ψ_0 O^† \\frac{1}{ω - H} O ψ_0 \\right⟩,
-```
-
-otherwise
-
-```math
-C(ω) = \\left⟨ ψ_0 O^† \\frac{1}{ω + H} O ψ_0 \\right⟩.
+C(ω) = \\left⟨ ψ_0 O^† \\frac{1}{ω - H} O ψ_0 \\right⟩.
 ```
 """
 function correlator(
-    H::CIOperator, ψ0::CI, O::Operator, n_kryl::Int; minus::Bool=true
+    H::CIOperator, ψ0::CI, O::Operator, n_kryl::Int
 ) where {CI<:CIWavefunction}
     v = O * ψ0
-    b0 = norm(v)
-    rmul!(v, inv(b0))
-    a, b = lanczos(H, v, n_kryl)
+    scale = norm(v)
+    rmul!(v, inv(scale))
+    locations, amplitudes = lanczos(H, v, n_kryl)
 
-    # look if any coefficient in `b` is small
-    value, index = findmin(b)
-    @debug "smallest weight b=$(value) at index $(index)/$(lastindex(b))"
+    # NOTE: break Lanczos early if amplitude is small
+    value, index = findmin(amplitudes)
+    @debug "smallest amplitude b=$(value) at index $(index)/$(lastindex(amplitudes))"
 
-    # diagonalize tridiagonal matrix given by `a`, `b`
-    S = SymTridiagonal(a, b)
-    E, T = eigen(S)
-    R = b0 * T[1, :]
-    @. R = abs(R) # sign does not matter, positive is easier
-
-    if !minus
-        @. E = -E
-        # reverse to list locations from smallest to largest
-        reverse!(E)
-        reverse!(R)
-    end
-
-    return Poles(E, R)
+    # create block tridiagonal pole representation which is then diagonalized
+    PCF = PolesContinuedFraction(locations, amplitudes, scale)
+    return PolesSum(PCF)
 end
 
 """
     correlator(
-        H::CIOperator, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int; minus::Bool=true
+        H::CIOperator, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int
     ) where {CI<:CIWavefunction}
 
-If `minus` calculate the block correlator
+Calculate the block correlator
 
 ```math
-C(ω) = \\left⟨ ψ_0 O^† \\frac{1}{ω - H} O ψ_0 \\right⟩,
-```
-
-otherwise
-
-```math
-C(ω) = \\left⟨ ψ_0 O^† \\frac{1}{ω + H} O ψ_0 \\right⟩.
+C(ω) = \\left⟨ ψ_0 O^† \\frac{1}{ω - H} O ψ_0 \\right⟩.
 ```
 """
 function correlator(
-    H::CIOperator, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int; minus::Bool=true
+    H::CIOperator, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int
 ) where {CI<:CIWavefunction}
     V = Matrix{CI}(undef, 1, length(O)) # 1×n matrix
     for i in eachindex(V)
         V[i] = O[i] * ψ0
     end
-    W, S_sqrt = _orthonormalize_SVD(V)
-    A, B = block_lanczos(H, W, n_kryl)
+    W, scale = _orthonormalize_SVD(V)
+    locations, amplitudes = block_lanczos(H, W, n_kryl)
 
-    # diagonalize blocktridiagonal matrix given by `A`, `B` and convert to `Poles`
-    n1 = length(A)
-    n2 = length(O)
-    n = n1 * n2
-    X = zeros(eltype(eltype(A)), n, n)
-    for i in 1:(n1 - 1)
-        i1 = 1 + (i - 1) * n2
-        i2 = i * n2
-        X[i1:i2, (i1 + n2):(i2 + n2)] = B[i] # upper diagonal, don't need adjoint
-        X[i1:i2, i1:i2] = A[i] # main diagonal
-        X[(i1 + n2):(i2 + n2), i1:i2] = B[i] # lower diagonal
-    end
-    X[(end - n2 + 1):end, (end - n2 + 1):end] = A[end] # last element
-    E, _ = LAPACK.syev!('V', 'U', X)
-    R = S_sqrt * X[1:size(S_sqrt, 1), :]
-
-    if !minus
-        @. E = -E
-        # reverse to list locations from smallest to largest
-        reverse!(E)
-        reverse!(R; dims=2)
-    end
-
-    return Poles(E, R)
+    # create block tridiagonal pole representation which is then diagonalized
+    Pt = PolesContinuedFractionBlock(locations, amplitudes, scale)
+    return PolesSumBlock(Pt)
 end
 
 """
@@ -113,9 +69,9 @@ function correlator_plus(
     H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
 ) where {CI<:CIWavefunction}
     C = correlator(H, ψ0, O, n_kryl)
-    shift_spectrum!(C, E0)
+    locations(C) .-= E0
 
-    # poles at negative energies (never happens on exact arithmetic)
+    # poles at negative locatiions (never happens on exact arithmetic)
     idx_neg = findall(<(0), locations(C))
     if !isempty(idx_neg)
         n_neg = length(idx_neg)
@@ -143,7 +99,7 @@ function correlator_plus(
     H::CIOperator, E0::Real, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int
 ) where {CI<:CIWavefunction}
     C = correlator(H, ψ0, O, n_kryl)
-    shift_spectrum!(C, E0)
+    locations(C) .-= E0
 
     # poles at negative energies (never happens on exact arithmetic)
     idx_neg = findall(<(0), locations(C))
@@ -171,9 +127,11 @@ See also [`correlator_plus`](@ref).
 function correlator_minus(
     H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
 ) where {CI<:CIWavefunction}
-    C = correlator(H, ψ0, O, n_kryl; minus=false)
+    C = correlator(H, ψ0, O, n_kryl)
+    locations(C) .-= E0
 
-    shift_spectrum!(C, -E0)
+    map!(-, locations(C), locations(C)) # flip sign of eigenvalues
+    reverse!(C) # order form lowest to highest
 
     # poles at positive energies (never happens on exact arithmetic)
     idx_pos = findall(>(0), locations(C))
@@ -202,9 +160,11 @@ See also [`correlator_minus`](@ref).
 function correlator_minus(
     H::CIOperator, E0::Real, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int
 ) where {CI<:CIWavefunction}
-    C = correlator(H, ψ0, O, n_kryl; minus=false)
+    C = correlator(H, ψ0, O, n_kryl)
+    locations(C) .-= E0
 
-    shift_spectrum!(C, -E0)
+    map!(-, locations(C), locations(C)) # flip sign of eigenvalues
+    reverse!(C) # order form lowest to highest
 
     # poles at positive energies (never happens on exact arithmetic)
     idx_pos = findall(>(0), locations(C))

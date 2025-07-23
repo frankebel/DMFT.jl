@@ -4,13 +4,13 @@ using Test
 
 @testset "update hybridization function" begin
     @testset "pole" begin
-        Δ0 = Poles([1.0, 5.0], [0.1, 0.2])
+        Δ0 = PolesSum([1.0, 5.0], [0.01, 0.04])
         μ = Σ_H = 5.0 # cancel in PHS, take any value
-        Σ = Poles([2.0, 4.0, 7.0], [0.5, 3.0, 0.05])
+        Σ = PolesSum([2.0, 4.0, 7.0], [0.25, 9.0, 0.0025])
         Δ = update_hybridization_function(Δ0, μ, Σ_H, Σ)
 
-        @test Δ0.a == [1.0, 5.0] # original must be unchanged
-        @test typeof(Δ) === Poles{Vector{Float64},Vector{Float64}}
+        @test locations(Δ0) == [1.0, 5.0] # original must be unchanged
+        @test typeof(Δ) === PolesSum{Float64,Float64}
         @test length(Δ) == 8
         @test norm(
             locations(Δ) - [
@@ -65,17 +65,17 @@ using Test
         ) < 100 * eps()
 
         # PHS in → PHS out
-        Δ0 = Poles([-0.5, 0.0, 0.5], [0.25, 2.0, 0.25])
-        Σ = Poles([-2.125, 2.125], [0.7, 0.7])
+        Δ0 = PolesSum([-0.5, 0.0, 0.5], [0.25, 2.0, 0.25])
+        Σ = PolesSum([-2.125, 2.125], [0.7, 0.7])
         Δ = update_hybridization_function(Δ0, μ, Σ_H, Σ)
         @test DMFT.moment(Δ, 1) < 100 * eps()
 
         # Σ = 0
-        Δ0 = Poles([1.0, 5.0], [-0.1, 0.2])
+        Δ0 = PolesSum([1.0, 5.0], [0.1, 0.2])
         μ = Σ_H = 0.0
-        Σ = Poles([0.0], [0.0])
+        Σ = PolesSum([0.0], [0.0])
         Δ = update_hybridization_function(Δ0, μ, Σ_H, Σ)
         @test locations(Δ) == [1.0, 5.0]
-        @test amplitudes(Δ) == [0.1, 0.2] # positive amplitudes
+        @test weights(Δ) == [0.1, 0.2]
     end # pole
 end # update hybridization function

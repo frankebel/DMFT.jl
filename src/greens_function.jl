@@ -29,7 +29,7 @@ end
 """
     greens_function_bethe_simple(n_bath::Int, D::Real=1.0)
 
-Return the [`Poles`](@ref) representation of the semicircular density of states
+Return the [`PolesSum`](@ref) representation of the semicircular density of states
 with half-bandwidth `D` on `n_bath` poles.
 
 Poles are found by diagonalizing a tridiagonal matrix with hopping ``t=D/2``.
@@ -46,14 +46,14 @@ function greens_function_bethe_simple(n_bath::Int, D::Real=1.0)
     ev = fill(D / 2, n_bath - 1) # hopping t = D/2
     H0 = SymTridiagonal(dv, ev)
     a, T = eigen(H0)
-    b = abs.(T[:, 1]) # positive values for simplicity
-    return Poles(a, b)
+    b = abs2.(T[:, 1]) # positive values for simplicity
+    return PolesSum(a, b)
 end
 
 """
     greens_function_bethe_grid(grid::AbstractVector{<:Real}, D::Real=1.0)
 
-Return the [`Poles`](@ref) representation of the semicircular density of states
+Return the [`PolesSum`](@ref) representation of the semicircular density of states
 with half-bandwidth `D` with poles given in `grid`.
 
 See also
@@ -62,37 +62,38 @@ See also
 """
 function greens_function_bethe_grid(grid::AbstractVector{<:Real}, D::Real=1.0)
     # check input
-    foo = Poles(grid, grid)
+    foo = PolesSum(grid, grid)
     issorted(foo) || throw(ArgumentError("grid is not sorted"))
     allunique(foo) || throw(ArgumentError("grid has degenerate locations"))
     D > 0 || throw(DomainError(D, "negative half-bandwidth"))
 
     s = Semicircle(D)
-    a = copy(grid)
-    b = similar(grid)
-    if length(grid) == 1
-        b[firstindex(b)] = 1
-        return Poles(a, b)
+    locations = Vector(grid)
+    weights = similar(locations)
+    n = length(locations)
+    if n == 1
+        weights[1] = 1
+        return PolesSum(locations, weights)
     end
     # For each pole location a[i] we bisect the interval to its neighbors
     # a_low = 0.5 * (a[i-1] + a[i])
     # a_high = 0.5 * (a[i] + a[i+1])
     # and calculate the weight as
-    # b ∝ cdf(a_high) - cdf(a_low)
-    for i in eachindex(a)
-        if i == firstindex(a)
+    # wgt ∝ cdf(a_high) - cdf(a_low)
+    for i in eachindex(locations)
+        if i == 1
             # cdf(-Inf) = 0
-            @inbounds b[i] = cdf(s, 0.5 * (a[i] + a[i + 1]))
-        elseif i == lastindex(a)
+            @inbounds weights[i] = cdf(s, 0.5 * (locations[i] + locations[i + 1]))
+        elseif i == n
             # cdf(Inf) = 1
-            @inbounds b[i] = 1 - cdf(s, 0.5 * (a[i - 1] + a[i]))
+            @inbounds weights[i] = 1 - cdf(s, 0.5 * (locations[i - 1] + locations[i]))
         else
-            @inbounds b[i] =
-                cdf(s, 0.5 * (a[i] + a[i + 1])) - cdf(s, 0.5 * (a[i - 1] + a[i]))
+            @inbounds weights[i] =
+                cdf(s, 0.5 * (locations[i] + locations[i + 1])) -
+                cdf(s, 0.5 * (locations[i - 1] + locations[i]))
         end
     end
-    map!(sqrt, b, b)
-    return Poles(a, b)
+    return PolesSum(locations, weights)
 end
 
 """
@@ -100,7 +101,7 @@ end
         grid::AbstractVector{<:Real}, U::Real=0.0, D::Real=1.0
     )
 
-Return the [`Poles`](@ref) representation of the Hubbard III approximation
+Return the [`PolesSum`](@ref) representation of the Hubbard III approximation
 with half-bandwidth `D` and poles given in `grid`.
 
 Created using two semicircles at ``±U/2``.
@@ -109,49 +110,49 @@ function greens_function_bethe_grid_hubbard3(
     grid::AbstractVector{<:Real}, U::Real=0.0, D::Real=1.0
 )
     # check input
-    foo = Poles(grid, grid)
+    foo = PolesSum(grid, grid)
     issorted(foo) || throw(ArgumentError("grid is not sorted"))
     allunique(foo) || throw(ArgumentError("grid has degenerate locations"))
     D > 0 || throw(DomainError(D, "negative half-bandwidth"))
 
     s = Semicircle(D)
-    a = copy(grid)
-    b = similar(grid)
-    if length(grid) == 1
-        b[firstindex(b)] = 1
-        return Poles(a, b)
+    locations = Vector(grid)
+    weights = similar(locations)
+    n = length(locations)
+    if n == 1
+        weights[1] = 1
+        return PolesSum(locations, weights)
     end
     # For each pole location a[i] we bisect the interval to its neighbors
     # a_low = 0.5 * (a[i-1] + a[i])
     # a_high = 0.5 * (a[i] + a[i+1])
     # and calculate the weight as
     # b ∝ cdf(a_high) - cdf(a_low)
-    for i in eachindex(a)
-        if i == firstindex(a)
+    for i in eachindex(locations)
+        if i == 1
             # cdf(-Inf) = 0
-            a_high = 0.5 * (a[i] + a[i + 1])
-            @inbounds b[i] = cdf(s, a_high + U / 2) + cdf(s, a_high - U / 2)
-        elseif i == lastindex(a)
+            a_high = 0.5 * (locations[i] + locations[i + 1])
+            @inbounds weights[i] = cdf(s, a_high + U / 2) + cdf(s, a_high - U / 2)
+        elseif i == n
             # cdf(Inf) = 2
-            a_low = 0.5 * (a[i - 1] + a[i])
-            @inbounds b[i] = 2 - cdf(s, a_low + U / 2) - cdf(s, a_low - U / 2)
+            a_low = 0.5 * (locations[i - 1] + locations[i])
+            @inbounds weights[i] = 2 - cdf(s, a_low + U / 2) - cdf(s, a_low - U / 2)
         else
-            a_low = 0.5 * (a[i - 1] + a[i])
-            a_high = 0.5 * (a[i] + a[i + 1])
-            @inbounds b[i] =
+            a_low = 0.5 * (locations[i - 1] + locations[i])
+            a_high = 0.5 * (locations[i] + locations[i + 1])
+            @inbounds weights[i] =
                 cdf(s, a_high + U / 2) + cdf(s, a_high - U / 2) - cdf(s, a_low + U / 2) -
                 cdf(s, a_low - U / 2)
         end
     end
-    b ./= 2 # noralize 2 distributions
-    map!(sqrt, b, b)
-    return Poles(a, b)
+    weights ./= 2 # noralize 2 distributions
+    return PolesSum(locations, weights)
 end
 
 """
     greens_function_bethe_equal_weight(n_bath::Int, D::Real=1.0)
 
-Return the [`Poles`](@ref) representation of the semicircular density of states
+Return the [`PolesSum`](@ref) representation of the semicircular density of states
 with half-bandwidth `D` on `n_bath` poles.
 
 Each pole has the same hybridization ``V^2 = 1/n_b``.
@@ -163,17 +164,16 @@ See also
 function greens_function_bethe_equal_weight(n_bath::Int, D::Real=1.0)
     isodd(n_bath) || throw(DomainError(n_bath, "number of bath sites must be odd"))
 
-    V_sqr = 1 / n_bath
-    V = sqrt(V_sqr)
+    wgt = 1 / n_bath # weight for each pole
     s = Semicircle(D)
 
     # calculate only negative half, mirror due to symmetry
-    q = collect(0:V_sqr:0.5) # equal weight for each pole
+    q = collect(0:wgt:0.5) # equal weight for each pole
     v = quantile.(Semicircle(D), q) # I_l
 
-    # ϵ_l = 1/V_sqr ∫_{I_l} dω ω f(ω)
+    # ϵ_l = 1/wgt ∫_{I_l} dω ω f(ω)
     # trapezoid rule with `n_p` points
-    a = Vector{Float64}(undef, n_bath ÷ 2)
+    locations = Vector{Float64}(undef, n_bath ÷ 2)
     n_p = 128 # arbitrary number
     for i in eachindex(v)
         i == length(v) && break
@@ -184,13 +184,13 @@ function greens_function_bethe_equal_weight(n_bath::Int, D::Real=1.0)
             α += j * pdf(s, j)
         end
         α *= (v[i + 1] - v[i]) / n_p # Δω = I_l/n_p
-        a[i] = α
+        locations[i] = α
     end
-    a .*= n_bath # a .*= 1/V_sqr
+    locations .*= n_bath # locations .*= 1/wgt
 
-    a = [a; 0; -reverse(a)]
-    b = fill(V, n_bath)
-    return Poles(a, b)
+    locations = [locations; 0; -reverse(locations)]
+    weights = fill(wgt, n_bath)
+    return PolesSum(locations, weights)
 end
 
 # Dispersion relation H_k supplied by user.

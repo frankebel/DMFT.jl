@@ -17,7 +17,6 @@ using Test
     W = collect(-5:0.001:5)
     δ = 0.04
     # do not change parameters below
-    n_sites = 1 + n_bath
     Z = W .+ im * δ
 
     Δ0_analytic = hybridization_function_bethe_analytic
@@ -30,7 +29,7 @@ using Test
     H_int = U * n[1, 1//2] * n[1, -1//2]
     d_dag = c[1, -1//2]' # d_↓^†
     q_dag = H_int * d_dag - d_dag * H_int  # q_↓^† = [H_int, d^†]
-    O = [d_dag, q_dag]
+    O = [q_dag, d_dag]
 
     # initialize system
     H, E0, ψ0 = init_system(Δ0, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs)
@@ -42,7 +41,7 @@ using Test
         G_imp = G_plus + G_minus
 
         # self-energy
-        Σ_H, Σ = self_energy_poles(ϵ_imp, Δ0, G_imp)
+        Σ_H, Σ = self_energy_dyson(ϵ_imp, Δ0, G_imp, W)
         merge_small_poles!(Σ)
 
         # new hypridization function
@@ -53,12 +52,12 @@ using Test
 
         @test length(Δ_new) == 101
         @test iszero(locations(Δ_new)[51])
-        @test weights(Δ_new)[51] ≈ 0.002083461320853373 atol = 5e-10
+        @test weight(Δ_new, 51) ≈ 0.002083461320853373 atol = 1e-7
         @test DMFT.moment(Δ_new, 0) ≈ 0.25 atol = 10 * eps()
         @test DMFT.moment(Δ_new, 1) ≈ 0.0 atol = sqrt(eps())
 
         # insulating solution
-        P = Poles([rand(100) .- 2; rand(100) .+ 1], rand(200))
+        P = PolesSum([rand(100) .- 2; rand(100) .+ 1], rand(200))
         sort!(P)
         foo = discretize_similar_weight(P, 0.01, 11)
         @test iszero(locations(foo)[6])
@@ -73,14 +72,15 @@ using Test
         # impurity correlators
         C_plus = correlator_plus(H, E0, ψ0, O, n_kryl)
         C_minus = correlator_minus(H, E0, ψ0, map(adjoint, O), n_kryl)
+        C = transpose(C_minus) + C_plus
 
         # Lorentzian
         # self-energy
-        Σ = self_energy_IFG(C_plus, C_minus, Z, Σ_H)
+        Σ = self_energy_IFG_lorentzian(Σ_H, C, W, δ)
         # new hybridization function
         Δ_grid = Δ0_analytic(Z .+ μ - Σ)
         Δ_new_L = equal_weight_discretization(-imag(Δ_grid), W, δ, n_bath)
-        @test typeof(Δ_new_L) === Poles{Vector{Float64},Vector{Float64}}
+        @test typeof(Δ_new_L) === PolesSum{Float64,Float64}
         @test typeof(Δ_grid) === Vector{ComplexF64}
         @test length(Δ_new_L) === n_bath
         @test all(b -> isapprox(b, 1 / sqrt(n_bath) / 2; rtol=3e-3), amplitudes(Δ_new_L))
@@ -90,19 +90,17 @@ using Test
 
         # Gaussian
         # self-energy
-        Σ = self_energy_IFG_gauss(C_plus, C_minus, W, δ, Σ_H)
+        Σ = self_energy_IFG_gaussian(Σ_H, C, W, δ)
         # new hybridization function
         Δ_grid = Δ0_analytic(Z .+ μ - Σ)
         Δ_new_G = equal_weight_discretization(-imag(Δ_grid), real(Z), δ, n_bath)
-        @test typeof(Δ_new_G) === Poles{Vector{Float64},Vector{Float64}}
+        @test typeof(Δ_new_G) === PolesSum{Float64,Float64}
         @test typeof(Δ_grid) === Vector{ComplexF64}
         @test length(Δ_new_G) === n_bath
-        amplitudes_without_zero = copy(amplitudes(Δ_new_G))
-        popat!(amplitudes_without_zero, cld(n_bath, 2))
-        @test all(
-            b -> isapprox(b, 1 / sqrt(n_bath) / 2; rtol=3e-3), amplitudes_without_zero
-        )
-        @test amplitudes(Δ_new_G)[cld(n_bath, 2)] ≈ 1 / sqrt(n_bath) / 2 rtol = 3e-2
+        weights_without_zero = copy(weights(Δ_new_G))
+        popat!(weights_without_zero, cld(n_bath, 2))
+        @test all(b -> isapprox(b, inv(4 * n_bath); atol=2e-5), weights_without_zero)
+        @test weight(Δ_new_G, cld(n_bath, 2)) ≈ inv(4 * n_bath) atol = 2e-4
         # small weight loss due to truncated interval
         @test 0.2486 <= DMFT.moment(Δ_new_G, 0) <= 0.25
         @test DMFT.moment(Δ_new_G, 1) < 200 * eps() # PHS
@@ -112,7 +110,7 @@ using Test
         @test amplitudes(Δ_new_L) != amplitudes(Δ_new_G)
 
         # FG
-        Σ_FG = self_energy_FG(C_plus, C_minus, Z)
+        Σ_FG = self_energy_FG_lorentzian(C, W, δ)
         Δ_grid = Δ0_analytic(Z .+ μ - Σ_FG)
         Δ_new_3 = equal_weight_discretization(-imag(Δ_grid), W, δ, n_bath)
         # must not be equal
@@ -140,18 +138,18 @@ using Test
         foo = discretize_to_grid(f, W, grid)
         @test locations(foo) == grid
         @test locations(foo) !== grid
-        @test amplitudes(foo) == [sqrt(15.125 / π)]
+        @test weights(foo) == [15.125 / π]
         # 1 pole < W
         foo = discretize_to_grid(f, W, [-10.0])
         @test locations(foo) == [-10.0]
-        @test amplitudes(foo) == [sqrt(15.125 / π)]
+        @test weights(foo) == [15.125 / π]
         # 1 pole > W
         foo = discretize_to_grid(f, W, [10.0])
         @test locations(foo) == [10.0]
-        @test amplitudes(foo) == [sqrt(15.125 / π)]
+        @test weights(foo) == [15.125 / π]
         # 2 asymmetric poles
         foo = discretize_to_grid(f, W, [-3.0, 5.0])
         @test locations(foo) == [-3.0, 5.0]
-        @test amplitudes(foo) == [sqrt(6.0 / π), sqrt(9.125 / π)]
+        @test weights(foo) == [6.0 / π, 9.125 / π]
     end # discretize_to_grid
 end # discretization

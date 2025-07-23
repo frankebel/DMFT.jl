@@ -4,8 +4,6 @@ using Test
 
 @testset "Green's function" begin
     @testset "Bethe lattice" begin
-        V = Vector{Float64}
-
         @testset "analytic" begin
             # test different number types
             @test greens_function_bethe_analytic(-2) == -0.5358983848622456
@@ -30,7 +28,7 @@ using Test
         @testset "simple" begin
             # 101 poles
             G = greens_function_bethe_simple(101)
-            @test typeof(G) === Poles{V,V}
+            @test typeof(G) === PolesSum{Float64,Float64}
             @test length(G) === 101
             @test DMFT.moment(G, 0) ≈ 1 rtol = 10 * eps()
             @test locations(G)[51] ≈ 0 atol = 10 * eps()
@@ -38,7 +36,7 @@ using Test
             @test norm(weights(G) - reverse(weights(G))) < 600 * eps()
             # 100 poles
             G = greens_function_bethe_simple(100)
-            @test typeof(G) === Poles{V,V}
+            @test typeof(G) === PolesSum{Float64,Float64}
             @test length(G) === 100
             @test DMFT.moment(G, 0) ≈ 1 rtol = 10 * eps()
             @test norm(locations(G) + reverse(locations(G))) < 100 * eps()
@@ -52,63 +50,63 @@ using Test
             # 1 pole
             W = [0.0]
             G = greens_function_bethe_grid(W)
-            @test typeof(G) === Poles{V,V}
+            @test typeof(G) === PolesSum{Float64,Float64}
             @test isone(length(G))
             @test locations(G) == W
             @test locations(G) !== W
-            @test only(amplitudes(G)) === 1.0
+            @test only(weights(G)) === 1.0
             # 101 poles
             W = collect(range(-1, 1; length=101))
             G = greens_function_bethe_grid(W)
-            @test typeof(G) === Poles{V,V}
+            @test typeof(G) === PolesSum{Float64,Float64}
             @test length(G) === 101
             @test locations(G) == W
             @test locations(G) !== W
             @test DMFT.moment(G, 0) ≈ 1 rtol = 10 * eps()
             @test norm(weights(G) - reverse(weights(G))) < 10 * eps()
-            @test amplitudes(G)[51] ≈ 0.11283697637555509 atol = eps()
+            @test weight(G, 51) ≈ 0.012732183237577577 atol = eps()
             # 100 poles
             W = collect(range(-1, 1; length=100))
             G = greens_function_bethe_grid(W)
-            @test typeof(G) === Poles{V,V}
+            @test typeof(G) === PolesSum{Float64,Float64}
             @test length(G) === 100
             @test locations(G) == W
             @test locations(G) !== W
             @test DMFT.moment(G, 0) ≈ 1 rtol = 10 * eps()
             @test norm(weights(G) - reverse(weights(G))) < 10 * eps()
-            @test amplitudes(G)[51] ≈ 0.11340251602035117 atol = eps()
+            @test weight(G, 51) ≈ 0.012860130639746004 atol = eps()
             # 101 poles, D = 2
             W = collect(range(-3, 3; length=101))
             G = greens_function_bethe_grid(W, 2)
             @test DMFT.moment(G, 0) ≈ 1 rtol = 10 * eps()
             @test norm(weights(G) - reverse(weights(G))) < 10 * eps()
-            @test all(iszero, view(amplitudes(G), 1:17))
-            @test all(iszero, view(amplitudes(G), 85:101))
-            @test amplitudes(G)[51] ≈ 0.13819506847065838 atol = eps()
+            @test all(iszero, view(weights(G), 1:17))
+            @test all(iszero, view(weights(G), 85:101))
+            @test weight(G, 51) ≈ 0.01909787694960996 atol = eps()
             # non-equidistant grid
             # Test if dense grid in middle has smaller weights.
             W = [-1:0.01:-0.51; -0.5:0.005:0.5; 0.51:0.01:1]
             G = greens_function_bethe_grid(W)
-            w1 = amplitudes(G)[50]
-            @test all(i -> i < w1, view(amplitudes(G), 51:251))
-            @test amplitudes(G)[151] ≈ 0.05641892896986609 atol = eps()
+            w1 = weight(G, 50)
+            @test all(i -> i < w1, view(weights(G), 51:251))
+            @test weight(G, 151) ≈ 0.0031830955461067956 atol = eps()
         end # grid
 
         @testset "grid Hubbard III" begin
             # 1 pole
             G = greens_function_bethe_grid_hubbard3([5.0])
             @test locations(G) == [5.0]
-            @test amplitudes(G) == [1.0]
+            @test weights(G) == [1.0]
             # uniform grid
             grid = collect(range(-5, 5; length=101))
             # U = 0
             G = greens_function_bethe_grid_hubbard3(grid)
             G0 = greens_function_bethe_grid(grid)
-            @test typeof(G) === Poles{V,V}
+            @test typeof(G) === PolesSum{Float64,Float64}
             @test length(G) === 101
             @test locations(G) == grid
             @test locations(G) !== grid
-            @test norm(amplitudes(G) - amplitudes(G0)) < 10 * eps()
+            @test norm(weights(G) - weights(G0)) < 10 * eps()
             # U = 3
             G = greens_function_bethe_grid_hubbard3(grid, 3)
             @test amplitudes(G)[36] ≈ 0.1783752245364157 atol = 10 * eps()
@@ -120,9 +118,9 @@ using Test
         @testset "equal weight" begin
             @test_throws DomainError greens_function_bethe_equal_weight(2)
             G = greens_function_bethe_equal_weight(101)
-            @test typeof(G) === Poles{V,V}
+            @test typeof(G) === PolesSum{Float64,Float64}
             @test length(G) === 101
-            @test all(i -> i === 1 / sqrt(101), amplitudes(G))
+            @test all(i -> i === 1 / 101, weights(G))
             @test norm(locations(G) + reverse(locations(G))) === 0.0
             @test issorted(G)
         end # equal weight

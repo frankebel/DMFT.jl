@@ -98,7 +98,8 @@ using Test
                 ) < 10 * eps()
 
                 # semicircular DOS
-                G = greens_function_bethe_simple(3001)
+                foo = greens_function_bethe_simple(3001)
+                G = Poles(locations(foo), amplitudes(foo))
                 ω = collect(-3:0.01:3)
                 σ = 0.01
                 # constant broadening
@@ -114,7 +115,8 @@ using Test
                 N = 150
                 a = grid_log(1, Λ, N)
                 grid = [-reverse(a); 0; a]
-                G = greens_function_bethe_grid(grid)
+                foo = greens_function_bethe_grid(grid)
+                G = Poles(locations(foo), amplitudes(foo))
                 W = collect(-2:0.001:2)
                 popat!(W, findfirst(iszero, W)) # exclude ω == 0
                 A = spectral_function_loggauss(G, W, 0.2)
@@ -343,7 +345,8 @@ using Test
                 return result
             end
 
-            G = greens_function_bethe_simple(101)
+            foo = greens_function_bethe_simple(101)
+            G = Poles(locations(foo), amplitudes(foo))
             a, b = DMFT._continued_fraction(G)
             @test length(a) === 101
             @test length(b) === 100
@@ -734,7 +737,8 @@ using Test
 
         @testset "inv" begin
             grid = collect(range(-1, 1; length=101))
-            G = greens_function_bethe_grid(grid)
+            foo = greens_function_bethe_grid(grid)
+            G = Poles(locations(foo), amplitudes(foo))
             a0, P = inv(G)
             @test length(P.a) === length(P.b) === 100 # originally 101 poles
             @test all(>=(0), P.b)

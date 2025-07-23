@@ -21,8 +21,8 @@ function PolesContinuedFraction(P::PolesSum)
     # normalize starting vector
     v_old = amplitudes(P)
     s = norm(v_old)
-    isapprox(s, 1; atol=100 * eps()) && (s = one(s))
     v_old ./= s
+    isapprox(s, 1; atol=100 * eps()) && (s = one(s))
     # first Lanczos step
     V[:, 1] = v_old
     v_new = A * v_old

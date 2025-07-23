@@ -6,39 +6,36 @@
     ) where {V<:AbstractVector{<:Real},R<:Real}
 
 
-Calculate the new hybridization function in [`Poles`](@ref) representation.
+Calculate the new hybridization function in [`PolesSum`](@ref) representation.
 
 ```math
 Δ(ω) = Δ_0(ω + μ - Σ(ω))
 ```
 """
 function update_hybridization_function(
-    Δ0::P, μ::R, Σ_H::R, Σ::P
-) where {P<:Poles{<:Any,<:AbstractVector},R<:Real}
+    Δ0::PolesSum{R,R}, μ::R, Σ_H::R, Σ::PolesSum{R,R}
+) where {R<:Real}
     Σ = remove_zero_weight(Σ)
+    foo = Matrix{R}(Array(Σ)) # create once for speed
+
     n = length(Σ) + 1
     n_tot = length(Δ0) * n
-    a = Vector{R}(undef, n_tot)
-    b = Vector{R}(undef, n_tot)
-    result = Poles(a, b)
-    foo = Array(Σ) # create once for speed
-
-    loc = locations(Δ0)
-    amp = amplitudes(Δ0)
+    loc_new = Vector{R}(undef, n_tot)
+    wgt_new = Vector{R}(undef, n_tot)
+    result = PolesSum(loc_new, wgt_new)
 
     # diagonalization for each pole in Δ0
-    Threads.@threads for i in eachindex(loc)
+    Threads.@threads for i in eachindex(Δ0)
         idx_low = 1 + n * (i - 1)
         idx_high = idx_low + n - 1
         bar = copy(foo)
-        bar[1, 1] = Σ_H - μ + loc[i]
-        a[idx_low:idx_high], T = eigen!(bar)
-        b[idx_low:idx_high] = amp[i] * view(T, 1, :) # multiply each weight with original b_i
+        bar[1, 1] = Σ_H - μ + locations(Δ0)[i]
+        loc_new[idx_low:idx_high], T = eigen!(Symmetric(bar))
+        wgt_new[idx_low:idx_high] = weight(Δ0, i) .* abs2.(view(T, 1, :)) # multiply new weights with original
     end
 
     sort!(result)
     merge_degenerate_poles!(result, eps(R))
-    b .= abs.(b) # positive amplitudes are easier
 
     return result
 end

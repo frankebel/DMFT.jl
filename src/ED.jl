@@ -10,15 +10,11 @@ export
     solve_impurity_ed
 
 """
-    solve_impurity_ed(
-        Δ::Poles{V,V}, H_int::Operator, ϵ_imp::Real
-    ) where {V<:AbstractVector{<:Real}}
+    solve_impurity_ed(Δ::PolesSum, H_int::Operator, ϵ_imp::Real)
 
 Solve AIM in exact diagonalization.
 """
-function solve_impurity_ed(
-    Δ::Poles{V,V}, H_int::Operator, ϵ_imp::Real
-) where {V<:AbstractVector{<:Real}}
+function solve_impurity_ed(Δ::PolesSum, H_int::Operator, ϵ_imp::Real)
     # Get Hamiltonian
     H_nat, n_occ = to_natural_orbitals(Array(Δ))
     n_sites = size(H_nat, 1)
@@ -38,11 +34,11 @@ function solve_impurity_ed(
     e0 = E0[1]
 
     # block with one less particle
-    c_minus = sparse(BlockOper(c[1, -1//2], block))
+    foo = BlockOper(c[1, -1//2], block) * ψ0
     h_minus = Array(BlockOper(H, Block(qn, (n_occ - 1, n_occ)))) # 1 less in spin ↓
     @time "decomposition H minus" a_minus, V_minus = eigen(h_minus)
-    b_minus = [dot(V_minus[:, i], c_minus, ψ0) for i in axes(V_minus, 2)]
-    # b_minus .= abs.(b_minus)
+    b_minus = [dot(view(V_minus, :, i), foo) for i in axes(V_minus, 2)]
+    b_minus .= abs2.(b_minus)
     a_minus .-= e0
     a_minus .*= -1
     # sort increasing
@@ -50,16 +46,15 @@ function solve_impurity_ed(
     reverse!(b_minus)
 
     # block with one more particle
-    # strictly speaking not necessary due to PHS
-    c_plus = sparse(BlockOper(c[1, -1//2]', block))
+    foo = BlockOper(c[1, -1//2]', block) * ψ0
     h_plus = Array(BlockOper(H, Block(qn, (n_occ + 1, n_occ)))) # 1 more in spin ↓
     @time "decomposition H plus" a_plus, V_plus = eigen(h_plus)
-    b_plus = [dot(V_plus[:, i], c_plus, ψ0) for i in axes(V_plus, 2)]
-    # b_plus .= abs.(b_plus)
+    b_plus = [dot(view(V_plus, :, i), foo) for i in axes(V_plus, 2)]
+    b_plus .= abs2.(b_plus)
     a_plus .-= e0
 
     # impurity GF
-    return Poles([a_minus; a_plus], [b_minus; b_plus])
+    return PolesSum([a_minus; a_plus], [b_minus; b_plus])
 end
 
 end

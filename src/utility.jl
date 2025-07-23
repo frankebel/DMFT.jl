@@ -15,7 +15,7 @@ end
 
 """
     init_system(
-        Δ::Poles{V,V},
+        Δ::PolesSum,
         H_int::Operator,
         ϵ_imp::Real,
         n_v_bit::Int,
@@ -27,14 +27,14 @@ end
 Return Hamiltonian, ground state energy, and ground state.
 """
 function init_system(
-    Δ::Poles{V,V},
+    Δ::PolesSum,
     H_int::Operator,
     ϵ_imp::Real,
     n_v_bit::Int,
     n_c_bit::Int,
     e::Int,
     n_kryl::Int,
-) where {V<:AbstractVector{<:Real}}
+)
     arr = Array(Δ)
     n_sites = size(arr, 1)
     H_nat, n_occ = to_natural_orbitals(arr)
