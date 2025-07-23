@@ -14,11 +14,16 @@ using Test
         @test P.amp === amp
         @test P.scl === scl
         # wrong input
-        # length mismatch
-        @test_throws ArgumentError PolesContinuedFractionBlock{Int,Int}(loc, loc, scl)
         # matrices not hermitian
+        @test_throws ArgumentError PolesContinuedFractionBlock{Int,Int}(loc, loc, scl)
         @test_throws ArgumentError PolesContinuedFractionBlock{Int,Int}(
             [[1 2; 3 4], [4 5; 5 6]], amp, scl
+        )
+        @test_throws ArgumentError PolesContinuedFractionBlock{Int,Int}(
+            loc, [[7 8; 9 10]], scl
+        )
+        @test_throws ArgumentError PolesContinuedFractionBlock{Int,Int}(
+            loc, amp, [10 11; 12 13]
         )
         # matrices have wrong size
         @test_throws DimensionMismatch PolesContinuedFractionBlock{Int,Int}(
@@ -72,16 +77,6 @@ using Test
             # grid
             @test evaluate_lorentzian(P, [0.1, 0.3], 0.5) ==
                 [evaluate_lorentzian(P, 0.1, 0.5), evaluate_lorentzian(P, 0.3, 0.5)]
-            # non-hermitian entries
-            P = PolesContinuedFractionBlock(
-                [[1 0; 0 1], [1 0; 0 1]], [[1 0; 1 1]], [1 1; 0 1]
-            )
-            @test norm(
-                evaluate_lorentzian(P, 1.7, 0.02) - [
-                    1.4582589320316797-0.3997975176329503im -1.4331010284152463+0.22488790309674483im
-                    -1.4331010284152463+0.22488790309674483im 0.025157903616432886-0.1749096145362053im
-                ],
-            ) < 10 * eps()
         end # evaluate_lorentzian
 
         @testset "locations" begin
