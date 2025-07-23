@@ -60,11 +60,10 @@ end
 # block form
 
 function PolesSumBlock(P::PolesContinuedFractionBlock)
-    T = eltype(P) <: Real ? Float64 : ComplexF64 # type of float
-    X = Matrix{T}(Array(P)) # convert to float
-    loc, _ = LAPACK.syev!('V', 'U', X)
-    amp = scale(P) * view(X, 1:size(P, 1), :)
-    result = PolesSumBlock(loc, amp)
+    T = eltype(P) <: Real ? Float64 : ComplexF64 # use double precision
+    F = eigen!(hermitianpart!(Matrix{T}(Array(P))))
+    amp = scale(P) * view(F.vectors, 1:size(P, 1), :)
+    result = PolesSumBlock(F.values, amp)
     remove_zero_weight!(result)
     return result
 end

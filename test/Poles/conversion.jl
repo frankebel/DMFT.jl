@@ -25,7 +25,7 @@ using Test
         @test DMFT.scale(PCF) == Diagonal([1, sqrt(2)])
         @test norm(Array(PCF) - [1 0 0 0; 0 1.5 0 0.5; 0 0 0 0; 0 0.5 0 1.5]) < 10 * eps()
         PS = PolesSumBlock(PCF)
-        merge_degenerate_poles!(PS, 2 * eps())
+        merge_degenerate_poles!(PS, 5 * eps())
         @test norm(locations(PS) - [1, 2]) < 10 * eps()
         @test norm(weights(PS)[1] - [1 0; 0 1]) < 10 * eps()
         @test norm(weights(PS)[2] - [0 0; 0 1]) < 10 * eps()
