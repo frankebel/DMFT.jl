@@ -55,6 +55,13 @@ using Test
     end # constructor
 
     @testset "custom functions" begin
+        @testset "amplitude" begin
+            loc = [[1 2; 2 3], [4 5; 5 6]]
+            amp = [[7 8; 8 9]]
+            P = PolesContinuedFractionBlock(loc, amp)
+            @test amplitude(P, 1) === amp[1]
+        end # amplitude
+
         @testset "amplitudes" begin
             loc = [[1 2; 2 3], [4 5; 5 6]]
             amp = [[7 8; 8 9]]
@@ -93,6 +100,22 @@ using Test
             P = PolesContinuedFractionBlock(loc, amp, scl)
             @test DMFT.scale(P) === scl
         end # scale
+
+        @testset "weight" begin
+            loc = [[1 2; 2 3], [4 5; 5 6]]
+            amp = [[7 8; 8 9]]
+            scl = [10 11; 11 12]
+            P = PolesContinuedFractionBlock(loc, amp, scl)
+            @test_throws MethodError weight(P, 1)
+        end # weight
+
+        @testset "weights" begin
+            loc = [[1 2; 2 3], [4 5; 5 6]]
+            amp = [[7 8; 8 9]]
+            scl = [10 11; 11 12]
+            P = PolesContinuedFractionBlock(loc, amp, scl)
+            @test_throws MethodError weights(P)
+        end # weights
     end # custom functions
 
     @testset "Core" begin

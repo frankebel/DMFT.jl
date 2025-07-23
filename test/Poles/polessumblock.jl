@@ -141,6 +141,14 @@ using Test
             @test weights(foo) == [[0 0; 0 0], [1 0; 0 0]]
         end # remove_zero_weight
 
+        @testset "weight" begin
+            loc = 0:1
+            wgt = [[1 2; 2 1], [3 4; 4 3]]
+            P = PolesSumBlock(loc, wgt)
+            @test weight(P, 1) === wgt[1]
+            @test weight(P, 2) === wgt[2]
+        end # weight
+
         @testset "weights" begin
             loc = 0:1
             wgt = [[1 2; 2 1], [3 4; 4 3]]

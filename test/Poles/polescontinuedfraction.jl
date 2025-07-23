@@ -42,6 +42,14 @@ using Test
     end # constructor
 
     @testset "custom functions" begin
+        @testset "amplitude" begin
+            loc = 0:5
+            amp = collect(6:10)
+            P = PolesContinuedFraction(loc, amp)
+            @test amplitude(P, 1) === amp[1]
+            @test amplitude(P, 5) === amp[5]
+        end # amplitude
+
         @testset "amplitudes" begin
             loc = 0:5
             amp = collect(6:10)

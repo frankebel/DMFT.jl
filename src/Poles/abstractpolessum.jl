@@ -5,6 +5,8 @@ Supertype which represents a (block) function on the real axis as a sum of poles
 """
 abstract type AbstractPolesSum <: AbstractPoles end
 
+amplitudes(P::AbstractPolesSum) = map(i -> amplitude(P, i), eachindex(P))
+
 """
     merge_degenerate_poles!(P::AbstractPolesSum, tol::Real=0)
 

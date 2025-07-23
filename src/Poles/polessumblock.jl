@@ -103,8 +103,6 @@ function amplitude(P::PolesSumBlock, i::Integer)
     return result
 end
 
-amplitudes(P::PolesSumBlock) = map(i -> amplitude(P, i), eachindex(P))
-
 function evaluate_gaussian(P::PolesSumBlock, ω::Real, σ::Real)
     d = size(P, 1)
     real = zeros(Float64, d, d)

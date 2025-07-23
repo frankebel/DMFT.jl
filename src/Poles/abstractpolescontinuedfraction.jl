@@ -5,6 +5,8 @@ Supertype which represents a (block) function on the real axis as a continued fr
 """
 abstract type AbstractPolesContinuedFraction <: AbstractPoles end
 
+amplitude(P::AbstractPolesContinuedFraction, i::Integer) = amplitudes(P)[i]
+
 amplitudes(P::AbstractPolesContinuedFraction) = P.amplitudes
 
 """
