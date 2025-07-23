@@ -178,6 +178,13 @@ function moment(P::PolesSumBlock, n::Int=0)
     return sum(i -> i[1]^n * i[2], zip(locations(P), weights(P)))
 end
 
+function Base.:+(A::PolesSumBlock, B::PolesSumBlock)
+    result = PolesSumBlock([locations(A); locations(B)], [weights(A); weights(B)])
+    sort!(result)
+    merge_degenerate_poles!(result, 0)
+    return result
+end
+
 function Base.copy(P::PolesSumBlock)
     return PolesSumBlock(copy(locations(P)), map(i -> copy(i), weights(P)))
 end

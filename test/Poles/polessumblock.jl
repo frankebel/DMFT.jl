@@ -158,6 +158,15 @@ using Test
     end # custom functions
 
     @testset "Base" begin
+        @testset "+" begin
+            # addition must sort and merge poles
+            A = PolesSumBlock([1, 3], [[1 0; 0 1], [2 1; 1 0]])
+            B = PolesSumBlock([3, 2], [[4 5; 5 6], [0 0; 0 0]])
+            P = A + B
+            @test locations(P) == [1, 2, 3] # must be sorted
+            @test weights(P) == [[1 0; 0 1], [0 0; 0 0], [6 6; 6 6]]
+        end
+
         @testset "copy" begin
             P = PolesSumBlock(rand(2), [rand(1, 1) for _ in 1:2])
             foo = copy(P)
