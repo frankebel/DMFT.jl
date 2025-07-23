@@ -59,5 +59,52 @@ using Test
         @test locations(foo) == locations(P)
         @test amplitudes(foo) == amplitudes(P)
     end # Poles
+
+    @testset "PolesSum" begin
+        P = PolesSum([1.0, 2], [3, 4])
+        # write
+        @test write_hdf5("test.h5", P) === nothing
+        # read
+        @inferred read_hdf5("test.h5", PolesSum{Float64,Int})
+        foo = read_hdf5("test.h5", PolesSum{Float64,Int})
+        @test locations(foo) == [1, 2]
+        @test weights(foo) == [3.0, 4.0]
+    end # PolesSum
+
+    @testset "PolesSumBlock" begin
+        P = PolesSumBlock([1.0, 2], [[1 0; 0 1], [2 1; 1 0]])
+        # write
+        @test write_hdf5("test.h5", P) === nothing
+        # read
+        @inferred read_hdf5("test.h5", PolesSumBlock{Float64,Int})
+        foo = read_hdf5("test.h5", PolesSumBlock{Float64,Int})
+        @test locations(foo) == [1.0, 2]
+        @test weights(foo) == [[1 0; 0 1], [2 1; 1 0]]
+    end # PolesSumBlock
+
+    @testset "PolesContinuedFraction" begin
+        P = PolesContinuedFraction([1.0, 2], [3], 4)
+        # write
+        @test write_hdf5("test.h5", P) === nothing
+        # read
+        @inferred read_hdf5("test.h5", PolesContinuedFraction{Float64,Int})
+        foo = read_hdf5("test.h5", PolesContinuedFraction{Float64,Int})
+        @test locations(foo) == [1.0, 2]
+        @test amplitudes(foo) == [3]
+        @test DMFT.scale(foo) == 4
+    end # PolesContinuedFraction
+
+    @testset "PolesContinuedFractionBlock" begin
+        P = PolesContinuedFractionBlock([[1 0; 0 1], [2 1; 1 0]], [[3 1; 1 0]], [0 0; 0 0])
+        # write
+        @test write_hdf5("test.h5", P) === nothing
+        # read
+        @inferred read_hdf5("test.h5", PolesContinuedFractionBlock{Int,Int})
+        foo = read_hdf5("test.h5", PolesContinuedFractionBlock{Int,Int})
+        @test locations(foo) == [[1 0; 0 1], [2 1; 1 0]]
+        @test amplitudes(foo) == [[3 1; 1 0]]
+        @test DMFT.scale(foo) == [0 0; 0 0]
+    end # PolesContinuedFractionBlock
+
     isfile("test.h5") && rm("test.h5")
 end # IO
