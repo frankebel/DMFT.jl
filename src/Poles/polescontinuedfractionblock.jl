@@ -41,8 +41,10 @@ end
         [scl::AbstractMatrix{<:B},]
     ) where {A,B}
 
-Create a new instance of [`PolesContinuedFraction`](@ref) by supplying locations `loc`,
-amplitudes `amp`, and scale `scl`.
+Create a new instance of [`PolesContinuedFractionBlock`](@ref) by supplying
+locations `loc`,
+amplitudes `amp`,
+and scale `scl`.
 
 By default the scale is set to the identiy matrix ``1``.
 """
