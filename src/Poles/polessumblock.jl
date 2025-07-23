@@ -11,14 +11,15 @@ P(ω) = ∑_i \\frac{B_i}{ω-a_i}.
 For a scalar variant see [`PolesSum`](@ref).
 """
 struct PolesSumBlock{A<:Real,B<:Number} <: AbstractPolesSum
-    loc::Vector{A} # locations of poles
-    wgt::Vector{Matrix{B}} # weights of poles
+    locations::Vector{A}
+    weights::Vector{Matrix{B}}
 
-    function PolesSumBlock{A,B}(loc, wgt) where {A,B}
-        length(loc) == length(wgt) || throw(DimensionMismatch("length mismatch"))
-        all(ishermitian, wgt) || throw(ArgumentError("weights are not hermitian"))
-        allequal(size, wgt) || throw(DimensionMismatch("weights do not have matching size"))
-        return new{A,B}(loc, wgt)
+    function PolesSumBlock{A,B}(locations, weights) where {A,B}
+        length(locations) == length(weights) || throw(DimensionMismatch("length mismatch"))
+        all(ishermitian, weights) || throw(ArgumentError("weights are not hermitian"))
+        allequal(size, weights) ||
+            throw(DimensionMismatch("weights do not have matching size"))
+        return new{A,B}(locations, weights)
     end
 end
 
@@ -89,7 +90,7 @@ end
 # and gives eltype as union of Float64 and ComplexF64.
 # Therefore, decompose by hand and apply square root in-place.
 function amplitude(P::PolesSumBlock{<:Real,<:Real}, i::Integer)
-    m = Symmetric(Matrix{Float64}(weights(P)[i])) # symmetric and Float64
+    m = Symmetric(Matrix{Float64}(weight(P, i))) # symmetric and Float64
     F = eigen!(m)
     tol = maximum(F.values) * sqrt(eps())
     # NOTE: use `map!` in Julia 1.12 or higher
@@ -103,7 +104,7 @@ function amplitude(P::PolesSumBlock{<:Real,<:Real}, i::Integer)
 end
 function amplitude(P::PolesSumBlock, i::Integer)
     # use Hermitian matrix
-    m = Hermitian(Matrix{ComplexF64}(weights(P)[i])) # hermitian and ComplexF64
+    m = Hermitian(Matrix{ComplexF64}(weight(P, i))) # hermitian and ComplexF64
     F = eigen!(m)
     tol = maximum(F.values) * sqrt(eps())
     # NOTE: use `map!` in Julia 1.12 or higher
@@ -123,7 +124,7 @@ function evaluate_gaussian(P::PolesSumBlock, ω::Real, σ::Real)
     real = zeros(Float64, d, d)
     imag = zero(real)
     for i in eachindex(P)
-        w = weights(P)[i]
+        w = weight(P, i)
         real .+= w .* sqrt(2) ./ (π * σ) .* dawson((ω - locations(P)[i]) / (sqrt(2) * σ))
         imag .+= w .* pdf(Normal(locations(P)[i], σ), ω)
     end
@@ -136,7 +137,7 @@ function evaluate_lorentzian(P::PolesSumBlock, ω::Real, δ::Real)
     d = size(P, 1)
     result = zeros(ComplexF64, d, d)
     for i in eachindex(P)
-        w = weights(P)[i]
+        w = weight(P, i)
         result .+= w ./ (ω + im * δ - locations(P)[i])
     end
     return result
@@ -192,8 +193,6 @@ end
 function moment(P::PolesSumBlock, n::Int=0)
     return sum(i -> i[1]^n * i[2], zip(locations(P), weights(P)))
 end
-
-weights(P::PolesSumBlock) = P.wgt
 
 function Base.copy(P::PolesSumBlock)
     return PolesSumBlock(copy(locations(P)), map(i -> copy(i), weights(P)))

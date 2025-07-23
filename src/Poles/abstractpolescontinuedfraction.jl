@@ -5,11 +5,11 @@ Supertype which represents a (block) function on the real axis as a continued fr
 """
 abstract type AbstractPolesContinuedFraction <: AbstractPoles end
 
-amplitudes(P::AbstractPolesContinuedFraction) = P.amp
+amplitudes(P::AbstractPolesContinuedFraction) = P.amplitudes
 
 """
     scale(P::AbstractPolesContinuedFraction)
 
 Return the scale of `P`.
 """
-scale(P::AbstractPolesContinuedFraction) = P.scl
+scale(P::AbstractPolesContinuedFraction) = P.scale

@@ -11,23 +11,23 @@ using Test
         # inner constructor
         P = PolesSum{Int,Int}(loc, wgt)
         @test typeof(P) === PolesSum{Int,Int}
-        @test P.loc === loc
-        @test P.wgt === wgt
+        @test P.locations === loc
+        @test P.weights === wgt
         # length mismatch
         @test_throws DimensionMismatch PolesSum{Int,Int}(rand(3), rand(4))
         @test_throws DimensionMismatch PolesSum{Int,Int}(rand(4), rand(3))
 
         # outer constructor
         P = PolesSum(loc, wgt)
-        @test P.loc === loc
-        @test P.wgt === wgt
+        @test P.locations === loc
+        @test P.weights === wgt
 
         # conversion of type
         P = PolesSum(loc, wgt)
         P_new = PolesSum{UInt,Float64}(P)
         @test typeof(P_new) === PolesSum{UInt,Float64}
-        @test P_new.loc == loc
-        @test P_new.wgt == wgt
+        @test P_new.locations == loc
+        @test P_new.weights == wgt
     end # constructor
 
     @testset "custom functions" begin
@@ -108,7 +108,7 @@ using Test
 
         @testset "locations" begin
             P = PolesSum(0:5, 5:10)
-            @test locations(P) === P.loc
+            @test locations(P) === P.locations
         end # locations
 
         @testset "merge_degenerate_poles!" begin
@@ -386,7 +386,7 @@ using Test
 
         @testset "weights" begin
             P = PolesSum(0:5, 5:10)
-            @test weights(P) === P.wgt
+            @test weights(P) === P.weights
         end # weights
     end # custom functions
 

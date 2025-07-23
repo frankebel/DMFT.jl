@@ -11,13 +11,14 @@ P(ω) = \\frac{s^2}{ω - a_1 - \\frac{b_1^2}{ω - a_2 - …}}
 ```
 """
 struct PolesContinuedFraction{A<:Real,B<:Real} <: AbstractPolesContinuedFraction
-    loc::Vector{A} # locations of poles
-    amp::Vector{B} # amplitudes of poles
-    scl::B # scale
+    locations::Vector{A}
+    amplitudes::Vector{B}
+    scale::B
 
-    function PolesContinuedFraction{A,B}(loc, amp, scl) where {A,B}
-        length(loc) == length(amp) + 1 || throw(ArgumentError("length mismatch"))
-        return new{A,B}(loc, amp, scl)
+    function PolesContinuedFraction{A,B}(locations, amplitudes, scale) where {A,B}
+        length(locations) == length(amplitudes) + 1 ||
+            throw(ArgumentError("length mismatch"))
+        return new{A,B}(locations, amplitudes, scale)
     end
 end
 

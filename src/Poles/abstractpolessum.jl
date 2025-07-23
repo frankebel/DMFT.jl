@@ -69,6 +69,10 @@ function remove_zero_weight(P::AbstractPolesSum, remove_zero::Bool=true)
     return remove_zero_weight!(copy(P), remove_zero)
 end
 
+weight(P::AbstractPolesSum, i::Integer) = weights(P)[i]
+
+weights(P::AbstractPolesSum) = P.weights
+
 function Base.allunique(P::AbstractPolesSum)
     loc = locations(P)
     # allunique discrimates between ±zero(Float64)

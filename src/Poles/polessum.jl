@@ -11,12 +11,12 @@ P(ω) = ∑_i \\frac{w_i}{ω-a_i}.
 For a block variant see [`PolesSumBlock`](@ref).
 """
 struct PolesSum{A<:Real,B<:Number} <: AbstractPolesSum
-    loc::Vector{A} # locations of poles
-    wgt::Vector{B} # weights of poles
+    locations::Vector{A}
+    weights::Vector{B}
 
-    function PolesSum{A,B}(loc, wgt) where {A,B}
-        length(loc) == length(wgt) || throw(DimensionMismatch("length mismatch"))
-        return new{A,B}(loc, wgt)
+    function PolesSum{A,B}(locations, weights) where {A,B}
+        length(locations) == length(weights) || throw(DimensionMismatch("length mismatch"))
+        return new{A,B}(locations, weights)
     end
 end
 
@@ -57,7 +57,7 @@ Return the amplitude (`sqrt` of weight) of `P` at index `i`.
 
 See also [`amplitudes`](@ref).
 """
-amplitude(P::PolesSum{<:Any,<:Real}, i::Integer) = sqrt(weights(P)[i])
+amplitude(P::PolesSum{<:Any,<:Real}, i::Integer) = sqrt(weight(P, i))
 
 """
     amplitudes(P::PolesSum{<:Any,<:Real})
@@ -72,7 +72,7 @@ function evaluate_gaussian(P::PolesSum, ω::Real, σ::Real)
     real = zero(ω)
     imag = zero(ω)
     for i in eachindex(P)
-        w = weights(P)[i]
+        w = weight(P, i)
         real += w * sqrt(2) / (π * σ) * dawson((ω - locations(P)[i]) / (sqrt(2) * σ))
         imag += w * pdf(Normal(locations(P)[i], σ), ω)
     end
@@ -83,7 +83,7 @@ end
 function evaluate_lorentzian(P::PolesSum, ω::Real, δ::Real)
     result = zero(complex(ω))
     for i in eachindex(P)
-        result += DMFT.weights(P)[i] / (ω + im * δ - locations(P)[i])
+        result += weight(P, i) / (ω + im * δ - locations(P)[i])
     end
     return result
 end
@@ -199,7 +199,7 @@ function merge_negative_weight!(P::PolesSum)
     loc = locations(P)
     wgt = weights(P)
     for i in eachindex(P)
-        weights(P)[i] >= 0 && continue # no negative weight, go to next
+        weight(P, i) >= 0 && continue # no negative weight, go to next
         if i == length(P)
             # find previous positive weight
             for j in Iterators.reverse(1:(i - 1))
@@ -268,7 +268,7 @@ function merge_small_poles!(P::PolesSum, tol::Real=1e-10)
     i = 1
     while i <= length(P)
         loc = locations(P)[i]
-        wgt = weights(P)[i]
+        wgt = weight(P, i)
         if wgt >= tol
             # enough weight, go to next
             i += 1
@@ -276,7 +276,7 @@ function merge_small_poles!(P::PolesSum, tol::Real=1e-10)
         end
         if i == 1
             # add weight to next pole
-            weights(P)[2] += weights(P)[1]
+            weights(P)[2] += weight(P, 1)
             deleteat!(locations(P), 1)
             deleteat!(weights(P), 1)
         elseif i == length(P)
@@ -322,7 +322,7 @@ function remove_small_poles!(P::PolesSum, tol::Real=1e-10, remove_zero::Bool=tru
         if iszero(locations(P)[i]) && !remove_zero
             # keep pole at origin
             i += 1
-        elseif weights(P)[i] <= tol
+        elseif weight(P, i) <= tol
             deleteat!(locations(P), i)
             deleteat!(weights(P), i)
         else
@@ -366,10 +366,10 @@ function spectral_function_loggaussian(P::PolesSum, ω::Real, b::Real)
             # special case, move half of weight to left/right repectively
             issorted(P) || throw(ArgumentError("P is not sorted"))
             loc = ω > 0 ? locations(P)[i + 1] / 2 : locations(P)[i - 1] / 2
-            w = weights(P)[i] / 2
+            w = weight(P, i) / 2
         elseif sign(ω) == sign(locations(P)[i])
             # only contribute weight if on same side of real axis
-            w = weights(P)[i]
+            w = weight(P, i)
             loc = locations(P)[i]
         else
             # frequency has opposite sign compared to pole location
@@ -406,7 +406,7 @@ function to_grid(P::PolesSum, grid::Vector{<:Real})
     # run through each existing pole and split weight to new locations
     @inbounds for i in eachindex(P)
         loc = locations(P)[i]
-        w = weights(P)[i]
+        w = weight(P, i)
         if loc <= first(grid)
             # no pole to the left
             weights_new[begin] += w
@@ -435,8 +435,6 @@ function to_grid(P::PolesSum, grid::Vector{<:Real})
 end
 
 weight(P::PolesSum, i::Integer) = weights(P)[i]
-
-weights(P::PolesSum) = P.wgt
 
 function Core.Array(P::PolesSum)
     T = eltype(P)
@@ -477,7 +475,7 @@ Base.show(io::IO, P::PolesSum) = print(io, length(P), "-element ", summary(P))
 
 function Base.sort!(P::PolesSum)
     p = sortperm(locations(P))
-    P.loc[:] = P.loc[p]
-    P.wgt[:] = P.wgt[p]
+    P.locations[:] = P.locations[p]
+    P.weights[:] = P.weights[p]
     return P
 end

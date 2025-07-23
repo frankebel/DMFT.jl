@@ -10,9 +10,9 @@ using Test
 
         # inner contstructor
         P = PolesContinuedFractionBlock{Int,Int}(loc, amp, scl)
-        @test P.loc === loc
-        @test P.amp === amp
-        @test P.scl === scl
+        @test P.locations === loc
+        @test P.amplitudes === amp
+        @test P.scale === scl
         # wrong input
         # matrices not hermitian
         @test_throws ArgumentError PolesContinuedFractionBlock{Int,Int}(loc, loc, scl)
@@ -36,22 +36,22 @@ using Test
 
         # outer constructor
         P = PolesContinuedFractionBlock(loc, amp, scl)
-        @test P.loc === loc
-        @test P.amp === amp
-        @test P.scl === scl
+        @test P.locations === loc
+        @test P.amplitudes === amp
+        @test P.scale === scl
         # # default scale
         P = PolesContinuedFractionBlock(loc, amp)
-        @test P.loc === loc
-        @test P.amp === amp
-        @test P.scl == [1 0; 0 1]
+        @test P.locations === loc
+        @test P.amplitudes === amp
+        @test P.scale == [1 0; 0 1]
 
         # conversion of type
         P = PolesContinuedFractionBlock(loc, amp, scl)
         P_new = PolesContinuedFractionBlock{UInt,Float64}(P)
         @test typeof(P_new) === PolesContinuedFractionBlock{UInt,Float64}
-        @test P_new.loc == loc
-        @test P_new.amp == amp
-        @test P_new.scl == scl
+        @test P_new.locations == loc
+        @test P_new.amplitudes == amp
+        @test P_new.scale == scl
     end # constructor
 
     @testset "custom functions" begin

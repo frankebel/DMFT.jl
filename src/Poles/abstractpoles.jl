@@ -10,7 +10,7 @@ abstract type AbstractPoles end
 
 Return the locations of `P`.
 """
-locations(P::AbstractPoles) = P.loc
+locations(P::AbstractPoles) = P.locations
 
 """
     amplitudes(P::AbstractPoles)

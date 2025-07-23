@@ -9,26 +9,26 @@ using Test
 
         # inner constructor
         P = PolesSumBlock{Int,Int}(loc, wgt)
-        @test P.loc === loc
-        @test P.wgt === wgt
+        @test P.locations === loc
+        @test P.weights === wgt
         @test_throws DimensionMismatch PolesSumBlock(rand(3), wgt) # length mismatch
         @test_throws ArgumentError PolesSumBlock([1], [[1 2im; 2im 1]]) # not hermitian
         @test_throws DimensionMismatch PolesSumBlock(0:1, [[1 2im; -2im 1], [1;;]]) # wrong size
 
         # outer constructors
         P = PolesSumBlock(loc, wgt)
-        @test P.loc === loc
-        @test P.wgt === wgt
+        @test P.locations === loc
+        @test P.weights === wgt
         P = PolesSumBlock(loc, [1+2im 3im; 4 5+6im])
-        @test P.loc === loc
-        @test P.wgt == [[5 4+8im; 4-8im 16], [9 18+15im; 18-15im 61]]
+        @test P.locations === loc
+        @test P.weights == [[5 4+8im; 4-8im 16], [9 18+15im; 18-15im 61]]
 
         # conversion of type
         P = PolesSumBlock(loc, wgt)
         P_new = PolesSumBlock{UInt,Float64}(P)
         @test typeof(P_new) === PolesSumBlock{UInt,Float64}
-        @test P_new.loc == loc
-        @test P_new.wgt == wgt
+        @test P_new.locations == loc
+        @test P_new.weights == wgt
     end # constructor
 
     @testset "custom functions" begin

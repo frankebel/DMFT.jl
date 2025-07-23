@@ -12,24 +12,25 @@ P(ω) = S \\frac{1}{ω-A_1-B_1\\frac{1}{ω-A_2-…}B_1} S
 ```
 """
 struct PolesContinuedFractionBlock{A<:Number,B<:Number} <: AbstractPolesContinuedFraction
-    loc::Vector{Matrix{A}} # locations of poles
-    amp::Vector{Matrix{B}} # amplitudes of poles
-    scl::Matrix{B} # scale
+    locations::Vector{Matrix{A}}
+    amplitudes::Vector{Matrix{B}}
+    scale::Matrix{B}
 
-    function PolesContinuedFractionBlock{A,B}(loc, amp, scl) where {A,B}
-        length(loc) == length(amp) + 1 || throw(ArgumentError("length mismatch"))
+    function PolesContinuedFractionBlock{A,B}(locations, amplitudes, scale) where {A,B}
+        length(locations) == length(amplitudes) + 1 ||
+            throw(ArgumentError("length mismatch"))
         # hermitian
-        all(ishermitian, loc) || throw(ArgumentError("locations are not hermitian"))
-        all(ishermitian, amp) || throw(ArgumentError("amplitudes are not hermitian"))
-        ishermitian(scl) || throw(ArgumentError("scale is not hermitian"))
+        all(ishermitian, locations) || throw(ArgumentError("locations are not hermitian"))
+        all(ishermitian, amplitudes) || throw(ArgumentError("amplitudes are not hermitian"))
+        ishermitian(scale) || throw(ArgumentError("scale is not hermitian"))
         # size
-        s = size(first(loc))
-        all(i -> size(i) == s, loc) ||
+        s = size(first(locations))
+        all(i -> size(i) == s, locations) ||
             throw(DimensionMismatch("locations do not have matching size"))
-        all(i -> size(i) == s, amp) ||
+        all(i -> size(i) == s, amplitudes) ||
             throw(DimensionMismatch("amplitudes do not have matching size"))
-        size(scl) == s || throw(DimensionMismatch("scale does not have matching size"))
-        return new{A,B}(loc, amp, scl)
+        size(scale) == s || throw(DimensionMismatch("scale does not have matching size"))
+        return new{A,B}(locations, amplitudes, scale)
     end
 end
 

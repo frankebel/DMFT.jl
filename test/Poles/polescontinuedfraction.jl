@@ -10,9 +10,9 @@ using Test
 
         # inner contstructor
         P = PolesContinuedFraction{Int,Int}(loc, amp, scl)
-        @test P.loc === loc
-        @test P.amp === amp
-        @test P.scl === scl
+        @test P.locations === loc
+        @test P.amplitudes === amp
+        @test P.scale === scl
         # wrong input
         @test_throws ArgumentError PolesContinuedFraction{Int,Int}(
             rand(Int, 5), rand(Int, 3), 1
@@ -23,22 +23,22 @@ using Test
 
         # outer constructor
         P = PolesContinuedFraction(loc, amp, scl)
-        @test P.loc === loc
-        @test P.amp === amp
-        @test P.scl === scl
+        @test P.locations === loc
+        @test P.amplitudes === amp
+        @test P.scale === scl
         # default scale
         P = PolesContinuedFraction(loc, amp)
-        @test P.loc === loc
-        @test P.amp === amp
-        @test P.scl === one(Int)
+        @test P.locations === loc
+        @test P.amplitudes === amp
+        @test P.scale === one(Int)
 
         # conversion of type
         P = PolesContinuedFraction(loc, amp, scl)
         P_new = PolesContinuedFraction{UInt,Float64}(P)
         @test typeof(P_new) === PolesContinuedFraction{UInt,Float64}
-        @test P_new.loc == loc
-        @test P_new.amp == amp
-        @test P_new.scl == scl
+        @test P_new.locations == loc
+        @test P_new.amplitudes == amp
+        @test P_new.scale == scl
     end # constructor
 
     @testset "custom functions" begin
