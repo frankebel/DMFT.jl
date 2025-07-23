@@ -89,28 +89,14 @@ end
 # But general Julia code still does not know about semipositive eigenvalues
 # and gives eltype as union of Float64 and ComplexF64.
 # Therefore, decompose by hand and apply square root in-place.
-function amplitude(P::PolesSumBlock{<:Real,<:Real}, i::Integer)
-    m = Symmetric(Matrix{Float64}(weight(P, i))) # symmetric and Float64
-    F = eigen!(m)
-    tol = maximum(F.values) * sqrt(eps())
-    # NOTE: use `map!` in Julia 1.12 or higher
-    for i in eachindex(F.values)
-        # set small eigenvalues to zero
-        F.values[i] = F.values[i] > tol ? sqrt(F.values[i]) : 0
-    end
-    result = F.vectors * Diagonal(F.values) * F.vectors'
-    hermitianpart!(result)
-    return result
-end
 function amplitude(P::PolesSumBlock, i::Integer)
-    # use Hermitian matrix
-    m = Hermitian(Matrix{ComplexF64}(weight(P, i))) # hermitian and ComplexF64
-    F = eigen!(m)
+    T = eltype(P) <: Real ? Float64 : ComplexF64 # use double precision
+    F = eigen!(Hermitian(Matrix{T}(weight(P, i))))
     tol = maximum(F.values) * sqrt(eps())
     # NOTE: use `map!` in Julia 1.12 or higher
     for i in eachindex(F.values)
         # set small eigenvalues to zero
-        F.values[i] = F.values[i] > tol ? sqrt(F.values[i]) : 0
+        F.values[i] = F.values[i] > tol ? sqrt(F.values[i]) : zero(F.values[i])
     end
     result = F.vectors * Diagonal(F.values) * F.vectors'
     hermitianpart!(result)
