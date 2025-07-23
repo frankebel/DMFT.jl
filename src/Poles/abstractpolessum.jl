@@ -95,4 +95,11 @@ function Base.reverse!(P::AbstractPolesSum)
     return P
 end
 
+function Base.sort!(P::AbstractPolesSum)
+    p = sortperm(locations(P))
+    P.locations[:] = P.locations[p]
+    P.weights[:] = P.weights[p]
+    return P
+end
+
 Base.sort(P::AbstractPolesSum) = sort!(copy(P))

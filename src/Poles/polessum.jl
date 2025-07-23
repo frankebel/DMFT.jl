@@ -450,10 +450,3 @@ Base.eltype(::Type{<:PolesSum{A,B}}) where {A,B} = promote_type(A, B)
 
 # create a better show?
 Base.show(io::IO, P::PolesSum) = print(io, length(P), "-element ", summary(P))
-
-function Base.sort!(P::PolesSum)
-    p = sortperm(locations(P))
-    P.locations[:] = P.locations[p]
-    P.weights[:] = P.weights[p]
-    return P
-end
