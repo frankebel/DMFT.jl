@@ -448,12 +448,6 @@ end
 
 Base.eltype(::Type{<:PolesSum{A,B}}) where {A,B} = promote_type(A, B)
 
-function Base.reverse!(P::PolesSum)
-    reverse!(locations(P))
-    reverse!(weights(P))
-    return P
-end
-
 # create a better show?
 Base.show(io::IO, P::PolesSum) = print(io, length(P), "-element ", summary(P))
 

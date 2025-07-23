@@ -177,6 +177,23 @@ using Test
             @test length(P) === 10
         end
 
+        @testset "reverse!" begin
+            P = PolesSumBlock([1, 2], [[3 4; 4 5], [6 7; 7 8]])
+            @test reverse!(P) === P
+            @test locations(P) == [2, 1]
+            @test weights(P) == [[6 7; 7 8], [3 4; 4 5]]
+        end # reverse!
+
+        @testset "reverse" begin
+            P = PolesSumBlock([1, 2], [[3 4; 4 5], [6 7; 7 8]])
+            foo = reverse(P)
+            @test foo !== P
+            @test locations(P) == [1, 2]
+            @test locations(foo) == [2, 1]
+            @test weights(P) == [[3 4; 4 5], [6 7; 7 8]]
+            @test weights(foo) == [[6 7; 7 8], [3 4; 4 5]]
+        end # reverse
+
         @testset "size" begin
             P = PolesSumBlock(rand(10), rand(4, 10))
             @test size(P) == (4, 4)
