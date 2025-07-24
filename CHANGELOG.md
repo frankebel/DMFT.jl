@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - rename `η_gaussian` to `δ_gaussian` ([#110](https://github.com/frankebel/DMFT.jl/pull/110)) ([c8911ae](https://github.com/frankebel/DMFT.jl/commit/c8911aefa8a51f1cef2b9f2a143571b3e68c78c6))
 - `grid_log` needs positive initial value ([#111](https://github.com/frankebel/DMFT.jl/pull/111)) ([ebef3fc](https://github.com/frankebel/DMFT.jl/commit/ebef3fc36df73b4dcd0107c412e724a4966ba8ce))
 - `δ_gaussian` works on scalar ([#115](https://github.com/frankebel/DMFT.jl/pull/115)) ([eed69b5](https://github.com/frankebel/DMFT.jl/commit/eed69b59c1eae9bebf7d28ad22b123c98c677e48))
+- old `Poles` is split into `PolesSum`, `PolesSumBlock` ([#126](https://github.com/frankebel/DMFT.jl/pull/126)) ([87b2fb5](https://github.com/frankebel/DMFT.jl/commit/87b2fb5305e0b8f5d396589863889eaf6925b9ca))
 
 ### Fixed
 
