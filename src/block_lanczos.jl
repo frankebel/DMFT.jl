@@ -130,7 +130,7 @@ function block_lanczos_full_ortho(
         end
         # orthogonalize against last state
         A[j] = Q[j]' * Q_new
-        hermitianpart!(A[1])
+        hermitianpart!(A[j])
         mul!(Q_new, Q[j], A[j], -1, 1)
     end
 
