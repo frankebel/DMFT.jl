@@ -112,6 +112,8 @@ function block_lanczos_full_ortho(
         @inline B[j - 1] = Matrix{T}(undef, q, q)
         @inline Q[j] = Matrix{T}(undef, n, q)
         _orthonormalize_SVD!(V1, M1, B[j - 1], Q[j], Q_new)
+        _orthonormalize_GramSchmidt!(Q[j]) # numerical instability
+        _orthonormalize_GramSchmidt!(Q[j]) # numerical instability
         if norm(B[j - 1]) < tol
             # stop early
             @info "block Lanczos stopping early: norm(B[$(j-1)]) = $(norm(B[j-1]))"
