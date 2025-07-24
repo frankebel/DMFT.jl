@@ -75,23 +75,6 @@ function write_hdf5(filename::AbstractString, content::Vector{Matrix{T}}) where 
     return nothing
 end
 
-# Poles{A,B}
-function read_hdf5(filename::AbstractString, ::Type{<:Poles{A,B}}) where {A,B}
-    return h5open(filename, "r") do fid
-        a::A = read(fid, "a")
-        b::B = read(fid, "b")
-        return Poles{A,B}(a, b)
-    end
-end
-
-function write_hdf5(filename::AbstractString, P::Poles)
-    h5open(filename, "w") do fid
-        fid["a"] = P.a
-        fid["b"] = P.b
-    end
-    return nothing
-end
-
 # PolesSum{A,B}
 function read_hdf5(filename::AbstractString, ::Type{<:PolesSum{A,B}}) where {A,B}
     return h5open(filename, "r") do fid

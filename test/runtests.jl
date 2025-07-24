@@ -8,7 +8,6 @@ include("aqua.jl")
 
 @testset "DMFT.jl" begin
     include("bits.jl")
-    include("poles.jl")
     include("Poles/polessum.jl")
     include("Poles/polessumblock.jl")
     include("Poles/polescontinuedfraction.jl")

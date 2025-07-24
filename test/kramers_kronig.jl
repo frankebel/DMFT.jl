@@ -7,13 +7,13 @@ using LinearAlgebra
     n_bath = 301
     a = collect(range(2, 6, n_bath ÷ 2))
     a = [-reverse(a); 0; a]
-    b = fill(1 / sqrt(n_bath - 1), n_bath ÷ 2)
+    b = fill(inv(n_bath - 1), n_bath ÷ 2)
     b = [b; 0; b]
-    G = Poles(a, b)
+    G = PolesSum(a, b)
     # evaluate on grid
     ω = collect(-10:0.002:10)
-    Z = ω .+ im * 0.02
-    foo = G(Z)
+    δ = 0.02
+    foo = evaluate_lorentzian(G, ω, δ)
     r = real(foo)
     i = imag(foo)
 

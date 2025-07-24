@@ -31,35 +31,6 @@ using Test
         @test read_hdf5("test.h5", Vector{Matrix{Float64}}) == v
     end # Array
 
-    @testset "Poles" begin
-        V = Vector{Float64}
-        M = Matrix{Float64}
-        # amplitudes::Vector
-        # write
-        a = sort!(rand(10))
-        b = rand(10)
-        P = Poles(a, b)
-        @test write_hdf5("test.h5", P) === nothing
-        # read
-        @inferred read_hdf5("test.h5", Poles{V,V})
-        foo = read_hdf5("test.h5", Poles{V,V})
-        @test locations(foo) == locations(P)
-        @test amplitudes(foo) == amplitudes(P)
-
-        # amplitudes::Matrix
-        # write
-        a = sort!(rand(10))
-        b = rand(10, 10)
-        P = Poles(a, b)
-        @test write_hdf5("test.h5", P) === nothing
-        # read
-        @inferred read_hdf5("test.h5", Poles{V,M})
-        @test_throws MethodError read_hdf5("test.h5", Poles{V,V})
-        foo = read_hdf5("test.h5", Poles{V,M})
-        @test locations(foo) == locations(P)
-        @test amplitudes(foo) == amplitudes(P)
-    end # Poles
-
     @testset "PolesSum" begin
         P = PolesSum([1.0, 2], [3, 4])
         # write

@@ -15,7 +15,6 @@ export
     AbstractPoles,
     AbstractPolesContinuedFraction,
     AbstractPolesSum,
-    Poles,
     PolesContinuedFraction,
     PolesContinuedFractionBlock,
     PolesSum,
@@ -76,11 +75,8 @@ export
     self_energy_IFG_gaussian,
     self_energy_IFG_lorentzian,
     self_energy_dyson,
-    shift_spectrum!,
-    shift_spectrum,
     slater_start,
     spectral_function_gauss,
-    spectral_function_loggauss,
     spectral_function_loggaussian,
     starting_CIWavefunction,
     starting_Wavefunction,
@@ -95,7 +91,6 @@ export
     δ_gaussian
 
 include("bits.jl")
-include("poles.jl")
 include("Poles/abstractpoles.jl")
 include("Poles/abstractpolessum.jl")
 include("Poles/polessum.jl")
