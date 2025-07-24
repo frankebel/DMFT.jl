@@ -206,7 +206,7 @@ end
 
 Discretize the given function `f` defined on locations `W` to `grid`.
 
-Returns a [`Poles`](@ref) object with `locations(P) == grid`.
+Returns a [`PolesSum`](@ref) object with `locations(P) == grid`.
 """
 function discretize_to_grid(
     f::AbstractVector{<:Real}, W::AbstractVector{<:Real}, grid::AbstractVector{<:R}
