@@ -27,10 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- type-stability when taking square root of matrix ([#120](https://github.com/frankebel/DMFT.jl/pull/120)) ([969d322](969d32244b4af02cca57d51b578f958cbd7489a9))
-- type-stability for reading in Number ([#121](https://github.com/frankebel/DMFT.jl/pull/121)) ([1831991](18319913a9f8ef5ae01f1c0d782dc4f1dab99f23))
+- type-stability when taking square root of matrix ([#120](https://github.com/frankebel/DMFT.jl/pull/120)) ([969d322](https://github.com/frankebel/DMFT.jl/commit/969d32244b4af02cca57d51b578f958cbd7489a9))
+- type-stability for reading in Number ([#121](https://github.com/frankebel/DMFT.jl/pull/121)) ([1831991](https://github.com/frankebel/DMFT.jl/commit/18319913a9f8ef5ae01f1c0d782dc4f1dab99f23))
 
-## Removed
+### Removed
 
 - struct `Poles` is split into `PolesSum`, `PolesSumBlock` ([#127](https://github.com/frankebel/DMFT.jl/pull/127)) ([04189d7](https://github.com/frankebel/DMFT.jl/commit/04189d786cec43d948c63dfdb5fac8f90e4967a2))
 
