@@ -371,14 +371,14 @@ function spectral_function_loggaussian(P::PolesSum, ω::Vector{<:Real}, b::Real)
 end
 
 """
-    to_grid(P::PolesSum, grid::Vector{<:Real})
+    to_grid(P::PolesSum, grid::AbstractVector{<:Real})
 
 Create a new [`PolesSum`](@ref) from `P` with locations given by `grid`.
 
 A given pole is split locally conserving the zeroth and first moment.
 If a pole is outside of `grid`, only the zeroth moment is conserved.
 """
-function to_grid(P::PolesSum, grid::Vector{<:Real})
+function to_grid(P::PolesSum, grid::AbstractVector{<:Real})
     # check input
     moment(P, 0) > 0 || throw(ArgumentError("P needs to have positive total weight"))
     issorted(grid) || throw(ArgumentError("grid is not sorted"))
