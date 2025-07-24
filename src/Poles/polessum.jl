@@ -85,6 +85,13 @@ function evaluate_lorentzian(P::PolesSum, ω::Real, δ::Real)
     end
     return result
 end
+function evaluate_lorentzian(P::PolesSum, ω::Real, δ::F) where {F<:Function}
+    result = zero(complex(ω))
+    for i in eachindex(locations(P))
+        result += DMFT.weight(P, i) / (ω + im * δ(locations(P)[i]) - locations(P)[i])
+    end
+    return result
+end
 
 function merge_degenerate_poles!(P::PolesSum, tol::Real = 0)
     # check input
