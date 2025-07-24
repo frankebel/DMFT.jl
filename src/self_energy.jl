@@ -1,7 +1,7 @@
 # various methods of calculating self-energy from Poles representation
 
 """
-    self_energy_poles(
+    self_energy_dyson(
         ϵ_imp::Real,
         Δ0::PolesSum,
         G_imp::PolesSum,

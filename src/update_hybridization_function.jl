@@ -2,8 +2,8 @@
 
 """
     update_hybridization_function(
-        Δ0::Poles{<:V,<:V}, μ::R, Σ_H::R, Σ::Poles{<:V,<:V}
-    ) where {V<:AbstractVector{<:Real},R<:Real}
+        Δ0::PolesSum{R,R}, μ::R, Σ_H::R, Σ::PolesSum{R,R}
+    ) where {R<:Real}
 
 
 Calculate the new hybridization function in [`PolesSum`](@ref) representation.
