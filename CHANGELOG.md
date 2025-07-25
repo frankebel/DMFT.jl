@@ -5,11 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.8.0] - 2025-07-24
+## [Unreleased]
 
 ### Removed
 
 - `self_energy_FG_lorentzian` ([#128](https://github.com/frankebel/DMFT.jl/pull/128)) ([bc6f5de](https://github.com/frankebel/DMFT.jl/commit/bc6f5de69c08882285765dcd3d0308f53f855a31))
+
+## [0.8.0] - 2025-07-24
 
 ### Added
 
