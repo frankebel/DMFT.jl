@@ -38,28 +38,6 @@ function self_energy_dyson(
     return Σ_H, Σ
 end
 
-# https://doi.org/10.1088/0953-8984/10/37/021
-"""
-    self_energy_FG_lorentzian(C::PolesSumBlock, W, δ)
-
-Calculate self-energy as ``Σ_z = F_z (G_z)^{-1}`` with Lorentzian broadening.
-
-Assumes that `C` is given as
-
-```math
-\\begin{pmatrix}
-I             & F^\\mathrm{L} \\\\
-F^\\mathrm{R} & G
-\\end{pmatrix}.
-```
-"""
-function self_energy_FG_lorentzian(C::PolesSumBlock, W, δ)
-    c = evaluate_lorentzian(C, W, δ)
-    F = map(c -> c[1, 2], c)
-    G = map(c -> c[2, 2], c)
-    return F ./ G
-end
-
 # https://doi.org/10.1103/PhysRevB.105.245132
 """
     self_energy_IFG(Σ_H::Real, C::PolesSumBlock, W, δ)

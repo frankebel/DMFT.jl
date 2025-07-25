@@ -55,10 +55,7 @@ using Test
         # self-energies
         Σ_IFG_lorentz = self_energy_IFG_lorentzian(Σ_H, C, W, δ)
         Σ_IFG_gauss = self_energy_IFG_gaussian(Σ_H, C, W, δ)
-        Σ_FG_lorentz = self_energy_FG_lorentzian(C, W, δ)
         @test Σ_IFG_lorentz != Σ_IFG_gauss
-        @test Σ_IFG_lorentz != Σ_FG_lorentz
-        @test norm(Σ_IFG_lorentz - Σ_FG_lorentz) * step_size < 0.0004 # they should be somewhat similar
         @test iszero(imag(first(Σ_IFG_gauss))) # exponential decay results in zero
         @test minimum(imag(Σ_IFG_gauss)) < minimum(imag(Σ_IFG_lorentz)) # Gauss is steeper
     end # correlator

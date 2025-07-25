@@ -108,14 +108,6 @@ using Test
         # must not be equal
         @test locations(Δ_new_L) != locations(Δ_new_G)
         @test amplitudes(Δ_new_L) != amplitudes(Δ_new_G)
-
-        # FG
-        Σ_FG = self_energy_FG_lorentzian(C, W, δ)
-        Δ_grid = Δ0_analytic(Z .+ μ - Σ_FG)
-        Δ_new_3 = equal_weight_discretization(-imag(Δ_grid), W, δ, n_bath)
-        # must not be equal
-        @test locations(Δ_new_L) != locations(Δ_new_3)
-        @test amplitudes(Δ_new_L) != amplitudes(Δ_new_3)
     end # block Lanczos
 
     # Discretization for Gaussian returned wrong number of poles.
