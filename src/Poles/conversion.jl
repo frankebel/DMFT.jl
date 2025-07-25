@@ -93,3 +93,15 @@ function PolesContinuedFractionBlock(P::PolesSumBlock)
     loc, amp, _ = block_lanczos_full_ortho(A, Q1, n1 * n2)
     return PolesContinuedFractionBlock(loc, amp, scl)
 end
+
+# block form -> scalar form
+"""
+    PolesSum(P::PolesSumBlock, i::Integer, j::Integer)
+
+Take the ``P_{i,j}`` element.
+"""
+function PolesSum(P::PolesSumBlock, i::Integer, j::Integer)
+    loc = copy(locations(P))
+    wgt = map(m -> m[i, j], weights(P))
+    return PolesSum(loc, wgt)
+end
