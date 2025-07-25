@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.0] - 2025-07-24
 
+### Removed
+
+- `self_energy_FG_lorentzian` ([#128](https://github.com/frankebel/DMFT.jl/pull/128)) ([bc6f5de](https://github.com/frankebel/DMFT.jl/commit/bc6f5de69c08882285765dcd3d0308f53f855a31))
+
 ### Added
 
 - `weight` for `Poles` ([#108](https://github.com/frankebel/DMFT.jl/pull/108)) ([dd5a5da](https://github.com/frankebel/DMFT.jl/commit/dd5a5da8d0a8704eaa0e5849854a7e0a73713254))
