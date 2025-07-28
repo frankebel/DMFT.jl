@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `merge_small_poles!` → `merge_small_weight!` ([#130](https://github.com/frankebel/DMFT.jl/pull/130)) ([35dd38d](https://github.com/frankebel/DMFT.jl/commit/35dd38d65efaf928a1c0c29cfa4030383c0d8027))
+
 ### Removed
 
 - `self_energy_FG_lorentzian` ([#128](https://github.com/frankebel/DMFT.jl/pull/128)) ([bc6f5de](https://github.com/frankebel/DMFT.jl/commit/bc6f5de69c08882285765dcd3d0308f53f855a31))
+- `remove_small_poles!` ([#130](https://github.com/frankebel/DMFT.jl/pull/130)) ([35dd38d](https://github.com/frankebel/DMFT.jl/commit/35dd38d65efaf928a1c0c29cfa4030383c0d8027))
 
 ### Fixed
 
