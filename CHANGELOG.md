@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `self_energy_FG_lorentzian` ([#128](https://github.com/frankebel/DMFT.jl/pull/128)) ([bc6f5de](https://github.com/frankebel/DMFT.jl/commit/bc6f5de69c08882285765dcd3d0308f53f855a31))
 
+### Fixed
+
+- addition of `PolesSumBlock` did not create true copies ([#129](https://github.com/frankebel/DMFT.jl/pull/129)) ([85827bc](https://github.com/frankebel/DMFT.jl/commit/85827bcbd02fa45563d45fc4c5adbbf591186f62))
+
 ## [0.8.0] - 2025-07-24
 
 ### Added
