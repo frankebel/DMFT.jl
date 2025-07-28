@@ -215,3 +215,25 @@ function moment(f::AbstractVector{<:Complex}, W::AbstractVector{<:Real}, n::Int=
 
     return result
 end
+
+"""
+    quasiparticle_weight(Σ::PolesSum, tol::Real=0)
+
+Obtain the quasiparticle weight on the real axis.
+
+```math
+Z = \\left(1 - \frac{∂\\mathrm{Re}~Σ(0)}{∂ω}\\right^{-1}
+```
+
+Skip all weights `< tol`.
+"""
+function quasiparticle_weight(Σ::PolesSum, tol::Real=0)
+    tol >= 0 || throw(ArgumentError("tol must be semipositive"))
+
+    foo = zero(eltype(Σ))
+    for i in eachindex(Σ)
+        weight(Σ, i) < tol && continue
+        foo += weight(Σ, i) / (locations(Σ)[i])^2
+    end
+    return inv(1 + foo)
+end

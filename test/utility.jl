@@ -81,4 +81,11 @@ using Test
         @test DMFT.moment(f, W, 1) == 0.33 / π
         @test DMFT.moment(f, W, 2) == 0.2806 / π
     end # moment
+
+    @testset "quasiparticle_weight" begin
+        Σ = PolesSum([-0.25, -0.01, 0.5], [1.0, 2.0, 3.0])
+        @test quasiparticle_weight(Σ) == inv(20029)
+        @test quasiparticle_weight(Σ, 1.0) == inv(20029)
+        @test quasiparticle_weight(Σ, 1.1) == inv(20013)
+    end # quasiparticle_weight
 end # util
