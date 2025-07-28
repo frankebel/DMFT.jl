@@ -165,6 +165,7 @@ using Test
             P = A + B
             @test locations(P) == [1, 2, 3] # must be sorted
             @test weights(P) == [[1 0; 0 1], [0 0; 0 0], [6 6; 6 6]]
+            @test weight(P, 1) !== weight(A, 1)
         end
 
         @testset "copy" begin

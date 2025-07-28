@@ -178,8 +178,18 @@ function moment(P::PolesSumBlock, n::Int=0)
     return sum(i -> i[1]^n * i[2], zip(locations(P), weights(P)))
 end
 
-function Base.:+(A::PolesSumBlock, B::PolesSumBlock)
-    result = PolesSumBlock([locations(A); locations(B)], [weights(A); weights(B)])
+function Base.:+(A::PolesSumBlock{<:Any,TA}, B::PolesSumBlock{<:Any,TB}) where {TA,TB}
+    loc = [locations(A); locations(B)]
+    # copy weights of `A`, `B` to `wgt`
+    wgt = Vector{Matrix{promote_type(TA, TB)}}(undef, length(A) + length(B))
+    for i in eachindex(wgt)
+        if i <= length(A)
+            wgt[i] = copy(weight(A, i))
+        else
+            wgt[i] = copy(weight(B, i - length(A)))
+        end
+    end
+    result = PolesSumBlock(loc, wgt)
     sort!(result)
     merge_degenerate_poles!(result, 0)
     return result
