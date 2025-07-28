@@ -40,6 +40,54 @@ end
 
 # https://doi.org/10.1103/PhysRevB.105.245132
 """
+    self_energy_IFG(C::PolesSumBlock)
+
+Calculate self-energy as
+``Σ_ω = I_ω - F^\\mathrm{L}_ω (G_ω)^{-1} F^\\mathrm{R}_ω``.
+
+Assumes that `C` is given as
+
+```math
+\\begin{pmatrix}
+I             & F^\\mathrm{L} \\\\
+F^\\mathrm{R} & G
+\\end{pmatrix}.
+```
+"""
+function self_energy_IFG(C::PolesSumBlock)
+    # Thank you Aleksandrs Začinskis for showing me the method of
+    # - matrix inversion
+    # - taking [1,1] element
+    # - inversion again
+
+    size(C) == (2, 2) || throw(ArgumentError("C must have size (2, 2)"))
+
+    # convert C to continued fraction representation
+    C_cf = PolesContinuedFractionBlock(C)
+    iszero(scale(C_cf)[1, 2]) || throw(ArgumentError("`scale(C)` must be diagonal")) # TODO: extend this
+    S_inv = inv(scale(C_cf))
+    A1 = locations(C_cf)[1]
+
+    # Shift continued fraction representation by one index and take [1,1] block
+    C_cf_shift = PolesContinuedFractionBlock(
+        locations(C_cf)[2:end], amplitudes(C_cf)[2:end], amplitudes(C_cf)[1]
+    )
+    C_shift = PolesSumBlock(C_cf_shift)
+    T = PolesSum(C_shift, 1, 1) # C_shift_[1,1]
+    # Reduce noise in T by removing all weight smaller than relative ϵ.
+    merge_small_weight!(T, moment(T, 0) * eps())
+
+    # create new sum representation by adding S_[1,1] and [A_1]_[1,1] for Anderson representation.
+    s = inv(S_inv[1, 1]) # new scale, is U/2 for half-filling
+    foo = Array(T)
+    foo[1, 1] = A1[1, 1]
+    F = eigen!(Hermitian(foo))
+    loc = F.values
+    wgt = abs2(s) .* abs2.(view(F.vectors, 1, :))
+    return PolesSum(loc, wgt)
+end
+
+"""
     self_energy_IFG(Σ_H::Real, C::PolesSumBlock, W, δ)
 
 Calculate self-energy as

@@ -70,6 +70,7 @@ export
     remove_zero_weight!,
     remove_zero_weight,
     scale,
+    self_energy_IFG,
     self_energy_IFG_gaussian,
     self_energy_IFG_lorentzian,
     self_energy_dyson,
