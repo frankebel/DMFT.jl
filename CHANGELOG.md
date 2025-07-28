@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+
+- calculate self-energy using Schur complement ([#131](https://github.com/frankebel/DMFT.jl/pull/131)) ([caeee45](https://github.com/frankebel/DMFT.jl/commit/caeee45b179c39f7e412348dd9a15471951b7a8a))
+
 ### Changed
 
 - `merge_small_poles!` → `merge_small_weight!` ([#130](https://github.com/frankebel/DMFT.jl/pull/130)) ([35dd38d](https://github.com/frankebel/DMFT.jl/commit/35dd38d65efaf928a1c0c29cfa4030383c0d8027))
