@@ -69,7 +69,6 @@ export
     realKK,
     remove_zero_weight!,
     remove_zero_weight,
-    remove_small_poles!,
     scale,
     self_energy_IFG_gaussian,
     self_energy_IFG_lorentzian,

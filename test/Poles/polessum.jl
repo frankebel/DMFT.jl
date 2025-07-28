@@ -290,45 +290,6 @@ using Test
             @test weights(P) == [0, 7, 0, 9, 0, 0]
         end # remove_zero_weight
 
-        @testset "remove_small_poles!" begin
-            P = PolesSum([-0.1, 0.0, 1.0], [1.0, 9.0, 4.0])
-            # no pole removed
-            foo = copy(P)
-            @test remove_small_poles!(foo) === foo
-            @test locations(foo) == [-0.1, 0.0, 1.0]
-            @test weights(foo) == [1.0, 9.0, 4.0]
-            # 1 pole removed
-            foo = copy(P)
-            remove_small_poles!(foo, 1.0)
-            @test locations(foo) == [0.0, 1.0]
-            @test weights(foo) == [9.0, 4.0] .* (14 / 13)
-            # 2 poles removed
-            foo = copy(P)
-            remove_small_poles!(foo, 4.1)
-            @test locations(foo) == [0.0]
-            @test weights(foo) == [14]
-            # all poles removed
-            foo = copy(P)
-            remove_small_poles!(foo, 10)
-            @test isempty(locations(foo))
-            @test isempty(weights(foo))
-
-            # (don't) keep pole at origin
-            P = PolesSum([-1.0, 0.0, 2.0], [2.0, eps(), 5.0])
-            foo = copy(P)
-            remove_small_poles!(foo, 1e-10)
-            @test locations(foo) == [-1.0, 2.0]
-            @test weights(foo) == [2.0, 5.0]
-            foo = copy(P)
-            remove_small_poles!(foo, 1e-10, false)
-            @test locations(foo) == [-1.0, 0.0, 2.0]
-            @test weights(foo) == [2.0, eps(), 5.0]
-            # Errors
-            @test_throws ArgumentError merge_negative_locations_to_zero!(
-                PolesSum([0.1, 0.3, 0.2], rand(3))
-            )
-        end # reomve_small_poles!
-
         @testset "spectral_function_loggauss" begin
             # TODO: use new struct `PolesSum`
             Λ = 1.2

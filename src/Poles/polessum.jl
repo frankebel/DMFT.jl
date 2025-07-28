@@ -289,38 +289,6 @@ function moment(P::PolesSum, n::Int=0)
 end
 
 """
-    remove_small_poles!(P::PolesSum, tol::Real=1e-10, remove_zero::Bool=true)
-
-Remove poles with weight `<= tol` and rescale remaining poles to conserve zeroth moment.
-
-If `remove_zero`, ``a_i = 0`` with ``b_i ≤ tol`` is also removed.
-"""
-function remove_small_poles!(P::PolesSum, tol::Real=1e-10, remove_zero::Bool=true)
-    # check input
-    tol >= 0 || throw(ArgumentError("tol must not be negative"))
-    issorted(P) || throw(ArgumentError("P must be sorted"))
-    w_old = moment(P, 0) # old weight
-    # loop over all poles
-    i = 1
-    while i <= length(P)
-        if iszero(locations(P)[i]) && !remove_zero
-            # keep pole at origin
-            i += 1
-        elseif weight(P, i) <= tol
-            deleteat!(locations(P), i)
-            deleteat!(weights(P), i)
-        else
-            i += 1
-        end
-    end
-    # rescale to conserve zeroth moment
-    w_new = moment(P, 0) # new weight
-    factor = w_old / w_new
-    weights(P) .*= factor
-    return P
-end
-
-"""
     spectral_function_loggaussian(P::PolesSum, ω, b::Real)
 
 Calculate the spectral function ``A(ω) = -1/π \\mathrm{Im}[P(ω)]`` with a
