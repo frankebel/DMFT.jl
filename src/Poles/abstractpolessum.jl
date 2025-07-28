@@ -15,6 +15,16 @@ Merge poles whose locations are `≤ tol` apart.
 function merge_degenerate_poles! end
 
 """
+    merge_small_weight!(P::AbstractPolesSum, tol::Real)
+
+Merge poles with weight `<= tol` to its neighbors.
+
+A given pole is split locally using the law of levers.
+This conserves the zeroth and first moment for scalars.
+"""
+function merge_small_weight! end
+
+"""
     moment(P::AbstractPolesSum, n::Int=0)
 
 Return the `n`-th moment.

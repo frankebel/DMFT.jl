@@ -40,7 +40,7 @@ using Test
         G_plus = PolesSum(copy(locations(C_plus)), map(i -> i[2, 2], weights(C_plus)))
         remove_zero_weight!(G_plus)
         merge_degenerate_poles!(G_plus)
-        merge_small_poles!(G_plus)
+        merge_small_weight!(G_plus, 1e-11)
         G_minus = flip_spectrum(G_plus)
         G_imp = G_minus + G_plus
 

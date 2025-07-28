@@ -104,6 +104,43 @@ using Test
             @test weights(foo) == [[2 0; 0 1], [2 1; 1 2]]
         end # merge_degenerate_poles!
 
+        @testset "merge_small_weight!" begin
+            loc = [0.0, 1, 4]
+            W1 = [2.0 1; 1 3]
+            W2 = [4.0 5; 5 6]
+            W3 = [7.0 8; 8 9]
+            tol = 5.0 # W1 is below, all others above
+            # tolerance small
+            P = PolesSumBlock([-1.0, 0.0, 1.5], [copy(W1), copy(W2), copy(W3)])
+            @test merge_small_weight!(P, eps()) === P
+            @test locations(P) == [-1.0, 0.0, 1.5]
+            @test weights(P) == [W1, W2, W3]
+            # first index
+            P = PolesSumBlock(copy(loc), [copy(W1), copy(W2), copy(W3)])
+            merge_small_weight!(P, tol)
+            @test locations(P) == [1.0, 4.0]
+            @test weights(P) == [[6 6; 6 9], [7 8; 8 9]]
+            # last index
+            P = PolesSumBlock(copy(loc), [copy(W2), copy(W3), copy(W1)])
+            merge_small_weight!(P, tol)
+            @test locations(P) == [0, 1]
+            @test weights(P) == [[4 5; 5 6], [9 9; 9 12]]
+            # middle index
+            P = PolesSumBlock(copy(loc), [copy(W2), copy(W1), copy(W3)])
+            merge_small_weight!(P, tol)
+            @test locations(P) == [0, 4]
+            @test weights(P) == [[5.5 5.75; 5.75 8.25], [7.5 8.25; 8.25 9.75]]
+            # merge zero weight
+            P = PolesSumBlock([0, 2], [zeros(2, 2), ones(2, 2)])
+            merge_small_weight!(P, 0)
+            @test locations(P) == [2]
+            @test weights(P) == [ones(2, 2)]
+            # Errors
+            @test_throws ArgumentError merge_small_weight!(
+                PolesSumBlock([4.0, 1.0], [W1, W2]), eps()
+            )
+        end # merge_small_weight!
+
         @testset "moment" begin
             P = PolesSumBlock([-0.5, 0.0, 0.5], [0.25 1.5 0.25; 0.5 0.75 2.5])
             @test DMFT.moment(P) == [2.375 1.875; 1.875 7.0625]

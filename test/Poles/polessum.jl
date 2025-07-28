@@ -218,31 +218,36 @@ using Test
             @test wgt == [1.7, 0.0, 0.0, 4.3]
         end # merge_negative_weight!
 
-        @testset "merge_small_poles!" begin
+        @testset "merge_small_weight!" begin
             P = PolesSum([-1.0, 0.0, 1.5], [0.25, 6.25, 5.0])
-            # default tolerance small
-            @test merge_small_poles!(P) === P
+            # tolerance small
+            @test merge_small_weight!(P, eps()) === P
             @test locations(P) == [-1.0, 0.0, 1.5]
             @test weights(P) == [0.25, 6.25, 5.0]
             # first index
-            @test merge_small_poles!(P, 1.0) === P
+            merge_small_weight!(P, 1.0)
             @test locations(P) == [0.0, 1.5]
             @test weights(P) == [6.5, 5.0]
             # last index
             P = PolesSum([-1.0, 0.0, 1.5], [5.0, 6.25, 0.25])
-            @test merge_small_poles!(P, 1.0) === P
+            merge_small_weight!(P, 1.0)
             @test locations(P) == [-1.0, 0.0]
             @test weights(P) == [5.0, 6.5]
             # middle index
             P = PolesSum([-1.0, 0.0, 1.5], [25.0, 0.25, 6.25])
-            @test merge_small_poles!(P, 1.0) === P
+            merge_small_weight!(P, 1.0)
             @test locations(P) == [-1.0, 1.5]
             @test weights(P) == [25.15, 6.35]
+            # merge zero weight
+            P = PolesSum([0, 2], [0, 1])
+            merge_small_weight!(P, 0)
+            @test locations(P) == [2]
+            @test weights(P) == [1]
             # Errors
-            @test_throws ArgumentError merge_small_poles!(
-                PolesSum([0.0, -0.1, 0.5], rand(3))
+            @test_throws ArgumentError merge_small_weight!(
+                PolesSum([0.0, -0.1, 0.5], rand(3)), eps()
             )
-        end # merge_small_poles!
+        end # merge_small_weight!
 
         @testset "moment" begin
             P = PolesSum([-0.5, 0.0, 0.5], [0.0625, 2.25, 0.0625])

@@ -42,12 +42,12 @@ using Test
 
         # self-energy
         Σ_H, Σ = self_energy_dyson(ϵ_imp, Δ0, G_imp, W)
-        merge_small_poles!(Σ)
+        merge_small_weight!(Σ, 1e-11)
 
         # new hypridization function
         Δ = update_hybridization_function(Δ0, μ, Σ_H, Σ)
         merge_degenerate_poles!(Δ)
-        merge_small_poles!(Δ)
+        merge_small_weight!(Δ, 1e-11)
         Δ_new = discretize_similar_weight(Δ, sqrt(eps()), n_bath)
 
         @test length(Δ_new) == 101

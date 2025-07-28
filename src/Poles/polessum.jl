@@ -237,23 +237,16 @@ function merge_negative_weight!(P::PolesSum)
     return P
 end
 
-"""
-    merge_small_poles!(P::PolesSum, tol::Real=1e-10)
-
-Merge poles with weight `< tol` to its neighbors.
-
-A given pole is split locally conserving the zeroth and first moment.
-"""
-function merge_small_poles!(P::PolesSum, tol::Real=1e-10)
+function merge_small_weight!(P::PolesSum, tol::Real)
     # check input
-    tol >= 0 || throw(ArgumentError("tol must not be negative"))
+    tol >= 0 || throw(ArgumentError("negative tol is invalid"))
     issorted(P) || throw(ArgumentError("P must be sorted"))
     # loop over all poles
     i = 1
     while i <= length(P)
         loc = locations(P)[i]
         wgt = weight(P, i)
-        if wgt >= tol
+        if wgt > tol
             # enough weight, go to next
             i += 1
             continue
@@ -270,10 +263,11 @@ function merge_small_poles!(P::PolesSum, tol::Real=1e-10)
             pop!(weights(P))
         else
             # split weight such that zeroth and first moment is conserved
-            loc_low = locations(P)[i - 1]
-            loc_high = locations(P)[i + 1]
-            weights(P)[i - 1] += (loc_high - loc) / (loc_high - loc_low) * wgt
-            weights(P)[i + 1] += (loc - loc_low) / (loc_high - loc_low) * wgt
+            loc_prev = locations(P)[i - 1]
+            loc_next = locations(P)[i + 1]
+            α = (loc_next - loc) / (loc_next - loc_prev)
+            weights(P)[i - 1] += α * wgt
+            weights(P)[i + 1] += (1 - α) * wgt
             deleteat!(locations(P), i)
             deleteat!(weights(P), i)
         end
