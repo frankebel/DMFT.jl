@@ -21,6 +21,8 @@ export
     PolesSumBlock,
 
     # Functions
+    CIWavefunction_singlet,
+    Wavefunction_singlet,
     amplitude,
     amplitudes,
     block_lanczos,
@@ -78,8 +80,6 @@ export
     slater_start,
     spectral_function_gauss,
     spectral_function_loggaussian,
-    starting_CIWavefunction,
-    starting_Wavefunction,
     sytrd!,
     temperature_kondo,
     to_grid,

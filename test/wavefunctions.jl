@@ -5,40 +5,44 @@ using LinearAlgebra
 using Test
 
 @testset "wavefunctions" begin
-    @testset "starting_Wavefunction" begin
-        ψ = starting_Wavefunction(Dict{UInt64,Float64}, 1, 2, 3, 4)
+    @testset "Wavefunction_singlet" begin
+        ψ = Wavefunction_singlet(Dict{UInt64,Float64}, 1, 2, 3, 4)
         d = Dict(
             UInt64(0b0000_111_00_1_01_0000_111_00_1_10) => 1 / sqrt(2),
             UInt64(0b0000_111_00_1_10_0000_111_00_1_01) => 1 / sqrt(2),
         )
         ϕ = Wavefunction(d)
         @test ψ == ϕ
-    end # starting_Wavefunction
+    end # Wavefunction_singlet
 
-    @testset "starting_CIWavefunction" begin
-        # e = 0
-        ψ = starting_CIWavefunction(Dict{UInt64,Float64}, 1, 2, 3, 4, 0)
+    @testset "CIWavefunction_singlet" begin
+        # excitation = 0
+        ψ = CIWavefunction_singlet(Dict{UInt64,Float64}, 1, 2, 3, 4, 0)
+        # vectors must be the equal but no egal
+        foo = collect(values(ψ))
+        @test foo[1] == foo[2]
+        @test foo[1] !== foo[2]
         v = [1 / sqrt(2)]
         d = Dict(UInt64(0b00_1_01_00_1_10) => copy(v), UInt64(0b00_1_10_00_1_01) => copy(v))
         ϕ = CIWavefunction(d, 5, 3, 4, 0)
         @test ψ == ϕ
 
-        # e = 1
-        ψ = starting_CIWavefunction(Dict{UInt64,Float64}, 1, 2, 3, 4, 1)
+        # excitation = 1
+        ψ = CIWavefunction_singlet(Dict{UInt64,Float64}, 1, 2, 3, 4, 1)
         v = zeros(1 + 2 * (3 + 4))
         v[1] = 1 / sqrt(2)
         d = Dict(UInt64(0b00_1_01_00_1_10) => copy(v), UInt64(0b00_1_10_00_1_01) => copy(v))
         ϕ = CIWavefunction(d, 5, 3, 4, 1)
         @test ψ == ϕ
 
-        # e = 2
-        ψ = starting_CIWavefunction(Dict{UInt64,Float64}, 1, 2, 3, 4, 2)
+        # excitation = 2
+        ψ = CIWavefunction_singlet(Dict{UInt64,Float64}, 1, 2, 3, 4, 2)
         v = zeros(1 + 14 + 14 * 13 ÷ 2)
         v[1] = 1 / sqrt(2)
         d = Dict(UInt64(0b00_1_01_00_1_10) => copy(v), UInt64(0b00_1_10_00_1_01) => copy(v))
         ϕ = CIWavefunction(d, 5, 3, 4, 2)
         @test ψ == ϕ
-    end # starting_CIWavefunction
+    end # CIWavefunction_singlet
 
     @testset "ground state" begin
         # parameters
@@ -63,7 +67,7 @@ using Test
             n = occupations(fs)
             H_int = U * n[1, -1//2] * n[1, 1//2]
             H = natural_orbital_operator(H_nat, H_int, -μ, fs, n_occ, n_v_bit, n_c_bit)
-            ϕ_start = starting_Wavefunction(
+            ϕ_start = Wavefunction_singlet(
                 Dict{M,Float64}, n_v_bit, n_c_bit, n_v_vector, n_c_vector
             )
             E0, ψ0 = DMFT.ground_state(H, ϕ_start, n_kryl)
@@ -84,7 +88,7 @@ using Test
             H = natural_orbital_ci_operator(
                 H_nat, H_int, -μ, fs, n_occ, n_v_bit, n_c_bit, e
             )
-            ψ_start = starting_CIWavefunction(
+            ψ_start = CIWavefunction_singlet(
                 Dict{UInt64,Float64}, n_v_bit, n_c_bit, n_v_vector, n_c_vector, e
             )
             _, _, states = lanczos_krylov(H, ψ_start, n_kryl)

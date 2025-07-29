@@ -1,57 +1,44 @@
 # Methods related to `Fermions.Wavefunctions` module.
 
 """
-    starting_Wavefunction(
-        D::Type, n_v_bit::Int, n_c_bit::Int, n_v_vector::Int, n_c_vector::Int
+    Wavefunction_singlet(
+        D::Type, L_v::Integer, L_c::Integer, V_v::Integer, V_c::Integer
     )
 
-Return 2-determinant-state `Wavefunction` with
-opposite filling in impurity, mirror bath site.
+Initialize a `Wavefunction` with
+singlet in impurity and mirror site
+and all valence sites filled.
 """
-function starting_Wavefunction(
-    D::Type, n_v_bit::Int, n_c_bit::Int, n_v_vector::Int, n_c_vector::Int
+function Wavefunction_singlet(
+    D::Type, L_v::Integer, L_c::Integer, V_v::Integer, V_c::Integer
 )
     K, V = keytype(D), valtype(D)
-    s1 = slater_start(K, 0b0110, n_v_bit, n_c_bit, n_v_vector, n_c_vector)
-    s2 = slater_start(K, 0b1001, n_v_bit, n_c_bit, n_v_vector, n_c_vector)
-    result = Wavefunction(Dict(s1 => one(V), s2 => one(V)))
-    normalize!(result)
-    return result
+    s1 = slater_start(K, 0b0110, L_v, L_c, V_v, V_c)
+    s2 = slater_start(K, 0b1001, L_v, L_c, V_v, V_c)
+    return Wavefunction(Dict(s1 => V(1 / sqrt(2)), s2 => V(1 / sqrt(2))))
 end
 
 """
-    starting_CIWavefunction(
-        D::Type,
-        n_v_bit::Int,
-        n_c_bit::Int,
-        n_v_vector::Int,
-        n_c_vector::Int,
-        excitation::Int,
+    CIWavefunction_singlet(
+        D::Type, L_v::Integer, L_c::Integer, V_v::Integer, V_c::Integer, excitation::Integer
     )
 
-Return 2-determinant-state `CIWavefunction` with
-opposite filling in impurity, mirror bath site.
-
-E.g. `D = Dict{UInt64,Float64}` for bit component `UInt64`
-and vector component `Vector{Float64}`.
+Initialize a `CIWavefunction` with
+singlet in impurity and mirror site
+and all valence sites filled.
 """
-function starting_CIWavefunction(
-    D::Type, n_v_bit::Int, n_c_bit::Int, n_v_vector::Int, n_c_vector::Int, excitation::Int
+function CIWavefunction_singlet(
+    D::Type, L_v::Integer, L_c::Integer, V_v::Integer, V_c::Integer, excitation::Integer
 )
     K, V = keytype(D), valtype(D)
-    s1 = slater_start(K, 0b0110, n_v_bit, n_c_bit, 0, 0)
-    s2 = slater_start(K, 0b1001, n_v_bit, n_c_bit, 0, 0)
-    v_dim = sum(i -> binomial(2 * (n_v_vector + n_c_vector), i), 0:excitation)
-    v = zeros(V, v_dim)
-    v[1] = one(V)
+    s1 = slater_start(K, 0b0110, L_v, L_c, 0, 0)
+    s2 = slater_start(K, 0b1001, L_v, L_c, 0, 0)
+    v_dim = sum(i -> binomial(2 * (V_v + V_c), i), 0:excitation)
+    vec = zeros(V, v_dim)
+    vec[1] = 1 / sqrt(2)
     result = CIWavefunction(
-        Dict(s1 => copy(v), s2 => copy(v)),
-        2 + n_v_bit + n_c_bit,
-        n_v_vector,
-        n_c_vector,
-        excitation,
+        Dict(s1 => copy(vec), s2 => copy(vec)), 2 + L_v + L_c, V_v, V_c, excitation
     )
-    normalize!(result)
     return result
 end
 
