@@ -13,7 +13,7 @@ using Test
     n_c_bit = 1
     e = 1
     n_kryl = 100
-    n_kryl_gs = 20
+    var = eps()
     W = collect(-5:0.001:5)
     δ = 0.04
     # do not change parameters below
@@ -32,12 +32,12 @@ using Test
     O = [q_dag, d_dag]
 
     # initialize system
-    H, E0, ψ0 = init_system(Δ0, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs)
+    H, E0, ψ0 = init_system(Δ0, H_int, ϵ_imp, n_v_bit, n_c_bit, e, var)
 
     @testset "Lanczos" begin
         # impurity Green's functions
-        G_plus = correlator_plus(H, E0, ψ0, d_dag, n_kryl)
-        G_minus = correlator_minus(H, E0, ψ0, d_dag', n_kryl)
+        G_plus = correlator_plus(H, ψ0, d_dag, n_kryl)
+        G_minus = correlator_minus(H, ψ0, d_dag', n_kryl)
         G_imp = G_plus + G_minus
 
         # self-energy
@@ -52,7 +52,7 @@ using Test
 
         @test length(Δ_new) == 101
         @test iszero(locations(Δ_new)[51])
-        @test weight(Δ_new, 51) ≈ 0.002083461320853373 atol = 1e-7
+        @test weight(Δ_new, 51) ≈ 0.0020833288949242113 atol = 1e-7
         @test DMFT.moment(Δ_new, 0) ≈ 0.25 atol = 10 * eps()
         @test DMFT.moment(Δ_new, 1) ≈ 0.0 atol = sqrt(eps())
 
@@ -70,8 +70,8 @@ using Test
         Σ_H = dot(ψ0, O_H, ψ0)
 
         # impurity correlators
-        C_plus = correlator_plus(H, E0, ψ0, O, n_kryl)
-        C_minus = correlator_minus(H, E0, ψ0, map(adjoint, O), n_kryl)
+        C_plus = correlator_plus(H, ψ0, O, n_kryl)
+        C_minus = correlator_minus(H, ψ0, map(adjoint, O), n_kryl)
         C = transpose(C_minus) + C_plus
 
         # Lorentzian

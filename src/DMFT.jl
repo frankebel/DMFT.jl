@@ -48,7 +48,7 @@ export
     greens_function_partial,
     grid_interpolate,
     grid_log,
-    ground_state,
+    ground_state!,
     hybridization_function_bethe_analytic,
     hybridization_function_bethe_equal_weight,
     hybridization_function_bethe_grid,

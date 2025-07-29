@@ -49,63 +49,53 @@ using Test
         n_bath = 31
         U = 4.0
         μ = U / 2
-        n_v_bit = 1
-        n_c_bit = 1
-        e = 2
-        n_kryl = 15
+        L_v = 1
+        L_c = 1
+        p = 2
+        n_kryl = 5
         n_sites = 1 + n_bath
 
-        # applicable to both methods
         Δ = hybridization_function_bethe_simple(n_bath)
         H_nat, n_occ = to_natural_orbitals(Array(Δ))
-        n_bit, n_v_vector, n_c_vector = get_CI_parameters(n_sites, n_occ, n_c_bit, n_v_bit)
-        E0_target = -21.527949603162277 # target ground state energy
+        n_bit, V_v, V_c = get_CI_parameters(n_sites, n_occ, L_c, L_v)
 
-        @testset "Wavefunction" begin
-            M = 2 * n_sites <= 64 ? UInt64 : BigMask{cld(2 * n_sites, 64),UInt64}
-            fs = FockSpace(M, M, Orbitals(n_sites), FermionicSpin(1//2))
-            n = occupations(fs)
-            H_int = U * n[1, -1//2] * n[1, 1//2]
-            H = natural_orbital_operator(H_nat, H_int, -μ, fs, n_occ, n_v_bit, n_c_bit)
-            ϕ_start = Wavefunction_singlet(
-                Dict{M,Float64}, n_v_bit, n_c_bit, n_v_vector, n_c_vector
-            )
-            E0, ψ0 = DMFT.ground_state(H, ϕ_start, n_kryl)
+        # CIWavefunction
+        fs = FockSpace(Orbitals(n_bit), FermionicSpin(1//2))
+        n = occupations(fs)
+        H_int = U * n[1, -1//2] * n[1, 1//2]
+        H = natural_orbital_ci_operator(H_nat, H_int, -μ, fs, n_occ, L_v, L_c, p)
+        ψ_start = CIWavefunction_singlet(Dict{UInt64,Float64}, L_v, L_c, V_v, V_c, p)
 
-            Hψ = H * ψ0
-            H_avg = dot(ψ0, Hψ)
-            H_sqr = dot(Hψ, Hψ)
-            var_rel = H_sqr / H_avg^2 - 1
-            @test abs(E0 / E0_target - 1) < 1e-4
-            @test abs(H_avg / E0 - 1) < 1e-14
-            @test var_rel < 5e-8
-        end # Wavefunction
+        # 10 steps total
+        E0, ψ0 = DMFT.ground_state!(H, ψ_start, n_kryl, 10, floatmin())
+        @test E0 ≈ -21.52794995443462 atol = 1e-13
+        foo = H * ψ0
+        var = foo ⋅ foo
+        @test var < 3e-8
 
-        @testset "CIWavefunction" begin
-            fs = FockSpace(Orbitals(n_bit), FermionicSpin(1//2))
-            n = occupations(fs)
-            H_int = U * n[1, -1//2] * n[1, 1//2]
-            H = natural_orbital_ci_operator(
-                H_nat, H_int, -μ, fs, n_occ, n_v_bit, n_c_bit, e
-            )
-            ψ_start = CIWavefunction_singlet(
-                Dict{UInt64,Float64}, n_v_bit, n_c_bit, n_v_vector, n_c_vector, e
-            )
-            _, _, states = lanczos_krylov(H, ψ_start, n_kryl)
-            S = Matrix{Float64}(undef, n_kryl, n_kryl) # overlap matrix
-            @inbounds for i in 1:n_kryl, j in 1:n_kryl
-                S[i, j] = states[i] ⋅ states[j]
-            end
-            E0, ψ0 = DMFT.ground_state(H, ψ_start, n_kryl)
+        # 20 steps total
+        E0, ψ0 = DMFT.ground_state!(H, ψ0, n_kryl, 10, floatmin())
+        @test E0 ≈ -21.52794999041698 atol = 1e-13
+        foo = H * ψ0
+        var = foo ⋅ foo
+        @test var < 3e-13
 
-            Hψ = H * ψ0
-            H_avg = dot(ψ0, Hψ)
-            H_sqr = dot(Hψ, Hψ)
-            var_rel = H_sqr / H_avg^2 - 1
-            @test norm(S - I) < 2e-12 # S_ij = δ_ij
-            @test abs(E0 / E0_target - 1) < 1e-4
-            @test abs(H_avg / E0 - 1) < 1e-14
-            @test var_rel < 4e-8
-        end # CIWavefunction
+        # 30 steps total
+        E0, ψ0 = DMFT.ground_state!(H, ψ0, n_kryl, 10, floatmin())
+        @test E0 ≈ -21.52794999041725 atol = 1e-13
+        foo = H * ψ0
+        var = foo ⋅ foo
+        @test var < eps()
+
+        # calculate full variance in Wavefunction without L,p approximation
+        fs = FockSpace(Orbitals(n_sites), FermionicSpin(1//2))
+        n = occupations(fs)
+        H_int = U * n[1, -1//2] * n[1, 1//2]
+        H_wf = natural_orbital_operator(H_nat, H_int, -μ, fs, n_occ, L_v, L_c)
+        shift_spectrum!(H_wf, E0)
+        ψ0_wf = Wavefunction(ψ0)
+        foo = H_wf * ψ0_wf
+        var = foo ⋅ foo
+        @test var < 2e-4
     end # ground state
 end # wavefunctions

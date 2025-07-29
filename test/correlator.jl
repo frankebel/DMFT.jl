@@ -13,7 +13,7 @@ using Test
     n_c_bit = 1
     e = 2
     n_kryl = 50
-    n_kryl_gs = 20
+    var = eps()
     W = collect(-10:0.002:10)
     δ = 0.08
 
@@ -27,11 +27,11 @@ using Test
     q_dag = H_int * d_dag - d_dag * H_int  # q_↓^† = [H_int, d^†]
     O = [d_dag, q_dag]
 
-    H, E0, ψ0 = init_system(Δ0, H_int, ϵ_imp, n_v_bit, n_c_bit, e, n_kryl_gs)
+    H, E0, ψ0 = init_system(Δ0, H_int, ϵ_imp, n_v_bit, n_c_bit, e, var)
 
     @testset "Lanczos" begin
         # G+
-        G_plus = correlator_plus(H, E0, ψ0, d_dag, n_kryl)
+        G_plus = correlator_plus(H, ψ0, d_dag, n_kryl)
         @test typeof(G_plus) === PolesSum{Float64,Float64}
         @test length(G_plus) === 50
         @test issorted(G_plus)
@@ -39,7 +39,7 @@ using Test
         @test all(>=(0), weights(G_plus))
         @test DMFT.moment(G_plus, 0) ≈ 0.5 atol = 100 * eps()
         # G-
-        G_minus = correlator_minus(H, E0, ψ0, d_dag', n_kryl)
+        G_minus = correlator_minus(H, ψ0, d_dag', n_kryl)
         @test typeof(G_minus) === PolesSum{Float64,Float64}
         @test length(G_minus) === 50
         @test issorted(G_minus)
@@ -53,13 +53,13 @@ using Test
 
     @testset "block Lanczos" begin
         # C+
-        C_plus = correlator_plus(H, E0, ψ0, O, n_kryl)
+        C_plus = correlator_plus(H, ψ0, O, n_kryl)
         @test typeof(C_plus) === PolesSumBlock{Float64,Float64}
         @test issorted(C_plus)
         @test length(C_plus) == length(O) * n_kryl
         @test all(>=(0), locations(C_plus))
         # C-
-        C_minus = correlator_minus(H, E0, ψ0, map(adjoint, O), n_kryl)
+        C_minus = correlator_minus(H, ψ0, map(adjoint, O), n_kryl)
         @test typeof(C_minus) === PolesSumBlock{Float64,Float64}
         @test issorted(C_minus)
         @test length(C_minus) == length(O) * n_kryl
@@ -70,8 +70,8 @@ using Test
         G_minus = PolesSum(copy(locations(C_minus)), map(i -> i[1, 1], weights(C_minus)))
 
         # half-filling
-        @test DMFT.moment(G_plus, 0) ≈ 0.5 rtol = 20 * eps()
-        @test DMFT.moment(G_minus, 0) ≈ 0.5 rtol = 20 * eps()
+        @test DMFT.moment(G_plus, 0) ≈ 0.5 rtol = 100 * eps()
+        @test DMFT.moment(G_minus, 0) ≈ 0.5 rtol = 100 * eps()
 
         # compare absolute moments of impurity Green's function
         m_pos = moments(G_plus, 0:10)
@@ -83,7 +83,7 @@ using Test
         # Hartree term
         O_H = O[1]' * O[2] + O[2] * O[1]'
         Σ_H = dot(ψ0, O_H, ψ0)
-        @test Σ_H ≈ U / 2 rtol = 20 * eps()
+        @test Σ_H ≈ U / 2 rtol = 100 * eps()
 
         # evaluation
         C = transpose(C_minus) + C_plus

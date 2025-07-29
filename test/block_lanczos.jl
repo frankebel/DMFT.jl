@@ -14,7 +14,7 @@ using Test
         n_c_bit = 1
         e = 2
         n_kryl = 5
-        n_kryl_gs = 20
+        var = eps()
         # initial system
         Δ = hybridization_function_bethe_simple(n_bath, 2)
         fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1//2))
@@ -24,7 +24,7 @@ using Test
         d_dag = c[1, -1//2]' # d_↓^†
         q_dag = H_int * d_dag - d_dag * H_int  # q_↓^† = [H_int, d^†]
 
-        H, E0, ψ0 = init_system(Δ, H_int, -μ, n_v_bit, n_c_bit, e, n_kryl_gs)
+        H, E0, ψ0 = init_system(Δ, H_int, -μ, n_v_bit, n_c_bit, e, var)
         v1 = d_dag * ψ0
         v2 = q_dag * ψ0
         V0 = [v1 v2]
@@ -46,16 +46,16 @@ using Test
         X[(end - 1):end, (end - 1):end] = a[end] # last element
         E = eigvals(X)
         E_ref = [
-            -15.678942694187539,
-            -15.295686009018686,
-            -14.964415736054807,
-            -14.76013760998127,
-            -14.267760301388584,
-            -14.079691680430527,
-            -13.417532651434934,
-            -12.538689290677826,
-            -11.218209037339488,
-            -9.818357326067973,
+            0.214059965436778
+            0.5971189953214974
+            0.9281541797197747
+            1.132106853579721
+            1.6228297233186255
+            1.8127643102174924
+            2.4744861501689104
+            3.354246572428307
+            4.674799177427353
+            6.074676075106131
         ]
         @test norm(E - E_ref) < 3e3 * eps()
     end # block_lanczos

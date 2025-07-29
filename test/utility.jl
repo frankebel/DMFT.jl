@@ -25,24 +25,22 @@ using Test
         n_bath = 31
         U = 4.0
         μ = U / 2
-        n_v_bit = 1
-        n_c_bit = 1
-        e = 2
+        L_v = 1
+        L_c = 1
+        p = 2
         n_kryl = 15
-        E0_target = -21.527949603162277 # target ground state energy
+        var = eps()
+
+        E0_target = -21.527949990417255 # target ground state energy
         Δ = hybridization_function_bethe_simple(n_bath)
-        fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1//2))
+        fs = FockSpace(Orbitals(2 + L_v + L_c), FermionicSpin(1//2))
         n = occupations(fs)
         H_int = U * n[1, -1//2] * n[1, 1//2]
-        H, E0, ψ0 = init_system(Δ, H_int, -μ, n_v_bit, n_c_bit, e, n_kryl)
+        H, E0, ψ0 = init_system(Δ, H_int, -μ, L_v, L_c, p, eps())
         Hψ = H * ψ0
-        H_avg = dot(ψ0, Hψ)
-        H_sqr = dot(Hψ, Hψ)
-        var_rel = H_sqr / H_avg^2 - 1
-        @test H isa CIOperator
-        @test abs(E0 / E0_target - 1) < 1e-4
-        @test abs(H_avg / E0 - 1) < 1e-14
-        @test var_rel < 4e-8
+        variance = Hψ ⋅ Hψ
+        @test variance < var
+        @test E0 ≈ E0_target atol = 1e-13
     end # init system
 
     @testset "δ_gaussian" begin

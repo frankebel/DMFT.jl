@@ -15,36 +15,22 @@ end
 
 """
     init_system(
-        Δ::PolesSum,
-        H_int::Operator,
-        ϵ_imp::Real,
-        n_v_bit::Int,
-        n_c_bit::Int,
-        e::Int,
-        n_kryl::Int,
-    ) where {V<:AbstractVector{<:Real}}
+        Δ::PolesSum, H_int::Operator, ϵ_imp::Real, L_v::Int, L_c::Int, p::Int, var::Real
+    )
 
 Return Hamiltonian, ground state energy, and ground state.
 """
 function init_system(
-    Δ::PolesSum,
-    H_int::Operator,
-    ϵ_imp::Real,
-    n_v_bit::Int,
-    n_c_bit::Int,
-    e::Int,
-    n_kryl::Int,
+    Δ::PolesSum, H_int::Operator, ϵ_imp::Real, L_v::Int, L_c::Int, p::Int, var::Real
 )
     arr = Array(Δ)
     n_sites = size(arr, 1)
     H_nat, n_occ = to_natural_orbitals(arr)
-    n_bit, n_v_vector, n_c_vector = get_CI_parameters(n_sites, n_occ, n_c_bit, n_v_bit)
+    n_bit, V_v, V_c = get_CI_parameters(n_sites, n_occ, L_c, L_v)
     fs = FockSpace(Orbitals(n_bit), FermionicSpin(1//2))
-    H = natural_orbital_ci_operator(H_nat, H_int, ϵ_imp, fs, n_occ, n_v_bit, n_c_bit, e)
-    ψ_start = CIWavefunction_singlet(
-        Dict{UInt64,Float64}, n_v_bit, n_c_bit, n_v_vector, n_c_vector, e
-    )
-    E0, ψ0 = DMFT.ground_state(H, ψ_start, n_kryl)
+    H = natural_orbital_ci_operator(H_nat, H_int, ϵ_imp, fs, n_occ, L_v, L_c, p)
+    ψ_start = CIWavefunction_singlet(Dict{UInt64,Float64}, L_v, L_c, V_v, V_c, p)
+    E0, ψ0 = ground_state!(H, ψ_start, 5, typemax(Int), var)
     return H, E0, ψ0
 end
 

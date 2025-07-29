@@ -54,22 +54,21 @@ end
 
 """
     correlator_plus(
-        H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
+        H::CIOperator, ψ0::CI, O::Operator, n_kryl::Int
     ) where {CI<:CIWavefunction}
 
 Calculate the positive spectrum of the correlator.
 
 ```math
-C^+(ω) = \\left⟨ ψ_0 O^† \\frac{1}{ω - H + E_0} O ψ_0 \\right⟩
+C^+(ω) = \\left⟨ ψ_0 O^† \\frac{1}{ω - H} O ψ_0 \\right⟩
 ```
 
 See also [`correlator_minus`](@ref).
 """
 function correlator_plus(
-    H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
+    H::CIOperator, ψ0::CI, O::Operator, n_kryl::Int
 ) where {CI<:CIWavefunction}
     C = correlator(H, ψ0, O, n_kryl)
-    locations(C) .-= E0
 
     # poles at negative locatiions (never happens on exact arithmetic)
     idx_neg = findall(<(0), locations(C))
@@ -84,22 +83,21 @@ end
 
 """
     correlator_plus(
-        H::CIOperator, E0::Real, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int
+        H::CIOperator, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int
     ) where {CI<:CIWavefunction}
 
 Calculate the positive spectrum of the block correlator.
 
 ```math
-C^+(ω) = \\left⟨ ψ_0 O^† \\frac{1}{ω - H + E_0} O ψ_0 \\right⟩
+C^+(ω) = \\left⟨ ψ_0 O^† \\frac{1}{ω - H} O ψ_0 \\right⟩
 ```
 
 See also [`correlator_minus`](@ref).
 """
 function correlator_plus(
-    H::CIOperator, E0::Real, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int
+    H::CIOperator, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int
 ) where {CI<:CIWavefunction}
     C = correlator(H, ψ0, O, n_kryl)
-    locations(C) .-= E0
 
     # poles at negative energies (never happens on exact arithmetic)
     idx_neg = findall(<(0), locations(C))
@@ -113,22 +111,21 @@ end
 
 """
     correlator_minus(
-        H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
+        H::CIOperator, ψ0::CI, O::Operator, n_kryl::Int
     ) where {CI<:CIWavefunction}
 
 Calculate the negative spectrum of the correlator.
 
 ```math
-C^-(ω) = \\left⟨ ψ_0 O^† \\frac{1}{ω + H - E_0} O ψ_0 \\right⟩
+C^-(ω) = \\left⟨ ψ_0 O^† \\frac{1}{ω + H} O ψ_0 \\right⟩
 ```
 
 See also [`correlator_plus`](@ref).
 """
 function correlator_minus(
-    H::CIOperator, E0::Real, ψ0::CI, O::Operator, n_kryl::Int
+    H::CIOperator, ψ0::CI, O::Operator, n_kryl::Int
 ) where {CI<:CIWavefunction}
     C = correlator(H, ψ0, O, n_kryl)
-    locations(C) .-= E0
 
     map!(-, locations(C), locations(C)) # flip sign of eigenvalues
     reverse!(C) # order form lowest to highest
@@ -146,22 +143,21 @@ end
 
 """
     correlator_minus(
-        H::CIOperator, E0::Real, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int
+        H::CIOperator, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int
     ) where {CI<:CIWavefunction}
 
 Calculate the negative spectrum of the block correlator.
 
 ```math
-C^+(ω) = \\left⟨ ψ_0 O^† \\frac{1}{ω + H - E_0} O ψ_0 \\right⟩
+C^+(ω) = \\left⟨ ψ_0 O^† \\frac{1}{ω + H} O ψ_0 \\right⟩
 ```
 
 See also [`correlator_minus`](@ref).
 """
 function correlator_minus(
-    H::CIOperator, E0::Real, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int
+    H::CIOperator, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int
 ) where {CI<:CIWavefunction}
     C = correlator(H, ψ0, O, n_kryl)
-    locations(C) .-= E0
 
     map!(-, locations(C), locations(C)) # flip sign of eigenvalues
     reverse!(C) # order form lowest to highest

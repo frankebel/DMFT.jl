@@ -43,32 +43,68 @@ function CIWavefunction_singlet(
 end
 
 """
-    ground_state(H::Operator, ψ_start::Wavefunction, n_kryl::Int)
-    ground_state(H::CIOperator, ψ_start::CIWavefunction, n_kryl::Int)
+    ground_state!(
+        H::CIOperator,
+        ψ_start::CIWavefunction,
+        n_kryl::Integer,
+        n_max_restart::Integer,
+        variance::Real,
+    )
 
-Get approximate ground state and energy using `n_kryl` Krylov cycles.
+Shift ``H → H - E_0`` in-place and return ``E_0``, ``|ψ_0⟩``.
+
+Get approximate ground state and energy using steps of `n_kryl` Krylov cycles
+and at most `n_max_restart` restarts.
+Calculation is stopped early if `⟨H^2⟩ < variance`.
 """
-function ground_state(H::Operator, ψ_start::Wavefunction, n_kryl::Int)
-    ψ0, E0 = Fermions.ground_state(H, ψ_start; n_kryl=n_kryl, rtol=5e-8, verbose=false)
-    return E0, ψ0
-end
+function ground_state!(
+    H::CIOperator,
+    ψ_start::CIWavefunction,
+    n_kryl::Integer,
+    n_max_restart::Integer,
+    variance::Real,
+)
+    # check input
+    isapprox(norm(ψ_start), 1; atol=10 * eps()) ||
+        throw(ArgumentError("ψ_start is not normalized"))
+    n_kryl >= 1 || throw(ArgumentError("n_kryl must be at least 1"))
+    n_max_restart >= 1 || throw(ArgumentError("n_max_restart must be at least 1"))
+    variance > 0 || throw(ArgumentError("variance must be positive"))
 
-function ground_state(H::CIOperator, ψ_start::CIWavefunction, n_kryl::Int)
-    α, β, states = lanczos_krylov(H, ψ_start, n_kryl)
-    E, T = LAPACK.stev!('V', α, β)
-    E0 = E[1]
-    ψ0 = zero(ψ_start)
-    @inbounds for i in eachindex(E)
-        axpy!(T[i, 1], states[i], ψ0)
+    # initial guess
+    ψ0 = deepcopy(ψ_start)
+    E0 = dot(ψ0, H, ψ0)
+    shift_spectrum!(H, E0)
+
+    for _ in 1:n_max_restart
+        α, β, states = lanczos_krylov(H, ψ0, n_kryl)
+        F = eigen!(SymTridiagonal(α, β))
+        # new state is linear combination
+        ψ0_new = zero(ψ_start)
+        @inbounds for i in 1:n_kryl
+            axpy!(F.vectors[i, 1], states[i], ψ0_new) # ψ0_new += c_i * ψ_i
+        end
+        normalize!(ψ0_new) # possible orthogonality loss in Lanczos
+        ψ0 = ψ0_new
+        E0 = dot(ψ0, H, ψ0)
+        shift_spectrum!(H, E0)
+
+        # calculate variance
+        foo = H * ψ0
+        foo ⋅ foo < variance && break # variance is below input
     end
-    normalize!(ψ0) # possible orthogonality loss in Lanczos
-    Hψ = H * ψ0
-    H_avg = dot(ψ0, Hψ)
-    H_sqr = dot(Hψ, Hψ)
-    var_rel = H_sqr / H_avg^2 - 1
-    # compare eigenvalue with expectation value
-    rdiff = H_avg / E0 - 1
-    abs(rdiff) < 1e-14 || @warn "discrepancy eigenvalue to eigenstate"
-    @info "ground state" E0 var_rel length(ψ0)
+
+    # find constant term for E0
+    for t in H.opbit.terms
+        if iszero(t.mask) &&
+            iszero(t.left) &&
+            iszero(t.right) &&
+            iszero(t.change) &&
+            iszero(t.signmask)
+            E0 = -t.value
+            break
+        end
+    end
+
     return E0, ψ0
 end

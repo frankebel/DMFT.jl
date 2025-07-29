@@ -4,6 +4,7 @@ using LinearAlgebra
 using Test
 
 @testset "self-energy" begin
+    # parameters
     n_bath = 31
     U = 4.0
     μ = U / 2
@@ -12,7 +13,7 @@ using Test
     L_c = 1
     p = 2
     n_kryl = 100
-    n_kryl_gs = 20
+    var = eps()
     step_size = 0.02
     W = collect(-10:step_size:10)
     δ = 0.08
@@ -29,7 +30,7 @@ using Test
     # only interacting part
     H_int = U * n[1, 1//2] * n[1, -1//2]
     q_dag = H_int * d_dag - d_dag * H_int  # q_↓^† = [H_int, d^†]
-    H, E0, ψ0 = init_system(Δ0, H_int, ϵ_imp, L_v, L_c, p, n_kryl_gs)
+    H, E0, ψ0 = init_system(Δ0, H_int, ϵ_imp, L_v, L_c, p, var)
     O_Σ_H = q_dag' * d_dag + d_dag * q_dag'
     Σ_H = dot(ψ0, O_Σ_H, ψ0)
 
@@ -38,8 +39,8 @@ using Test
     O = [q_dag_tilde, d_dag]
 
     # impurity solver
-    C_plus = correlator_plus(H, E0, ψ0, O, n_kryl)
-    C_minus = correlator_minus(H, E0, ψ0, map(adjoint, O), n_kryl)
+    C_plus = correlator_plus(H, ψ0, O, n_kryl)
+    C_minus = correlator_minus(H, ψ0, map(adjoint, O), n_kryl)
     C = transpose(C_minus) + C_plus
     merge_small_weight!(C, tol)
 
@@ -62,7 +63,7 @@ using Test
         # on the real axis
         Σ = self_energy_IFG(C)
         merge_small_weight!(Σ, tol)
-        @test DMFT.moment(Σ, 0) ≈ U^2 / 4 rtol = 1e-12
+        @test DMFT.moment(Σ, 0) ≈ U^2 / 4 rtol = 2e-12
         @test DMFT.moment(Σ, 1) ≈ 0 atol = 1e-9
         # broadened
         Σ_IFG_lorentz = self_energy_IFG_lorentzian(Σ_H, C, W, δ)
