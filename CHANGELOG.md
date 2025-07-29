@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   ([#133](https://github.com/frankebel/DMFT.jl/pull/133)) ([709e917](https://github.com/frankebel/DMFT.jl/commit/709e917b5ca729a6e1a6c71e788f7f7c94486ac6))
 
+- `ground_state` → `ground_state!` ([#134](https://github.com/frankebel/DMFT.jl/pull/134)) ([a34264e](https://github.com/frankebel/DMFT.jl/commit/a34264eed1918df37d01329d9fb7c3eec335182d))
+
 ### Removed
 
 - `self_energy_FG_lorentzian` ([#128](https://github.com/frankebel/DMFT.jl/pull/128)) ([bc6f5de](https://github.com/frankebel/DMFT.jl/commit/bc6f5de69c08882285765dcd3d0308f53f855a31))
