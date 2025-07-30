@@ -76,7 +76,7 @@ function ground_state!(
     E0 = dot(ψ0, H, ψ0)
     shift_spectrum!(H, E0)
 
-    for _ in 1:n_max_restart
+    for itr in 1:n_max_restart
         α, β, states = lanczos_krylov(H, ψ0, n_kryl)
         F = eigen!(SymTridiagonal(α, β))
         # new state is linear combination
@@ -91,7 +91,14 @@ function ground_state!(
 
         # calculate variance
         foo = H * ψ0
-        foo ⋅ foo < variance && break # variance is below input
+        var = foo ⋅ foo
+        if var <= variance
+            # variance is below input
+            @info "ground state variance reached after $(n_kryl*itr) Krylov steps"
+            break
+        elseif itr == n_max_restart
+            @info "Target variance not reached. Stopped at $(var)"
+        end
     end
 
     # find constant term for E0
