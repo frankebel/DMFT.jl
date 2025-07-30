@@ -85,9 +85,10 @@ function PolesContinuedFractionBlock(P::PolesSumBlock)
     Q1, scl = _orthonormalize_SVD(Q1)
     _orthonormalize_GramSchmidt!(Q1) # numerical instability
     _orthonormalize_GramSchmidt!(Q1) # numerical instability
+    # set small values to zero
+    tol = sqrt(eps()) * norm(scl)
     for i in eachindex(scl)
-        # set small values to zero
-        scl[i] < 1e4 * eps() && (scl[i] = 0)
+        scl[i] < tol && (scl[i] = 0)
     end
     # block Lanczos with full orthogonalization
     loc, amp, _ = block_lanczos_full_ortho(A, Q1, n1 * n2)
