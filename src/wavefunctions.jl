@@ -55,7 +55,7 @@ Shift ``H → H - E_0`` in-place and return ``E_0``, ``|ψ_0⟩``.
 
 Get approximate ground state and energy using steps of `n_kryl` Krylov cycles
 and at most `n_max_restart` restarts.
-Calculation is stopped early if `⟨H^2⟩ < variance`.
+Calculation is stopped early if `⟨H^2⟩ <= variance`.
 """
 function ground_state!(
     H::CIOperator,
@@ -69,7 +69,7 @@ function ground_state!(
         throw(ArgumentError("ψ_start is not normalized"))
     n_kryl >= 1 || throw(ArgumentError("n_kryl must be at least 1"))
     n_max_restart >= 1 || throw(ArgumentError("n_max_restart must be at least 1"))
-    variance > 0 || throw(ArgumentError("variance must be positive"))
+    variance >= 0 || throw(ArgumentError("variance must be >= 0"))
 
     # initial guess
     ψ0 = deepcopy(ψ_start)

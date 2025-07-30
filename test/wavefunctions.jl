@@ -67,21 +67,21 @@ using Test
         ψ_start = CIWavefunction_singlet(Dict{UInt64,Float64}, L_v, L_c, V_v, V_c, p)
 
         # 10 steps total
-        E0, ψ0 = DMFT.ground_state!(H, ψ_start, n_kryl, 10, floatmin())
+        E0, ψ0 = DMFT.ground_state!(H, ψ_start, n_kryl, 10, 0)
         @test E0 ≈ -21.52794995443462 atol = 1e-13
         foo = H * ψ0
         var = foo ⋅ foo
         @test var < 3e-8
 
         # 20 steps total
-        E0, ψ0 = DMFT.ground_state!(H, ψ0, n_kryl, 10, floatmin())
+        E0, ψ0 = DMFT.ground_state!(H, ψ0, n_kryl, 10, 0)
         @test E0 ≈ -21.52794999041698 atol = 1e-13
         foo = H * ψ0
         var = foo ⋅ foo
         @test var < 3e-13
 
         # 30 steps total
-        E0, ψ0 = DMFT.ground_state!(H, ψ0, n_kryl, 10, floatmin())
+        E0, ψ0 = DMFT.ground_state!(H, ψ0, n_kryl, 10, 0)
         @test E0 ≈ -21.52794999041725 atol = 1e-13
         foo = H * ψ0
         var = foo ⋅ foo
