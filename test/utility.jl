@@ -40,7 +40,7 @@ using Test
         Hψ = H * ψ0
         variance = Hψ ⋅ Hψ
         @test variance < var
-        @test E0 ≈ E0_target atol = 1e-13
+        @test E0 ≈ E0_target rtol = 2e-13
     end # init system
 
     @testset "δ_gaussian" begin

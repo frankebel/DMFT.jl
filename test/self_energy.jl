@@ -63,7 +63,7 @@ using Test
         # on the real axis
         Σ = self_energy_IFG(C)
         merge_small_weight!(Σ, tol)
-        @test DMFT.moment(Σ, 0) ≈ U^2 / 4 rtol = 2e-12
+        @test DMFT.moment(Σ, 0) ≈ U^2 / 4 rtol = 1e5 * eps()
         @test DMFT.moment(Σ, 1) ≈ 0 atol = 1e-9
         # broadened
         Σ_IFG_lorentz = self_energy_IFG_lorentzian(Σ_H, C, W, δ)

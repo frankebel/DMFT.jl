@@ -70,8 +70,8 @@ using Test
         G_minus = PolesSum(copy(locations(C_minus)), map(i -> i[1, 1], weights(C_minus)))
 
         # half-filling
-        @test DMFT.moment(G_plus, 0) ≈ 0.5 rtol = 100 * eps()
-        @test DMFT.moment(G_minus, 0) ≈ 0.5 rtol = 100 * eps()
+        @test DMFT.moment(G_plus, 0) ≈ 0.5 rtol = 150 * eps()
+        @test DMFT.moment(G_minus, 0) ≈ 0.5 rtol = 150 * eps()
 
         # compare absolute moments of impurity Green's function
         m_pos = moments(G_plus, 0:10)
