@@ -50,6 +50,20 @@ function PolesSum{A,B}(P::PolesSum) where {A,B}
     return PolesSum{A,B}(Vector{A}(locations(P)), Vector{B}(weights(P)))
 end
 
+"""
+    add_pole_at_zero!(P::PolesSum)
+
+Add a pole at location zero with weight 0 inside `P`.
+"""
+function add_pole_at_zero!(P::PolesSum)
+    if all(!iszero, locations(P))
+        push!(locations(P), 0)
+        push!(weights(P), 0)
+        sort!(P)
+    end
+    return P
+end
+
 amplitude(P::PolesSum{<:Any,<:Real}, i::Integer) = sqrt(weight(P, i))
 
 function evaluate_gaussian(P::PolesSum, ω::Real, σ::Real)

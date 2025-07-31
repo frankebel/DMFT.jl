@@ -31,6 +31,19 @@ using Test
     end # constructor
 
     @testset "custom functions" begin
+        @testset "add_pole_at_zero!" begin
+            # pole already exists
+            P = PolesSum([-1, 0, 2], [3, 4, 5])
+            @test add_pole_at_zero!(P) === P
+            @test locations(P) == [-1, 0, 2]
+            @test weights(P) == [3, 4, 5]
+            # pole does not exist
+            P = PolesSum([-1, 2], [3, 5])
+            @test add_pole_at_zero!(P) === P
+            @test locations(P) == [-1, 0, 2]
+            @test weights(P) == [3, 0, 5]
+        end # add_pole_at_zero!
+
         @testset "amplitude" begin
             loc = 0:5
             wgt = 5:10

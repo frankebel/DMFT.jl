@@ -23,6 +23,7 @@ export
     # Functions
     CIWavefunction_singlet,
     Wavefunction_singlet,
+    add_pole_at_zero!,
     amplitude,
     amplitudes,
     block_lanczos,
