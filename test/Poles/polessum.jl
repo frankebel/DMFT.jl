@@ -327,7 +327,7 @@ using Test
         end # spectral_function_loggauss
 
         @testset "to_grid" begin
-            # all poles within grid, middle pole centerd
+            # all poles within grid, middle pole centered
             P = PolesSum([0.1, 0.2, 0.3], [25.0, 100.0, 1.0])
             grid = [0.1, 0.3]
             foo = to_grid(P, grid)

@@ -33,7 +33,7 @@ function grid_interpolate(a::AbstractVector{<:Real}, n::Int)
     # check input
     issorted(a) || throw(ArgumentError("a is not sorted"))
     allunique(a) || throw(ArgumentError("a has duplicate locations"))
-    count(iszero, a) <= 1 || throw(ArgumentError("a has dublicate zeros"))
+    count(iszero, a) <= 1 || throw(ArgumentError("a has duplicate zeros"))
     Base.require_one_based_indexing(a)
     n >= 1 || throw(ArgumentError("n must be positive"))
 

@@ -32,7 +32,7 @@ end
 
 Löwdin orthonormalization (Singular value decomposition SVD) for given states `Q`.
 
-Calulate overlap matrix ``S = Q^† Q`` and diagonalize
+Calculate overlap matrix ``S = Q^† Q`` and diagonalize
 
 ```math
 \\begin{aligned}

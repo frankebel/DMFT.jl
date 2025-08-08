@@ -358,7 +358,7 @@ using Test
             H_nat, n_occ1 = to_natural_orbitals(Array(Δ))
             H = natural_orbital_ci_operator(H_nat, H_int, -μ1, fs, n_occ1, 2, 2, 2)
             @test length(H.opbit.terms) == 1 + 2 * 6 + 4 * 7
-            @test length(H.opmix) == 96 # didn't calcuate myself
+            @test length(H.opmix) == 96 # didn't calculate myself
             @test H.zero isa Float64
             @test size(H.one) == (2 * 6, 2 * 6)
             @test size(H.two) == (binomial(2 * 6, 2), binomial(2 * 6, 2))

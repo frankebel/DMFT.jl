@@ -125,7 +125,7 @@ function block_lanczos_full_ortho(
         # new states
         mul!(Q_new, H, Q[j])
         for l in 1:(j - 1)
-            # orthogonalize against all previous states exluding last
+            # orthogonalize against all previous states excluding last
             # do twice because it is unstable
             _orthogonalize_states!(M1, Q_new, Q[l])
             _orthogonalize_states!(M1, Q_new, Q[l])

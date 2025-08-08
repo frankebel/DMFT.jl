@@ -8,7 +8,7 @@ using Test
         amp = [[7 8; 8 9]]
         scl = [10 11; 11 12]
 
-        # inner contstructor
+        # inner constructor
         P = PolesContinuedFractionBlock{Int,Int}(loc, amp, scl)
         @test P.locations === loc
         @test P.amplitudes === amp

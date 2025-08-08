@@ -271,7 +271,7 @@ function natural_orbital_ci_operator(
         # valence bath sites
         for i in 1:n_v_bit
             j = 1 + i # Index in H_nat.
-            k = 2 + i # Index in bit componet.
+            k = 2 + i # Index in bit component.
             # bath site
             H_bit += H_nat[j, j] * c[k, σ]' * c[k, σ]
             if i == 1

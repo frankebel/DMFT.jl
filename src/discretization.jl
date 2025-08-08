@@ -127,9 +127,9 @@ function equal_weight_discretization(
         v0 += imΔ[M + i] * dw + imΔ[M - i] * dw
         i += 1
     end
-    # calculate total remaining weight for positive freqeuncies:
+    # calculate total remaining weight for positive frequencies:
     wght_right = sum(imΔ[(M + i):end]) * dw
-    # calculate total remaining weight for negative freqeuncies:
+    # calculate total remaining weight for negative frequencies:
     wght_left = sum(imΔ[1:(M - i)]) * dw
     j = i # remember i for later
 
@@ -214,7 +214,7 @@ function discretize_to_grid(
     # check input
     issorted(grid) || throw(ArgumentError("grid is not sorted"))
     allunique(grid) || throw(ArgumentError("grid has duplicate locations"))
-    count(iszero, grid) <= 1 || throw(ArgumentError("grid has dublicate zeros"))
+    count(iszero, grid) <= 1 || throw(ArgumentError("grid has duplicate zeros"))
     eachindex(f) == eachindex(W) || throw(ArgumentError("f and W must have same indexing"))
     Base.require_one_based_indexing(grid)
 

@@ -46,7 +46,7 @@ locations `loc`,
 amplitudes `amp`,
 and scale `scl`.
 
-By default the scale is set to the identiy matrix ``1``.
+By default the scale is set to the identity matrix ``1``.
 """
 function PolesContinuedFractionBlock(
     loc::AbstractVector{<:AbstractMatrix{<:A}},

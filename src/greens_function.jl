@@ -145,7 +145,7 @@ function greens_function_bethe_grid_hubbard3(
                 cdf(s, a_low - U / 2)
         end
     end
-    weights ./= 2 # noralize 2 distributions
+    weights ./= 2 # normalize 2 distributions
     return PolesSum(locations, weights)
 end
 

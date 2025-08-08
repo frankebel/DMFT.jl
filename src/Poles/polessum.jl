@@ -309,7 +309,7 @@ b_i δ(ω - a_i) → b_i \\frac{\\mathrm{e}^{-b^2/4}}{\\sqrt{π}|a|b}
 \\exp\\left(-\\frac{\\ln^2(ω/a_i)}{b^2}\\right).
 ```
 
-If there is a pole ``a_i = 0``, it is shifted halfway betweeen its neighbors and
+If there is a pole ``a_i = 0``, it is shifted halfway between its neighbors and
 each getting half weight
 
 ```math
@@ -323,7 +323,7 @@ function spectral_function_loggaussian(P::PolesSum, ω::Real, b::Real)
     iszero(ω) && return result # no weight at ω == 0
     for i in eachindex(P)
         if iszero(locations(P)[i])
-            # special case, move half of weight to left/right repectively
+            # special case, move half of weight to left/right respectively
             issorted(P) || throw(ArgumentError("P is not sorted"))
             loc = ω > 0 ? locations(P)[i + 1] / 2 : locations(P)[i - 1] / 2
             w = weight(P, i) / 2

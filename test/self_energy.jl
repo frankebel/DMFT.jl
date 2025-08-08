@@ -45,7 +45,7 @@ using Test
     merge_small_weight!(C, tol)
 
     @testset "Dyson" begin
-        # impurity Green's fuction
+        # impurity Green's function
         G_plus = PolesSum(C_plus, 2, 2)
         remove_zero_weight!(G_plus)
         merge_degenerate_poles!(G_plus)

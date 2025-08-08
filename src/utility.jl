@@ -132,7 +132,7 @@ function find_chemical_potential(
     # Avoid filling n ∉ [0, 1]
     n_low < 0 && (n_low = zero(n_low))
     n_high > 1 && (n_high = one(n_low))
-    # Get inital values.
+    # Get initial values.
     μ_low, μ_high = quantile(vec(real(ev)), (n_low, n_high))
     n_low = _get_filling(W, μ_low, ev)
     n_high = _get_filling(W, μ_high, ev)
