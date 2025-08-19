@@ -72,20 +72,25 @@ function ground_state!(
     variance >= 0 || throw(ArgumentError("variance must be >= 0"))
 
     # initial guess
-    ψ0 = deepcopy(ψ_start)
+    ψ0 = copy(ψ_start)
     E0 = dot(ψ0, H, ψ0)
     shift_spectrum!(H, E0)
 
+    # containers to reduce allocations
+    a = Vector{Float64}(undef, n_kryl)
+    b = Vector{Float64}(undef, n_kryl - 1)
+    states = [similar(ψ_start) for _ in 1:(n_kryl + 1)]
+
     for itr in 1:n_max_restart
-        α, β, states = lanczos_krylov(H, ψ0, n_kryl)
-        F = eigen!(SymTridiagonal(α, β))
+        lanczos!(a, b, states, H, ψ0, n_kryl)
+        F = eigen!(SymTridiagonal(a, b))
         # new state is linear combination
-        ψ0_new = zero(ψ_start)
-        @inbounds for i in 1:n_kryl
-            axpy!(F.vectors[i, 1], states[i], ψ0_new) # ψ0_new += c_i * ψ_i
+        rmul!(ψ0, F.vectors[1, 1]) # rescale first element
+        @inbounds for i in 2:n_kryl
+            # add all other elements
+            axpy!(F.vectors[i, 1], states[i], ψ0) # ψ0_new += c_i * ψ_i
         end
-        normalize!(ψ0_new) # possible orthogonality loss in Lanczos
-        ψ0 = ψ0_new
+        normalize!(ψ0) # possible orthogonality loss in Lanczos
         E0 = dot(ψ0, H, ψ0)
         shift_spectrum!(H, E0)
 
