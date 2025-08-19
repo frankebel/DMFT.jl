@@ -76,9 +76,14 @@ function ground_state!(
     E0 = dot(ψ0, H, ψ0)
     shift_spectrum!(H, E0)
 
+    # containers to reduce allocations
+    a = Vector{Float64}(undef, n_kryl)
+    b = Vector{Float64}(undef, n_kryl - 1)
+    states = [similar(ψ_start) for _ in 1:(n_kryl + 1)]
+
     for itr in 1:n_max_restart
-        α, β, states = lanczos_krylov(H, ψ0, n_kryl)
-        F = eigen!(SymTridiagonal(α, β))
+        lanczos_krylov!(a, b, states, H, ψ0, n_kryl)
+        F = eigen!(SymTridiagonal(a, b))
         # new state is linear combination
         ψ0_new = zero(ψ_start)
         @inbounds for i in 1:n_kryl
