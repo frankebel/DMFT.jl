@@ -25,4 +25,4 @@ makedocs(;
 )
 
 # only works for public repos, see <https://github.com/frankebel/DMFT.jl/settings/pages>
-# deploydocs(; repo="github.com/frankebel/DMFT.jl", devbranch="main")
+deploydocs(; repo="github.com/frankebel/DMFT.jl", devbranch="main")
