@@ -86,4 +86,12 @@ using Test
         @test quasiparticle_weight(Σ, 1.0) == inv(20029)
         @test quasiparticle_weight(Σ, 1.1) == inv(20013)
     end # quasiparticle_weight
+
+    @testset "quasiparticle_weight_gaussian" begin
+        Σ = PolesSum([-0.25, -0.01, 0.5], [1.0, 2.0, 3.0])
+        @test quasiparticle_weight_gaussian(Σ, 0.01, 0.01) ≈ -0.00015696719254258983 atol =
+            100 * eps()
+        @test quasiparticle_weight_gaussian(Σ, 0.001, 0.01) ≈ -0.00018214101681205788 atol =
+            100 * eps()
+    end # quasiparticle_weight_gaussian
 end # util

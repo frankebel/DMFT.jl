@@ -69,6 +69,7 @@ export
     natural_orbital_operator,
     orgtr!,
     quasiparticle_weight,
+    quasiparticle_weight_gaussian,
     read_hdf5,
     realKK,
     remove_zero_weight!,

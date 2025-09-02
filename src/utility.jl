@@ -208,10 +208,12 @@ end
 Obtain the quasiparticle weight on the real axis.
 
 ```math
-Z = \\left(1 - \frac{∂\\mathrm{Re}~Σ(0)}{∂ω}\\right^{-1}
+Z = \\left(1 - \\frac{∂\\mathrm{Re}~Σ(0)}{∂ω}\\right)^{-1}
 ```
 
 Skip all weights `< tol`.
+
+See also [`quasiparticle_weight_gaussian`](@ref).
 """
 function quasiparticle_weight(Σ::PolesSum, tol::Real=0)
     tol >= 0 || throw(ArgumentError("tol must be semipositive"))
@@ -222,4 +224,27 @@ function quasiparticle_weight(Σ::PolesSum, tol::Real=0)
         foo += weight(Σ, i) / (locations(Σ)[i])^2
     end
     return inv(1 + foo)
+end
+
+"""
+    quasiparticle_weight_gaussian(Σ::PolesSum, dω::Real, σ::Real)
+
+Obtain the quasiparticle weight:
+
+```math
+Z = \\left(1 - \\frac{\\mathrm{Re}~[Σ(\\mathrm{d}ω)-Σ(-\\mathrm{d}ω)]}{2\\mathrm{d}ω}\\right)^{-1}
+```
+
+with Gaussian broadening `σ`.
+
+
+See also [`quasiparticle_weight`](@ref).
+"""
+function quasiparticle_weight_gaussian(Σ::PolesSum, dω::Real, σ::Real)
+    σ >= 0 || throw(ArgumentError("σ must be positive"))
+    dω >= 0 || throw(ArgumentError("dω must be positive"))
+
+    f1 = real(evaluate_gaussian(Σ, -dω, σ))
+    f2 = real(evaluate_gaussian(Σ, dω, σ))
+    return inv(1 - (f2 - f1) / (2 * dω))
 end
