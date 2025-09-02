@@ -57,7 +57,7 @@ function discretize_similar_weight(P::PolesSum, δ0::Real, n::Integer)
             # overshoot to next pole
             w = δw
             m = l_plus[i] * δw
-            w > w_target && @warn "degenerate pole at $(l_plus[i])"
+            w > 2 * w_target && @warn "degenerate pole at $(l_plus[i])"
         end
     end
 
@@ -90,7 +90,7 @@ function discretize_similar_weight(P::PolesSum, δ0::Real, n::Integer)
             # overshoot to next pole
             w = δw
             m = l_minus[i] * δw
-            w > w_target && @warn "degenerate pole at $(l_minus[i])"
+            w > 2 * w_target && @warn "degenerate pole at $(l_minus[i])"
         end
     end
 
