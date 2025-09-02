@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - calculate self-energy using Schur complement ([#131](https://github.com/frankebel/DMFT.jl/pull/131)) ([caeee45](https://github.com/frankebel/DMFT.jl/commit/caeee45b179c39f7e412348dd9a15471951b7a8a))
 - calculate quasiparticle weight using `quasiparticle_weight` ([#132](https://github.com/frankebel/DMFT.jl/pull/132)) ([80f7666](https://github.com/frankebel/DMFT.jl/commit/80f766698407dee54318f4b8a4799cfceae4c035))
 - add pole at location 0 with weight 0 ([#137](https://github.com/frankebel/DMFT.jl/pull/137)) ([c7b6cd8](https://github.com/frankebel/DMFT.jl/commit/c7b6cd8be714c0d2c43419333fba41fcb4e6e570))
+- calculate quasiparticle weight with Gaussian broadening using `quasiparticle_weight_gaussian` ([#145](https://github.com/frankebel/DMFT.jl/pull/145)) ([ef631cd](https://github.com/frankebel/DMFT.jl/commit/ef631cde7b0e4174c8220360ba252eed6401a283))
 
 ### Changed
 
