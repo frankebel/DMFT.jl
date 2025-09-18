@@ -440,3 +440,23 @@ end
 
 # create a better show?
 Base.show(io::IO, P::PolesSum) = print(io, length(P), "-element ", summary(P))
+
+function LinearAlgebra.axpby!(α::Number, x::P, β::Number, y::P) where {P<:PolesSum}
+    wy = weights(y)
+    rmul!(wy, β)
+
+    # add scaled poles of x
+    lx = locations(x)
+    wx = weights(x)
+    ly = locations(y)
+    sizehint!(ly, length(y) + length(x))
+    sizehint!(wy, length(y) + length(x))
+    @inline for i in eachindex(x)
+        push!(ly, lx[i])
+        push!(wy, α * wx[i])
+    end
+    sort!(y)
+    merge_degenerate_poles!(y)
+
+    return y
+end

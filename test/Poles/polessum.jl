@@ -547,4 +547,17 @@ using Test
             @test weights(foo) == [4, 3]
         end # sort
     end # Base
+
+    @testset "LinearAlgebra" begin
+        @testset "axpby!" begin
+            x = PolesSum([-1.0, 0.0, 1.0], [0.5, 0.75, 2.0])
+            y = PolesSum([-2.0, 0.0, 2.0], [0.75, 2.0, 1.0])
+            @test axpby!(0.5, x, 2.0, y) === y
+            @test locations(y) == [-2.0, -1.0, 0.0, 1.0, 2.0]
+            @test weights(y) == [1.5, 0.25, 4.375, 1.0, 2.0]
+            # x must be unchanged
+            @test locations(x) == [-1.0, 0.0, 1.0]
+            @test weights(x) == [0.5, 0.75, 2.0]
+        end # axpby!
+    end # LinearAlgebra
 end # PolesSum
