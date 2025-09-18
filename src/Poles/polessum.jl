@@ -460,3 +460,8 @@ function LinearAlgebra.axpby!(α::Number, x::P, β::Number, y::P) where {P<:Pole
 
     return y
 end
+
+function LinearAlgebra.rmul!(P::PolesSum, α::Number)
+    rmul!(weights(P), α)
+    return P
+end

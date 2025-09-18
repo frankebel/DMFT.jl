@@ -559,5 +559,12 @@ using Test
             @test locations(x) == [-1.0, 0.0, 1.0]
             @test weights(x) == [0.5, 0.75, 2.0]
         end # axpby!
+
+        @testset "rmul!" begin
+            P = PolesSum([-1.0, 0.0, 2.0], [0.5, 1.2, 2.0])
+            @test rmul!(P, 2) === P
+            @test locations(P) == [-1.0, 0.0, 2.0] # unchanged
+            @test weights(P) == [1.0, 2.4, 4.0]
+        end # rmul!
     end # LinearAlgebra
 end # PolesSum
