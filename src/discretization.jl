@@ -94,6 +94,8 @@ function discretize_similar_weight(P::PolesSum, δ0::Real, n::Integer)
         end
     end
 
+    # pole locations can be `< eps()` apart and not sorted
+    issorted(result) || sort!(result)
     return result
 end
 
