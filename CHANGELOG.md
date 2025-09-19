@@ -18,7 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `merge_small_poles!` → `merge_small_weight!` ([#130](https://github.com/frankebel/DMFT.jl/pull/130)) ([35dd38d](https://github.com/frankebel/DMFT.jl/commit/35dd38d65efaf928a1c0c29cfa4030383c0d8027))
 - rename starting wave function
-
   - `starting_Wavefunction` → `Wavefunction_singlet`
   - `starting_CIWavefunction` → `CIWavefunction_singlet`
 
@@ -34,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - addition of `PolesSumBlock` did not create true copies ([#129](https://github.com/frankebel/DMFT.jl/pull/129)) ([85827bc](https://github.com/frankebel/DMFT.jl/commit/85827bcbd02fa45563d45fc4c5adbbf591186f62))
+- `discretize_similar_weight` did not return sorted poles ([#148](https://github.com/frankebel/DMFT.jl/pull/148)) ([f1ba260](https://github.com/frankebel/DMFT.jl/commit/f1ba260d58ea57184e14f8ac4d04a8317397342a))
 
 ## [0.8.0] - 2025-07-24
 
