@@ -1,7 +1,7 @@
 # discretize given object to `n` poles
 
 """
-    discretize_similar_weight(P::Poles{<:Any,<:AbstractVector}, δ0::Real, n::Int)
+    discretize_similar_weight(P::PolesSum, δ0::Real, n::Int)
 
 Discretize `P` to `n` poles such that each new pole has approximately equal weight.
 

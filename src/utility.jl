@@ -227,6 +227,42 @@ function quasiparticle_weight(Σ::PolesSum, tol::Real=0)
 end
 
 """
+    quasiparticle_weight(
+        Σ::AbstractVector{Complex}, W::AbstractVector{Real}, n::Integer
+    )
+
+Obtain the quasiparticle weight:
+
+```math
+Z = \\left(1 - \\frac{\\mathrm{Re}~[Σ(\\mathrm{d}ω)-Σ(-\\mathrm{d}ω)]}{2\\mathrm{d}ω}\\right)^{-1}
+```
+
+using the five point midpoint approximation
+
+```math
+\\frac{∂\\mathrm{Re}~Σ(0)}{∂ω} ≈ \\mathrm{Re}\\frac{-Σ(ω+2ϵ) + 8Σ(ω+ϵ) - 8Σ(ω-ϵ) + Σ(ω-2ϵ)}{12ϵ},
+```
+
+where ``ϵ = W_{i+n} - W{i}`` is the step size of the grid.
+
+Assumes an equidistant grid.
+"""
+function quasiparticle_weight(
+    Σ::AbstractVector{<:Complex}, W::AbstractVector{<:Real}, n::Integer
+)
+    issorted(W) || throw(ArgumentError("W must be sorted"))
+    length(Σ) == length(W) || throw(ArgumentError("Σ, W must have same length"))
+    n >= 0 || throw(ArgumentError("n must be positive"))
+
+    z = searchsortedfirst(W, zero(eltype(W))) # index of ω=0
+    dω = W[z + n] - W[z] # assumes equidistant grid
+
+    foo = real(-Σ[z + 2 * n] + 8 * Σ[z + n] - 8 * Σ[z - n] + Σ[z - 2 * n])
+    foo /= (12 * dω)
+    return inv(1 - foo)
+end
+
+"""
     quasiparticle_weight_gaussian(Σ::PolesSum, dω::Real, σ::Real)
 
 Obtain the quasiparticle weight:
@@ -236,7 +272,6 @@ Z = \\left(1 - \\frac{\\mathrm{Re}~[Σ(\\mathrm{d}ω)-Σ(-\\mathrm{d}ω)]}{2\\ma
 ```
 
 with Gaussian broadening `σ`.
-
 
 See also [`quasiparticle_weight`](@ref).
 """

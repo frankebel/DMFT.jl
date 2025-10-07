@@ -81,10 +81,16 @@ using Test
     end # moment
 
     @testset "quasiparticle_weight" begin
+        # pole
         Σ = PolesSum([-0.25, -0.01, 0.5], [1.0, 2.0, 3.0])
         @test quasiparticle_weight(Σ) == inv(20029)
         @test quasiparticle_weight(Σ, 1.0) == inv(20029)
         @test quasiparticle_weight(Σ, 1.1) == inv(20013)
+
+        # grid
+        W = [-0.5, -0.25, 0.0, 0.25, 0.5]
+        Σ = [2.0 + 0.1im, 1.5 + 0.2im, 1.0 + 0.3im, 0.5 + 0.4im, 0.0 + 0.5im]
+        @test quasiparticle_weight(Σ, W, 1) == inv(1 + 2)
     end # quasiparticle_weight
 
     @testset "quasiparticle_weight_gaussian" begin
