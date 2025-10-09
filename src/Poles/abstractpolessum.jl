@@ -107,6 +107,53 @@ function remove_zero_weight(P::AbstractPolesSum, remove_zero::Bool=true)
     return remove_zero_weight!(copy(P), remove_zero)
 end
 
+"""
+    to_grid(P::AbstractPolesSum, grid::AbstractVector{<:Real})
+
+Create a new [`AbstractPolesSum`](@ref) from `P` with locations given by `grid`.
+
+A given pole is split locally conserving the zeroth and first moment.
+If a pole is outside of `grid`, only the zeroth moment is conserved.
+"""
+function to_grid(P::AbstractPolesSum, grid::AbstractVector{<:Real})
+    # check input
+    issorted(grid) || throw(ArgumentError("grid is not sorted"))
+    allunique(grid) || throw(ArgumentError("grid has degenerate locations"))
+
+    # new location and weights
+    weights_new = [zero(first(weights(P))) for _ in eachindex(grid)]
+
+    # run through each existing pole and split weight to new locations
+    @inbounds for i in eachindex(P)
+        loc = locations(P)[i]
+        w = weight(P, i)
+        if loc <= first(grid)
+            # no pole to the left
+            weights_new[begin] += w
+        elseif loc >= last(grid)
+            # no pole to the right
+            weights_new[end] += w
+        else
+            # find next pole with higher location
+            i = searchsortedfirst(grid, loc)
+            if loc - grid[i - 1] < 10 * eps()
+                # previous pole has same location
+                weights_new[i - 1] += w
+            elseif grid[i] - loc < 10 * eps()
+                # current pole has same location
+                weights_new[i] += w
+            else
+                # split such that zeroth and first moment is conserved
+                loc_low = grid[i - 1]
+                loc_high = grid[i]
+                weights_new[i - 1] += (loc_high - loc) / (loc_high - loc_low) * w
+                weights_new[i] += (loc - loc_low) / (loc_high - loc_low) * w
+            end
+        end
+    end
+    return typeof(P)(copy(grid), weights_new)
+end
+
 weight(P::AbstractPolesSum, i::Integer) = weights(P)[i]
 
 weights(P::AbstractPolesSum) = P.weights

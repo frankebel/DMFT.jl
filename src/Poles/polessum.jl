@@ -320,54 +320,6 @@ function spectral_function_loggaussian(P::PolesSum, ω::Vector{<:Real}, b::Real)
     return map(i -> spectral_function_loggaussian(P, i, b), ω)
 end
 
-"""
-    to_grid(P::PolesSum, grid::AbstractVector{<:Real})
-
-Create a new [`PolesSum`](@ref) from `P` with locations given by `grid`.
-
-A given pole is split locally conserving the zeroth and first moment.
-If a pole is outside of `grid`, only the zeroth moment is conserved.
-"""
-function to_grid(P::PolesSum, grid::AbstractVector{<:Real})
-    # check input
-    moment(P, 0) > 0 || throw(ArgumentError("P needs to have positive total weight"))
-    issorted(grid) || throw(ArgumentError("grid is not sorted"))
-    allunique(grid) || throw(ArgumentError("grid has degenerate locations"))
-
-    # new location and weights
-    weights_new = zero(grid)
-
-    # run through each existing pole and split weight to new locations
-    @inbounds for i in eachindex(P)
-        loc = locations(P)[i]
-        w = weight(P, i)
-        if loc <= first(grid)
-            # no pole to the left
-            weights_new[begin] += w
-        elseif loc >= last(grid)
-            # no pole to the right
-            weights_new[end] += w
-        else
-            # find next pole with higher location
-            i = searchsortedfirst(grid, loc)
-            if loc - grid[i - 1] < 10 * eps()
-                # previous pole has same location
-                weights_new[i - 1] += w
-            elseif grid[i] - loc < 10 * eps()
-                # current pole has same location
-                weights_new[i] += w
-            else
-                # split such that zeroth and first moment is conserved
-                loc_low = grid[i - 1]
-                loc_high = grid[i]
-                weights_new[i - 1] += (loc_high - loc) / (loc_high - loc_low) * w
-                weights_new[i] += (loc - loc_low) / (loc_high - loc_low) * w
-            end
-        end
-    end
-    return PolesSum(copy(grid), weights_new)
-end
-
 weight(P::PolesSum, i::Integer) = weights(P)[i]
 
 function Core.Array(P::PolesSum)

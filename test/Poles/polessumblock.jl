@@ -188,6 +188,19 @@ using Test
             @test weights(foo) == [[0 0; 0 0], [1 0; 0 0]]
         end # remove_zero_weight
 
+        @testset "to_grid" begin
+            # all poles within grid, middle pole not centered
+            P = PolesSumBlock(
+                [0.1, 0.25, 0.3],
+                [[0.0 0.25; 0.25 0.5], [0.75 1.0; 1.0 2.0], [1.25 1.5; 1.5 3.0]],
+            )
+            grid = [0.1, 0.3]
+            foo = to_grid(P, grid)
+            @test locations(foo) == [0.1, 0.3]
+            @test norm(weight(foo, 1) - [0.1875 0.5; 0.5 1.0]) < 10 * eps()
+            @test norm(weight(foo, 2) - [1.8125 2.25; 2.25 4.5]) < 10 * eps()
+        end  # to_grid
+
         @testset "weight" begin
             loc = 0:1
             wgt = [[1 2; 2 1], [3 4; 4 3]]
