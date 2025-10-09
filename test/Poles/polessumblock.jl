@@ -104,6 +104,16 @@ using Test
             @test weights(foo) == [[2 0; 0 1], [2 1; 1 2]]
         end # merge_degenerate_poles!
 
+        @testset "merge_negative_locations_to_zero!" begin
+            P = PolesSumBlock(
+                [-0.1, -0.0, 0.2],
+                [[0.0 0.25; 0.25 0.5], [0.75 1.0; 1.0 2.0], [1.25 1.5; 1.5 3.0]],
+            )
+            @test merge_negative_locations_to_zero!(P) === P
+            @test locations(P) == [0.0, 0.2]
+            @test weights(P) == [[0.75 1.25; 1.25 2.5], [1.25 1.5; 1.5 3.0]]
+        end # merge_negative_locations_to_zero!
+
         @testset "merge_small_weight!" begin
             loc = [0.0, 1, 4]
             W1 = [2.0 1; 1 3]

@@ -15,6 +15,32 @@ Merge poles whose locations are `≤ tol` apart.
 function merge_degenerate_poles! end
 
 """
+    merge_negative_locations_to_zero!(P::AbstractPolesSum)
+
+Find all `locations(P) <= 0` and merge them.
+"""
+function merge_negative_locations_to_zero!(P::AbstractPolesSum)
+    # check input
+    issorted(P) || throw(ArgumentError("P must be sorted"))
+    # get information from P
+    loc = locations(P)
+    wgt = weights(P)
+    idx_zeros = findall(<=(0), loc)
+    isempty(idx_zeros) && return P
+    # add up all weights
+    w0 = sum(wgt[idx_zeros])
+    i0 = popfirst!(idx_zeros)
+    loc[i0] = 0
+    wgt[i0] = w0
+    # delete degenerate locations
+    for i in reverse!(idx_zeros)
+        deleteat!(loc, i)
+        deleteat!(wgt, i)
+    end
+    return P
+end
+
+"""
     merge_small_weight!(P::AbstractPolesSum, tol::Real)
 
 Merge poles with weight `<= tol` to its neighbors.

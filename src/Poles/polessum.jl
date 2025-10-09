@@ -157,32 +157,6 @@ function merge_degenerate_poles!(P::PolesSum, tol::Real=0)
 end
 
 """
-    merge_negative_locations_to_zero!(P::PolesSum)
-
-Find all `locations(P) <= 0` and merge them.
-"""
-function merge_negative_locations_to_zero!(P::PolesSum)
-    # check input
-    issorted(P) || throw(ArgumentError("P must be sorted"))
-    # get information from P
-    loc = locations(P)
-    wgt = weights(P)
-    idx_zeros = findall(<=(0), loc)
-    isempty(idx_zeros) && return P
-    # add up all weights
-    w0 = sum(wgt[idx_zeros])
-    i0 = popfirst!(idx_zeros)
-    loc[i0] = 0
-    wgt[i0] = w0
-    # delete degenerate locations
-    for i in reverse!(idx_zeros)
-        deleteat!(loc, i)
-        deleteat!(wgt, i)
-    end
-    return P
-end
-
-"""
     merge_negative_weight!(P::PolesSum)
 
 Move negative weights of `P` such that the zeroth moment is conserved
