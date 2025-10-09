@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - calculate quasiparticle weight with Gaussian broadening using `quasiparticle_weight_gaussian` ([#145](https://github.com/frankebel/DMFT.jl/pull/145)) ([ef631cd](https://github.com/frankebel/DMFT.jl/commit/ef631cde7b0e4174c8220360ba252eed6401a283))
 - calculate quasiparticle weight on a grid using `quasiparticle_weight` ([#149](https://github.com/frankebel/DMFT.jl/pull/149)) ([ba2a2eb](https://github.com/frankebel/DMFT.jl/commit/ba2a2eb8e074c6723d1b4254c3636edf3ef1d11e))
 - merge negative locations for block pole sum ([#150](https://github.com/frankebel/DMFT.jl/pull/150)) ([133e0ae](https://github.com/frankebel/DMFT.jl/commit/133e0ae349a3817954a156526f6e0b3a5116964c))
+- put block sum of poles on given grid ([#151](https://github.com/frankebel/DMFT.jl/pull/151)) ([49db03f](https://github.com/frankebel/DMFT.jl/commit/49db03faeec706372cf94661f574ab2798f23a00))
 
 ### Changed
 
