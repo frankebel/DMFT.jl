@@ -183,7 +183,7 @@ function merge_small_weight!(P::PolesSumBlock, tol::Real)
     while i <= length(P)
         loc = locations(P)[i]
         wgt = weight(P, i)
-        if norm(wgt) > tol
+        if norm(wgt, Inf) > tol
             # enough weight, go to next
             i += 1
             continue
