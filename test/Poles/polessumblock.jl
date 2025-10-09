@@ -89,6 +89,17 @@ using Test
                 [evaluate_lorentzian(P, ω[1], δ), evaluate_lorentzian(P, ω[2], δ)]
         end # evaluate_lorentzian
 
+        @testset "flip_spectrum!" begin
+            P = PolesSumBlock(
+                [0.0, 0.25, 0.3],
+                [[0.0 0.25; 0.25 0.5], [0.75 1.0; 1.0 2.0], [1.25 1.5; 1.5 3.0]],
+            )
+            @test flip_spectrum!(P) === P
+            @test locations(P) == [-0.3, -0.25, -0.0]
+            @test weights(P) ==
+                [[1.25 1.5; 1.5 3.0], [0.75 1.0; 1.0 2.0], [0.0 0.25; 0.25 0.5]]
+        end # flip_spectrum!
+
         @testset "merge_degenerate_poles!" begin
             loc = [0.2, 0.3, 0.6]
             wgt = [[1 0; 0 1], [1 0; 0 0], [2 1; 1 2]]

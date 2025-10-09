@@ -8,6 +8,29 @@ abstract type AbstractPolesSum <: AbstractPoles end
 amplitudes(P::AbstractPolesSum) = map(i -> amplitude(P, i), eachindex(P))
 
 """
+    flip_spectrum!(P::AbstractPolesSum)
+
+Reverse `P` and flip the sign of `locations(P)`.
+
+See also [`flip_spectrum`](@ref).
+"""
+function flip_spectrum!(P::AbstractPolesSum)
+    reverse!(P)
+    l = locations(P)
+    @. l = -l
+    return P
+end
+
+"""
+    flip_spectrum(P::AbstractPolesSum)
+
+Reverse `P` and flip the sign of `locations(P)`.
+
+See also [`flip_spectrum!`](@ref).
+"""
+flip_spectrum(P::AbstractPolesSum) = flip_spectrum!(copy(P))
+
+"""
     merge_degenerate_poles!(P::AbstractPolesSum, tol::Real=0)
 
 Merge poles whose locations are `≤ tol` apart.

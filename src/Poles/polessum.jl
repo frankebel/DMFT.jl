@@ -86,29 +86,6 @@ function evaluate_lorentzian(P::PolesSum, ω::Real, δ::Real)
     return result
 end
 
-"""
-    flip_spectrum!(P::PolesSum)
-
-Reverse `P` and flip the sign of `locations(P)`.
-
-See also [`flip_spectrum`](@ref).
-"""
-function flip_spectrum!(P::PolesSum)
-    reverse!(P)
-    l = locations(P)
-    @. l *= -1
-    return P
-end
-
-"""
-    flip_spectrum(P::PolesSum)
-
-Reverse `P` and flip the sign of `locations(P)`.
-
-See also [`flip_spectrum!`](@ref).
-"""
-flip_spectrum(P::PolesSum) = flip_spectrum!(copy(P))
-
 function merge_degenerate_poles!(P::PolesSum, tol::Real=0)
     # check input
     tol >= 0 || throw(ArgumentError("tol must not be negative"))
