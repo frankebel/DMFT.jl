@@ -202,6 +202,17 @@ function moment(f::AbstractVector{<:Complex}, W::AbstractVector{<:Real}, n::Int=
     return result
 end
 
+function _derivative(P::PolesSum, ω::R, tol::Real=0) where {R<:Real}
+    tol >= 0 || throw(ArgumentError("tol must be semipositive"))
+
+    result = zero(promote_type(eltype(P), R))
+    for i in eachindex(P)
+        weight(P, i) < tol && continue
+        result -= weight(P, i) / (ω - locations(P)[i])^2
+    end
+    return result
+end
+
 """
     quasiparticle_weight(Σ::PolesSum, tol::Real=0)
 
@@ -218,12 +229,8 @@ See also [`quasiparticle_weight_gaussian`](@ref).
 function quasiparticle_weight(Σ::PolesSum, tol::Real=0)
     tol >= 0 || throw(ArgumentError("tol must be semipositive"))
 
-    foo = zero(eltype(Σ))
-    for i in eachindex(Σ)
-        weight(Σ, i) < tol && continue
-        foo += weight(Σ, i) / (locations(Σ)[i])^2
-    end
-    return inv(1 + foo)
+    foo = _derivative(Σ, zero(eltype(Σ)), tol)
+    return inv(1 - foo)
 end
 
 """
