@@ -127,7 +127,7 @@ function correlator_minus(
 ) where {CI<:CIWavefunction}
     C = correlator(H, ψ0, O, n_kryl)
 
-    map!(-, locations(C), locations(C)) # flip sign of eigenvalues
+    map!(-, locations(C)) # flip sign of eigenvalues
     reverse!(C) # order form lowest to highest
 
     # poles at positive energies (never happens on exact arithmetic)
@@ -159,7 +159,7 @@ function correlator_minus(
 ) where {CI<:CIWavefunction}
     C = correlator(H, ψ0, O, n_kryl)
 
-    map!(-, locations(C), locations(C)) # flip sign of eigenvalues
+    map!(-, locations(C)) # flip sign of eigenvalues
     reverse!(C) # order form lowest to highest
 
     # poles at positive energies (never happens on exact arithmetic)

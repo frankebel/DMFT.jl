@@ -93,11 +93,7 @@ function amplitude(P::PolesSumBlock, i::Integer)
     T = eltype(P) <: Real ? Float64 : ComplexF64 # use double precision
     F = eigen!(Hermitian(Matrix{T}(weight(P, i))))
     tol = maximum(F.values) * sqrt(eps())
-    # NOTE: use `map!` in Julia 1.12 or higher
-    for i in eachindex(F.values)
-        # set small eigenvalues to zero
-        F.values[i] = F.values[i] > tol ? sqrt(F.values[i]) : zero(F.values[i])
-    end
+    map!(i -> i > tol ? sqrt(i) : zero(i), F.values) # set small eigenvalues to zero
     result = F.vectors * Diagonal(F.values) * F.vectors'
     hermitianpart!(result)
     return result

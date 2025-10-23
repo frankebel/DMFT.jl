@@ -336,7 +336,7 @@ function Base.inv(P::PolesSum)
     b0 = popfirst!(amplitudes(PCF))
     F = eigen(SymTridiagonal(PCF))
     weights = b0 * view(F.vectors, 1, :)
-    map!(abs2, weights, weights) # NOTE: update Julia 1.12
+    map!(abs2, weights)
     P_inv = PolesSum(F.values, weights)
     return a0, P_inv
 end
