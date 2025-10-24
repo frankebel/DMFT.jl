@@ -21,13 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `merge_small_poles!` → `merge_small_weight!` ([#130](https://github.com/frankebel/DMFT.jl/pull/130)) ([35dd38d](https://github.com/frankebel/DMFT.jl/commit/35dd38d65efaf928a1c0c29cfa4030383c0d8027))
-- rename starting wave function
+- rename starting wave function ([#133](https://github.com/frankebel/DMFT.jl/pull/133)) ([709e917](https://github.com/frankebel/DMFT.jl/commit/709e917b5ca729a6e1a6c71e788f7f7c94486ac6))
   - `starting_Wavefunction` → `Wavefunction_singlet`
   - `starting_CIWavefunction` → `CIWavefunction_singlet`
 
-  ([#133](https://github.com/frankebel/DMFT.jl/pull/133)) ([709e917](https://github.com/frankebel/DMFT.jl/commit/709e917b5ca729a6e1a6c71e788f7f7c94486ac6))
-
 - `ground_state` → `ground_state!` ([#134](https://github.com/frankebel/DMFT.jl/pull/134)) ([a34264e](https://github.com/frankebel/DMFT.jl/commit/a34264eed1918df37d01329d9fb7c3eec335182d))
+- require Julia `>=1.12` ([#153](https://github.com/frankebel/DMFT.jl/pull/153)) ([494ffac](https://github.com/frankebel/DMFT.jl/commit/494ffac738d7848ec907465dba37a4ad67781bbb))
 
 ### Removed
 
