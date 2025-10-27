@@ -79,7 +79,6 @@ using Test
             σ = 0.04
             @test evaluate_gaussian(P, ω, σ) ≈ -1.5277637226549838 - 1.4345225621076145im atol =
                 10 * eps()
-            # TODO: use new struct `PolesSum`
             # semicircular DOS
             G = greens_function_bethe_simple(3001)
             ω = -3:0.01:3
@@ -309,7 +308,6 @@ using Test
         end # remove_zero_weight
 
         @testset "spectral_function_loggauss" begin
-            # TODO: use new struct `PolesSum`
             Λ = 1.2
             N = 150
             loc = grid_log(1, Λ, N)
