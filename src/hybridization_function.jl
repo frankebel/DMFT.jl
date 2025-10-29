@@ -17,11 +17,11 @@ and half-bandwidth `D`.
 
 with ``\\mathrm{sgn}(0) = \\mathrm{sgn}(0^±)``.
 """
-function hybridization_function_bethe_analytic(z::Number, D::Real=1.0)
+function hybridization_function_bethe_analytic(z::Number, D::Real = 1.0)
     return greens_function_bethe_analytic(z, D) * D^2 / 4
 end
 
-function hybridization_function_bethe_analytic(Z::AbstractVector{<:Number}, D::Real=1.0)
+function hybridization_function_bethe_analytic(Z::AbstractVector{<:Number}, D::Real = 1.0)
     return map(z -> hybridization_function_bethe_analytic(z, D), Z)
 end
 
@@ -37,7 +37,7 @@ See also
 [`greens_function_bethe_grid`](@ref),
 [`hybridization_function_bethe_equal_weight`](@ref).
 """
-function hybridization_function_bethe_simple(n_bath::Int, D::Real=1.0)
+function hybridization_function_bethe_simple(n_bath::Int, D::Real = 1.0)
     # Take Green's function and rescale weights by D/2.
     Δ = greens_function_bethe_simple(n_bath, D)
     weights(Δ) .*= D^2 / 4
@@ -54,7 +54,7 @@ See also
 [`hybridization_function_bethe_simple`](@ref),
 [`hybridization_function_bethe_equal_weight`](@ref).
 """
-function hybridization_function_bethe_grid(grid::AbstractVector{<:Real}, D::Real=1.0)
+function hybridization_function_bethe_grid(grid::AbstractVector{<:Real}, D::Real = 1.0)
     Δ = greens_function_bethe_grid(grid, D)
     weights(Δ) .*= D^2 / 4
     return Δ
@@ -71,8 +71,8 @@ with half-bandwidth `D` and poles given in `grid`.
 Created using two semicircles at ``±U/2``.
 """
 function hybridization_function_bethe_grid_hubbard3(
-    grid::AbstractVector{<:Real}, U::Real=0.0, D::Real=1.0
-)
+        grid::AbstractVector{<:Real}, U::Real = 0.0, D::Real = 1.0
+    )
     Δ = greens_function_bethe_grid_hubbard3(grid, U, D)
     weights(Δ) .*= D^2 / 4
     return Δ
@@ -90,7 +90,7 @@ See also
 [`hybridization_function_bethe_simple`](@ref),
 [`hybridization_function_bethe_grid`](@ref).
 """
-function hybridization_function_bethe_equal_weight(n_bath::Int, D::Real=1.0)
+function hybridization_function_bethe_equal_weight(n_bath::Int, D::Real = 1.0)
     # Take Green's function and rescale weights by D/2.
     Δ = greens_function_bethe_equal_weight(n_bath, D)
     weights(Δ) .*= D^2 / 4

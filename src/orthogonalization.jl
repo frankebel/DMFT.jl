@@ -3,13 +3,13 @@
 # Explanation available under ch. 3.2 of Martin's thesis.
 # https://doi.org/10.11588/heidok.00029305
 function _orthonormalize_SVD!(
-    # user supplies all containers to calculate in-place
-    V1::AbstractVector{<:Real}, # container for Λ^{±1/2}
-    M1::AbstractMatrix{<:T}, # container
-    S_sqrt::AbstractMatrix{<:T}, # store S^{1/2}
-    Q_new::AbstractMatrix, # store orthonormal states
-    Q::AbstractMatrix, # states to orthonormalize
-) where {T<:Number}
+        # user supplies all containers to calculate in-place
+        V1::AbstractVector{<:Real}, # container for Λ^{±1/2}
+        M1::AbstractMatrix{<:T}, # container
+        S_sqrt::AbstractMatrix{<:T}, # store S^{1/2}
+        Q_new::AbstractMatrix, # store orthonormal states
+        Q::AbstractMatrix, # states to orthonormalize
+    ) where {T <: Number}
     mul!(M1, Q', Q) # overlap matrix
     F = eigen(hermitianpart!(M1))
     tol = maximum(F.values) * sqrt(eps(real(T)))
@@ -44,7 +44,7 @@ S^{-1/2} &= U Λ^{-1/2} U^†.
 
 Objects of interest are ``Q S^{-1/2}`` and ``S^{1/2}``.
 """
-function _orthonormalize_SVD(Q::AbstractMatrix{<:T}) where {T<:Number}
+function _orthonormalize_SVD(Q::AbstractMatrix{<:T}) where {T <: Number}
     q = size(Q, 2)
     Q_new = similar(Q)
     V1 = Vector{real(T)}(undef, q)
@@ -53,7 +53,7 @@ function _orthonormalize_SVD(Q::AbstractMatrix{<:T}) where {T<:Number}
     _orthonormalize_SVD!(V1, M1, S_sqrt, Q_new, Q)
     return Q_new, S_sqrt
 end
-function _orthonormalize_SVD(Q::AbstractMatrix{<:C}) where {C<:CIWavefunction}
+function _orthonormalize_SVD(Q::AbstractMatrix{<:C}) where {C <: CIWavefunction}
     foo, q = size(Q)
     isone(foo) || throw(ArgumentError("input matrix must have 1 row"))
     T = scalartype(C)
@@ -103,8 +103,8 @@ Orthogonalize `Q_new` against `Q_old`.
 Overwrites `M1`.
 """
 function _orthogonalize_states!(
-    M1::AbstractMatrix, Q_new::AbstractMatrix, Q_old::AbstractMatrix
-)
+        M1::AbstractMatrix, Q_new::AbstractMatrix, Q_old::AbstractMatrix
+    )
     mul!(M1, Q_old', Q_new)
     mul!(Q_new, Q_old, M1, -1, 1) # Q_new -= Q_old^† Q_old Q_new
     return Q_new

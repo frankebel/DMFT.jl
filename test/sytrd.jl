@@ -10,5 +10,5 @@ using Test
     d, e, τ = sytrd!('L', A)
     T = SymTridiagonal(d, e)
     orgtr!('L', A, τ)
-    @test norm(A' * M * A - T) < 3e-12
+    @test norm(A' * M * A - T) < 3.0e-12
 end

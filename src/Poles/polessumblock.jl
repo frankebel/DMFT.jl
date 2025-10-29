@@ -10,16 +10,16 @@ P(ω) = ∑_i \\frac{B_i}{ω-a_i}.
 
 For a scalar variant see [`PolesSum`](@ref).
 """
-struct PolesSumBlock{A<:Real,B<:Number} <: AbstractPolesSum
+struct PolesSumBlock{A <: Real, B <: Number} <: AbstractPolesSum
     locations::Vector{A}
     weights::Vector{Matrix{B}}
 
-    function PolesSumBlock{A,B}(locations, weights) where {A,B}
+    function PolesSumBlock{A, B}(locations, weights) where {A, B}
         length(locations) == length(weights) || throw(DimensionMismatch("length mismatch"))
         all(ishermitian, weights) || throw(ArgumentError("weights are not hermitian"))
         allequal(size, weights) ||
             throw(DimensionMismatch("weights do not have matching size"))
-        return new{A,B}(locations, weights)
+        return new{A, B}(locations, weights)
     end
 end
 
@@ -44,8 +44,8 @@ julia> weights(P) === wgt
 true
 ```
 """
-PolesSumBlock(loc::AbstractVector{A}, wgt::Vector{<:AbstractMatrix{B}}) where {A,B} =
-    PolesSumBlock{A,B}(loc, wgt)
+PolesSumBlock(loc::AbstractVector{A}, wgt::Vector{<:AbstractMatrix{B}}) where {A, B} =
+    PolesSumBlock{A, B}(loc, wgt)
 
 """
     PolesSumBlock(loc::AbstractVector, amp::AbstractMatrix{B}) where {B}
@@ -80,7 +80,7 @@ function PolesSumBlock(loc::AbstractVector, amp::AbstractMatrix{B}) where {B}
     return PolesSumBlock(loc, wgt)
 end
 
-function PolesSumBlock{A,B}(P::PolesSumBlock) where {A,B}
+function PolesSumBlock{A, B}(P::PolesSumBlock) where {A, B}
     return PolesSumBlock(Vector{A}(locations(P)), map(i -> Matrix{B}(i), weights(P)))
 end
 
@@ -123,7 +123,7 @@ function evaluate_lorentzian(P::PolesSumBlock, ω::Real, δ::Real)
     return result
 end
 
-function merge_degenerate_poles!(P::PolesSumBlock, tol::Real=0)
+function merge_degenerate_poles!(P::PolesSumBlock, tol::Real = 0)
     # check input
     tol >= 0 || throw(ArgumentError("tol must not be negative"))
     issorted(P) || throw(ArgumentError("P must be sorted"))
@@ -212,11 +212,11 @@ function merge_small_weight!(P::PolesSumBlock, tol::Real)
     return P
 end
 
-function moment(P::PolesSumBlock, n::Int=0)
+function moment(P::PolesSumBlock, n::Int = 0)
     return sum(i -> i[1]^n * i[2], zip(locations(P), weights(P)))
 end
 
-function Base.:+(A::PolesSumBlock{<:Any,TA}, B::PolesSumBlock{<:Any,TB}) where {TA,TB}
+function Base.:+(A::PolesSumBlock{<:Any, TA}, B::PolesSumBlock{<:Any, TB}) where {TA, TB}
     loc = [locations(A); locations(B)]
     # copy weights of `A`, `B` to `wgt`
     wgt = Vector{Matrix{promote_type(TA, TB)}}(undef, length(A) + length(B))
@@ -237,7 +237,7 @@ function Base.copy(P::PolesSumBlock)
     return PolesSumBlock(copy(locations(P)), map(i -> copy(i), weights(P)))
 end
 
-Base.eltype(::Type{<:PolesSumBlock{A,B}}) where {A,B} = promote_type(A, B)
+Base.eltype(::Type{<:PolesSumBlock{A, B}}) where {A, B} = promote_type(A, B)
 
 function Base.show(io::IO, P::PolesSumBlock)
     return print(

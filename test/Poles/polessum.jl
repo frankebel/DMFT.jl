@@ -9,13 +9,13 @@ using Test
         wgt = collect(5:10)
 
         # inner constructor
-        P = PolesSum{Int,Int}(loc, wgt)
-        @test typeof(P) === PolesSum{Int,Int}
+        P = PolesSum{Int, Int}(loc, wgt)
+        @test typeof(P) === PolesSum{Int, Int}
         @test P.locations === loc
         @test P.weights === wgt
         # length mismatch
-        @test_throws DimensionMismatch PolesSum{Int,Int}(rand(3), rand(4))
-        @test_throws DimensionMismatch PolesSum{Int,Int}(rand(4), rand(3))
+        @test_throws DimensionMismatch PolesSum{Int, Int}(rand(3), rand(4))
+        @test_throws DimensionMismatch PolesSum{Int, Int}(rand(4), rand(3))
 
         # outer constructor
         P = PolesSum(loc, wgt)
@@ -24,8 +24,8 @@ using Test
 
         # conversion of type
         P = PolesSum(loc, wgt)
-        P_new = PolesSum{UInt,Float64}(P)
-        @test typeof(P_new) === PolesSum{UInt,Float64}
+        P_new = PolesSum{UInt, Float64}(P)
+        @test typeof(P_new) === PolesSum{UInt, Float64}
         @test P_new.locations == loc
         @test P_new.weights == wgt
     end # constructor
@@ -138,7 +138,7 @@ using Test
             # custom tolerance
             P1 = copy(P)
             locations(P1)[2] = 0.5999999999999
-            merge_degenerate_poles!(P1, 1e-10)
+            merge_degenerate_poles!(P1, 1.0e-10)
             @test locations(P1) == [0.2, 0.5999999999999]
             @test weights(P1) == [0.0625, 2.8125]
             # negative locations
@@ -320,8 +320,8 @@ using Test
             @test all(>=(0), P) # positive semidefinite
             @test norm(P - reverse(P)) * 0.001 < 10 * eps() # symmetry
             @test abs(P[2000] - 2) < 0.01 # Luttinger pinning
-            @test first(P) < 1e-6 # decay for ω → ±∞
-            @test last(P) < 1e-6 # decay for ω → ±∞
+            @test first(P) < 1.0e-6 # decay for ω → ±∞
+            @test last(P) < 1.0e-6 # decay for ω → ±∞
         end # spectral_function_loggauss
 
         @testset "to_grid" begin
@@ -345,7 +345,7 @@ using Test
             @test locations(foo) == [0.1, 0.3]
             @test weights(foo) == [25.0, 100.0]
             # poles very close to grid
-            P = PolesSum([4e-16, 0.9999999999999998], [16.0, 25.0])
+            P = PolesSum([4.0e-16, 0.9999999999999998], [16.0, 25.0])
             grid = [0.0, 1.0]
             foo = to_grid(P, grid)
             @test locations(foo) == [0.0, 1.0]
@@ -466,7 +466,7 @@ using Test
         end # eltype
 
         @testset "inv" begin
-            grid = collect(range(-1, 1; length=101))
+            grid = collect(range(-1, 1; length = 101))
             G = greens_function_bethe_grid(grid)
             a0, P = inv(G)
             @test length(P) === 100 # originally 101 poles
@@ -474,18 +474,18 @@ using Test
             @test abs(a0) < eps()
             @test norm(locations(P) + reverse(locations(P))) < 100 * eps()
             @test norm(weights(P) - reverse(weights(P))) < 100 * eps()
-            @test DMFT.moment(P, 0) ≈ 0.25 atol = 1e-4 # total weight
+            @test DMFT.moment(P, 0) ≈ 0.25 atol = 1.0e-4 # total weight
             # evaluate
             δ = 0.1
             @test norm(
                 evaluate_lorentzian(G, 0, δ) -
-                1 / (im * δ - a0 - evaluate_lorentzian(P, 0, δ)),
+                    1 / (im * δ - a0 - evaluate_lorentzian(P, 0, δ)),
             ) < 30 * eps()
             ω = 1.0
             δ = 0.1
             @test norm(
                 evaluate_lorentzian(G, ω, δ) -
-                1 / (ω + im * δ - a0 - evaluate_lorentzian(P, ω, δ)),
+                    1 / (ω + im * δ - a0 - evaluate_lorentzian(P, ω, δ)),
             ) < 10 * eps()
             # symmetry
             z1 = 1 / (-0.8 + 0.1im - a0 - evaluate_lorentzian(P, -0.8, 0.1))
@@ -500,7 +500,7 @@ using Test
             @test issorted(PolesSum([0.0, 0.0, 0.1], rand(3)))
             @test !issorted(PolesSum([0.0, -0.0, 0.1], rand(3)))
             @test !issorted(PolesSum([0.0, 0.2, 0.1], rand(3)))
-            @test issorted(PolesSum([0.2, 0.1, 0.0], rand(3)); rev=true)
+            @test issorted(PolesSum([0.2, 0.1, 0.0], rand(3)); rev = true)
         end # issorted
 
         @testset "length" begin

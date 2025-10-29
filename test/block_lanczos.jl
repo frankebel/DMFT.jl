@@ -17,11 +17,11 @@ using Test
         var = eps()
         # initial system
         Δ = hybridization_function_bethe_simple(n_bath, 2)
-        fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1//2))
+        fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1 // 2))
         c = annihilators(fs)
         n = occupations(fs)
-        H_int = U * n[1, 1//2] * n[1, -1//2]
-        d_dag = c[1, -1//2]' # d_↓^†
+        H_int = U * n[1, 1 // 2] * n[1, -1 // 2]
+        d_dag = c[1, -1 // 2]' # d_↓^†
         q_dag = H_int * d_dag - d_dag * H_int  # q_↓^† = [H_int, d^†]
 
         H, E0, ψ0 = init_system(Δ, H_int, -μ, n_v_bit, n_c_bit, e, var)
@@ -57,12 +57,12 @@ using Test
             4.674799177427353
             6.074676075106131
         ]
-        @test norm(E - E_ref) < 3e3 * eps()
+        @test norm(E - E_ref) < 3.0e3 * eps()
     end # block_lanczos
 
     @testset "block_lanczos_full_ortho" begin
         H = Diagonal([1, 1, 2, 2])
-        Q1 = [1 0; 0 1/sqrt(2); 0 0; 0 1/sqrt(2)]
+        Q1 = [1 0; 0 1 / sqrt(2); 0 0; 0 1 / sqrt(2)]
         A, B, Q = block_lanczos_full_ortho(H, Q1, 4)
         @test length(A) == 2
         @test norm(A[1] - [1 0; 0 1.5]) < 10 * eps()
@@ -71,6 +71,6 @@ using Test
         @test norm(B[1] - [0 0; 0 0.5]) < 10 * eps()
         @test length(Q) == 2
         @test Q[1] == Q1
-        @test norm(Q[2] - [0 0; 0 -1/sqrt(2); 0 0; 0 1/sqrt(2)]) < 10 * eps()
+        @test norm(Q[2] - [0 0; 0 -1 / sqrt(2); 0 0; 0 1 / sqrt(2)]) < 10 * eps()
     end # block_lanczos_full_ortho
 end # block_lanczos

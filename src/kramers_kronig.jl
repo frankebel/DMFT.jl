@@ -12,7 +12,7 @@ using Kramers-Kronig relations
 
 See also [`imagKK`](@ref).
 """
-function realKK(A::V, ω::V) where {V<:AbstractVector{<:Real}}
+function realKK(A::V, ω::V) where {V <: AbstractVector{<:Real}}
     length(A) == length(ω) || throw(DimensionMismatch("length mismatch"))
     result = zero(A)
     # all frequencies ω
@@ -42,6 +42,6 @@ using Kramers-Kronig relations
 
 See also [`realKK`](@ref).
 """
-function imagKK(A::V, ω::V) where {V<:AbstractVector{<:Real}}
+function imagKK(A::V, ω::V) where {V <: AbstractVector{<:Real}}
     return -realKK(A, ω)
 end

@@ -8,11 +8,11 @@ using Test
             # test different number types
             @test greens_function_bethe_analytic(-2) == -0.5358983848622456
             @test greens_function_bethe_analytic(-true) == -2
-            @test greens_function_bethe_analytic(-1//2) == -1.0 - 1.7320508075688772im
+            @test greens_function_bethe_analytic(-1 // 2) == -1.0 - 1.7320508075688772im
             @test greens_function_bethe_analytic(false) == -2im
             @test greens_function_bethe_analytic(0.1im) == -1.809975124224178im
             @test greens_function_bethe_analytic(0.5) == 1.0 - 1.7320508075688772im
-            @test greens_function_bethe_analytic(0x1) == 2
+            @test greens_function_bethe_analytic(0x01) == 2
             @test greens_function_bethe_analytic(2.0) == 0.5358983848622456
             # vary half-bandwidth
             @test greens_function_bethe_analytic(-1, 2) == -0.5 - 0.8660254037844386im
@@ -28,7 +28,7 @@ using Test
         @testset "simple" begin
             # 101 poles
             G = greens_function_bethe_simple(101)
-            @test typeof(G) === PolesSum{Float64,Float64}
+            @test typeof(G) === PolesSum{Float64, Float64}
             @test length(G) === 101
             @test DMFT.moment(G, 0) ≈ 1 rtol = 10 * eps()
             @test locations(G)[51] ≈ 0 atol = 10 * eps()
@@ -36,7 +36,7 @@ using Test
             @test norm(weights(G) - reverse(weights(G))) < 600 * eps()
             # 100 poles
             G = greens_function_bethe_simple(100)
-            @test typeof(G) === PolesSum{Float64,Float64}
+            @test typeof(G) === PolesSum{Float64, Float64}
             @test length(G) === 100
             @test DMFT.moment(G, 0) ≈ 1 rtol = 10 * eps()
             @test norm(locations(G) + reverse(locations(G))) < 100 * eps()
@@ -50,15 +50,15 @@ using Test
             # 1 pole
             W = [0.0]
             G = greens_function_bethe_grid(W)
-            @test typeof(G) === PolesSum{Float64,Float64}
+            @test typeof(G) === PolesSum{Float64, Float64}
             @test isone(length(G))
             @test locations(G) == W
             @test locations(G) !== W
             @test only(weights(G)) === 1.0
             # 101 poles
-            W = collect(range(-1, 1; length=101))
+            W = collect(range(-1, 1; length = 101))
             G = greens_function_bethe_grid(W)
-            @test typeof(G) === PolesSum{Float64,Float64}
+            @test typeof(G) === PolesSum{Float64, Float64}
             @test length(G) === 101
             @test locations(G) == W
             @test locations(G) !== W
@@ -66,9 +66,9 @@ using Test
             @test norm(weights(G) - reverse(weights(G))) < 10 * eps()
             @test weight(G, 51) ≈ 0.012732183237577577 atol = eps()
             # 100 poles
-            W = collect(range(-1, 1; length=100))
+            W = collect(range(-1, 1; length = 100))
             G = greens_function_bethe_grid(W)
-            @test typeof(G) === PolesSum{Float64,Float64}
+            @test typeof(G) === PolesSum{Float64, Float64}
             @test length(G) === 100
             @test locations(G) == W
             @test locations(G) !== W
@@ -76,7 +76,7 @@ using Test
             @test norm(weights(G) - reverse(weights(G))) < 10 * eps()
             @test weight(G, 51) ≈ 0.012860130639746004 atol = eps()
             # 101 poles, D = 2
-            W = collect(range(-3, 3; length=101))
+            W = collect(range(-3, 3; length = 101))
             G = greens_function_bethe_grid(W, 2)
             @test DMFT.moment(G, 0) ≈ 1 rtol = 10 * eps()
             @test norm(weights(G) - reverse(weights(G))) < 10 * eps()
@@ -98,11 +98,11 @@ using Test
             @test locations(G) == [5.0]
             @test weights(G) == [1.0]
             # uniform grid
-            grid = collect(range(-5, 5; length=101))
+            grid = collect(range(-5, 5; length = 101))
             # U = 0
             G = greens_function_bethe_grid_hubbard3(grid)
             G0 = greens_function_bethe_grid(grid)
-            @test typeof(G) === PolesSum{Float64,Float64}
+            @test typeof(G) === PolesSum{Float64, Float64}
             @test length(G) === 101
             @test locations(G) == grid
             @test locations(G) !== grid
@@ -118,7 +118,7 @@ using Test
         @testset "equal weight" begin
             @test_throws DomainError greens_function_bethe_equal_weight(2)
             G = greens_function_bethe_equal_weight(101)
-            @test typeof(G) === PolesSum{Float64,Float64}
+            @test typeof(G) === PolesSum{Float64, Float64}
             @test length(G) === 101
             @test all(i -> i === 1 / 101, weights(G))
             @test norm(locations(G) + reverse(locations(G))) === 0.0
@@ -127,7 +127,7 @@ using Test
     end # Bethe lattice
 
     @testset "user supplied dispersion" begin
-        Hk = [[1+0.0im 2; 2 1], [3 4; 4 3]]
+        Hk = [[1 + 0.0im 2; 2 1], [3 4; 4 3]]
         Z = collect(-10:-9) .+ 0.1im
         Σ = [Diagonal([0, 5 + im]), Diagonal([0, 6 + im])] # self-energy only on [2, 2] index
 
@@ -136,14 +136,14 @@ using Test
             @test length(G0) == 2
             @test norm(
                 G0[1] - [
-                    -0.08948370259088873-0.0008516301906910084im 0.021613692792397263+0.0003827853135677249im
-                    0.021613692792397263+0.0003827853135677249im -0.08948370259088873-0.0008516301906910084im
+                    -0.08948370259088873 - 0.0008516301906910084im 0.021613692792397263 + 0.0003827853135677249im
+                    0.021613692792397263 + 0.0003827853135677249im -0.08948370259088873 - 0.0008516301906910084im
                 ],
             ) < eps()
             @test norm(
                 G0[2] - [
-                    -0.09894651224745543-0.001052379439830884im 0.0260339595538256+0.0005098764576851289im
-                    0.0260339595538256+0.0005098764576851289im -0.09894651224745543-0.001052379439830884im
+                    -0.09894651224745543 - 0.001052379439830884im 0.0260339595538256 + 0.0005098764576851289im
+                    0.0260339595538256 + 0.0005098764576851289im -0.09894651224745543 - 0.001052379439830884im
                 ],
             ) < eps()
         end # non-interacting
@@ -153,14 +153,14 @@ using Test
             @test length(G) == 2
             @test norm(
                 G[1] - [
-                    -0.08778121899483271-0.0005616185151491649im 0.014949094763816347-0.0006950450017352803im
-                    0.014949094763816347-0.0006950450017352803im -0.061604402244826835+0.0034066891091674998im
+                    -0.08778121899483271 - 0.0005616185151491649im 0.014949094763816347 - 0.0006950450017352803im
+                    0.014949094763816347 - 0.0006950450017352803im -0.061604402244826835 + 0.0034066891091674998im
                 ],
             ) < eps()
             @test norm(
                 G[2] - [
-                    -0.09626381282560724-0.0006774835502274772im 0.01636751358241116-0.0007517320959592241im
-                    0.01636751358241116-0.0007517320959592241im -0.06186055815770346+0.003430278158287015im
+                    -0.09626381282560724 - 0.0006774835502274772im 0.01636751358241116 - 0.0007517320959592241im
+                    0.01636751358241116 - 0.0007517320959592241im -0.06186055815770346 + 0.003430278158287015im
                 ],
             ) < eps()
         end # interacting

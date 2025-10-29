@@ -21,8 +21,8 @@ See also [`read_hdf5`](@ref).
 function write_hdf5 end
 
 # Number
-function read_hdf5(filename::AbstractString, ::Type{T}) where {T<:Number}
-    h5open(filename, "r") do fid
+function read_hdf5(filename::AbstractString, ::Type{T}) where {T <: Number}
+    return h5open(filename, "r") do fid
         scalar::T = read(fid, "s")
         return scalar
     end
@@ -36,14 +36,14 @@ function write_hdf5(filename::AbstractString, s::Number)
 end
 
 # Array{Number,N}
-function read_hdf5(filename::AbstractString, ::Type{<:Array{T,N}}) where {T<:Number,N}
-    h5open(filename, "r") do fid
-        a::Array{T,N} = read(fid, "a")
+function read_hdf5(filename::AbstractString, ::Type{<:Array{T, N}}) where {T <: Number, N}
+    return h5open(filename, "r") do fid
+        a::Array{T, N} = read(fid, "a")
         return a
     end
 end
 
-function write_hdf5(filename::AbstractString, content::Array{T,N}) where {T,N}
+function write_hdf5(filename::AbstractString, content::Array{T, N}) where {T, N}
     h5open(filename, "w") do fid
         fid["a"] = content
     end
@@ -52,9 +52,9 @@ end
 
 # Vector{Matrix{Number}}
 function read_hdf5(
-    filename::AbstractString, ::Type{<:Vector{<:Matrix{<:T}}}
-) where {T<:Number}
-    h5open(filename, "r") do fid
+        filename::AbstractString, ::Type{<:Vector{<:Matrix{<:T}}}
+    ) where {T <: Number}
+    return h5open(filename, "r") do fid
         n::Int = read(fid, "n") # read out length
         result = Vector{Matrix{T}}(undef, n)
         for i in 1:n
@@ -64,7 +64,7 @@ function read_hdf5(
     end
 end
 
-function write_hdf5(filename::AbstractString, content::Vector{Matrix{T}}) where {T<:Number}
+function write_hdf5(filename::AbstractString, content::Vector{Matrix{T}}) where {T <: Number}
     n = length(content)
     h5open(filename, "w") do fid
         fid["n"] = n # store length
@@ -76,7 +76,7 @@ function write_hdf5(filename::AbstractString, content::Vector{Matrix{T}}) where 
 end
 
 # PolesSum{A,B}
-function read_hdf5(filename::AbstractString, ::Type{<:PolesSum{A,B}}) where {A,B}
+function read_hdf5(filename::AbstractString, ::Type{<:PolesSum{A, B}}) where {A, B}
     return h5open(filename, "r") do fid
         locations::Vector{A} = read(fid, "locations")
         weights::Vector{B} = read(fid, "weights")
@@ -93,7 +93,7 @@ function write_hdf5(filename::AbstractString, P::PolesSum)
 end
 
 # PolesSumBlock{A,B}
-function read_hdf5(filename::AbstractString, ::Type{<:PolesSumBlock{A,B}}) where {A,B}
+function read_hdf5(filename::AbstractString, ::Type{<:PolesSumBlock{A, B}}) where {A, B}
     return h5open(filename, "r") do fid
         locations::Vector{A} = read(fid, "locations")
         weights = Vector{Matrix{B}}(undef, length(locations))
@@ -116,8 +116,8 @@ end
 
 # PolesContinuedFraction{A,B}
 function read_hdf5(
-    filename::AbstractString, ::Type{<:PolesContinuedFraction{A,B}}
-) where {A,B}
+        filename::AbstractString, ::Type{<:PolesContinuedFraction{A, B}}
+    ) where {A, B}
     return h5open(filename, "r") do fid
         locations::Vector{A} = read(fid, "locations")
         amplitudes::Vector{B} = read(fid, "amplitudes")
@@ -137,8 +137,8 @@ end
 
 # PolesContinuedFractionBlock{A,B}
 function read_hdf5(
-    filename::AbstractString, ::Type{<:PolesContinuedFractionBlock{A,B}}
-) where {A,B}
+        filename::AbstractString, ::Type{<:PolesContinuedFractionBlock{A, B}}
+    ) where {A, B}
     return h5open(filename, "r") do fid
         n::Int = read(fid, "length")
         locations = Vector{Matrix{A}}(undef, n)

@@ -52,7 +52,7 @@ function grid_interpolate(a::AbstractVector{<:Real}, n::Int)
         end
         Δ = ω_high - ω_low # interval width
         # calculate points
-        result[(1 + (i - 1) * n):(i * n)] = range(ω_low; step=Δ / n, length=n)
+        result[(1 + (i - 1) * n):(i * n)] = range(ω_low; step = Δ / n, length = n)
     end
     result[end] = last(a)
 

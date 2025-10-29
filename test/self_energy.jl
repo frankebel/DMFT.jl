@@ -17,18 +17,18 @@ using Test
     step_size = 0.02
     W = collect(-10:step_size:10)
     δ = 0.08
-    tol = 1e-8 # merge weights smaller than this
+    tol = 1.0e-8 # merge weights smaller than this
 
     Δ0 = hybridization_function_bethe_simple(n_bath)
     # Operators for positive frequencies. Negative ones are calculated by adjoint.
-    fs = FockSpace(Orbitals(2 + L_v + L_c), FermionicSpin(1//2))
+    fs = FockSpace(Orbitals(2 + L_v + L_c), FermionicSpin(1 // 2))
     c = annihilators(fs)
     n = occupations(fs)
-    H_int = U * n[1, 1//2] * n[1, -1//2]
-    d_dag = c[1, -1//2]' # d_↓^†
+    H_int = U * n[1, 1 // 2] * n[1, -1 // 2]
+    d_dag = c[1, -1 // 2]' # d_↓^†
 
     # only interacting part
-    H_int = U * n[1, 1//2] * n[1, -1//2]
+    H_int = U * n[1, 1 // 2] * n[1, -1 // 2]
     q_dag = H_int * d_dag - d_dag * H_int  # q_↓^† = [H_int, d^†]
     H, E0, ψ0 = init_system(Δ0, H_int, ϵ_imp, L_v, L_c, p, var)
     O_Σ_H = q_dag' * d_dag + d_dag * q_dag'
@@ -49,13 +49,13 @@ using Test
         G_plus = PolesSum(C_plus, 2, 2)
         remove_zero_weight!(G_plus)
         merge_degenerate_poles!(G_plus)
-        merge_small_weight!(G_plus, 1e-11)
+        merge_small_weight!(G_plus, 1.0e-11)
         G_minus = flip_spectrum(G_plus)
         G_imp = G_minus + G_plus
 
         Σ_H, Σ = self_energy_dyson(-μ, Δ0, G_imp, -5:0.02:5)
         @test Σ_H ≈ U / 2 atol = 100 * eps() # half-filling
-        @test DMFT.moment(Σ, 0) ≈ U^2 / 4 atol = 1e-5 # bad agreement
+        @test DMFT.moment(Σ, 0) ≈ U^2 / 4 atol = 1.0e-5 # bad agreement
         @test !any(iszero, locations(Σ)) # no pole at 0 for metal
     end # self_energy_dyson
 
@@ -63,8 +63,8 @@ using Test
         # on the real axis
         Σ = self_energy_IFG(C)
         merge_small_weight!(Σ, tol)
-        @test DMFT.moment(Σ, 0) ≈ U^2 / 4 rtol = 1e5 * eps()
-        @test DMFT.moment(Σ, 1) ≈ 0 atol = 1e-9
+        @test DMFT.moment(Σ, 0) ≈ U^2 / 4 rtol = 1.0e5 * eps()
+        @test DMFT.moment(Σ, 1) ≈ 0 atol = 1.0e-9
         # broadened
         Σ_IFG_lorentz = self_energy_IFG_lorentzian(Σ_H, C, W, δ)
         Σ_IFG_gauss = self_energy_IFG_gaussian(Σ_H, C, W, δ)

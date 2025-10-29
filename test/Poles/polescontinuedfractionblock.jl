@@ -9,30 +9,30 @@ using Test
         scl = [10 11; 11 12]
 
         # inner constructor
-        P = PolesContinuedFractionBlock{Int,Int}(loc, amp, scl)
+        P = PolesContinuedFractionBlock{Int, Int}(loc, amp, scl)
         @test P.locations === loc
         @test P.amplitudes === amp
         @test P.scale === scl
         # wrong input
         # matrices not hermitian
-        @test_throws ArgumentError PolesContinuedFractionBlock{Int,Int}(loc, loc, scl)
-        @test_throws ArgumentError PolesContinuedFractionBlock{Int,Int}(
+        @test_throws ArgumentError PolesContinuedFractionBlock{Int, Int}(loc, loc, scl)
+        @test_throws ArgumentError PolesContinuedFractionBlock{Int, Int}(
             [[1 2; 3 4], [4 5; 5 6]], amp, scl
         )
-        @test_throws ArgumentError PolesContinuedFractionBlock{Int,Int}(
+        @test_throws ArgumentError PolesContinuedFractionBlock{Int, Int}(
             loc, [[7 8; 9 10]], scl
         )
-        @test_throws ArgumentError PolesContinuedFractionBlock{Int,Int}(
+        @test_throws ArgumentError PolesContinuedFractionBlock{Int, Int}(
             loc, amp, [10 11; 12 13]
         )
         # matrices have wrong size
-        @test_throws DimensionMismatch PolesContinuedFractionBlock{Int,Int}(
+        @test_throws DimensionMismatch PolesContinuedFractionBlock{Int, Int}(
             [[1;;], [4 5; 5 6]], amp, scl
         )
-        @test_throws DimensionMismatch PolesContinuedFractionBlock{Int,Int}(
+        @test_throws DimensionMismatch PolesContinuedFractionBlock{Int, Int}(
             loc, [[1;;]], scl
         )
-        @test_throws DimensionMismatch PolesContinuedFractionBlock{Int,Int}(loc, amp, [1;;])
+        @test_throws DimensionMismatch PolesContinuedFractionBlock{Int, Int}(loc, amp, [1;;])
 
         # outer constructor
         P = PolesContinuedFractionBlock(loc, amp, scl)
@@ -47,8 +47,8 @@ using Test
 
         # conversion of type
         P = PolesContinuedFractionBlock(loc, amp, scl)
-        P_new = PolesContinuedFractionBlock{UInt,Float64}(P)
-        @test typeof(P_new) === PolesContinuedFractionBlock{UInt,Float64}
+        P_new = PolesContinuedFractionBlock{UInt, Float64}(P)
+        @test typeof(P_new) === PolesContinuedFractionBlock{UInt, Float64}
         @test P_new.locations == loc
         @test P_new.amplitudes == amp
         @test P_new.scale == scl
@@ -77,8 +77,8 @@ using Test
             # single point
             @test norm(
                 evaluate_lorentzian(P, 10, 1) - [
-                    0.10758121432383735-0.8486851180203552im 0.1192067097465451-0.9291288301545801im
-                    0.11920670974654493-0.92912883015458im 0.132513408476524-1.0172414419361508im
+                    0.10758121432383735 - 0.8486851180203552im 0.1192067097465451 - 0.9291288301545801im
+                    0.11920670974654493 - 0.92912883015458im 0.132513408476524 - 1.0172414419361508im
                 ],
             ) < 10 * eps()
             # grid

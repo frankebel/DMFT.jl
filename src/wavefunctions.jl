@@ -10,8 +10,8 @@ singlet in impurity and mirror site
 and all valence sites filled.
 """
 function Wavefunction_singlet(
-    D::Type, L_v::Integer, L_c::Integer, V_v::Integer, V_c::Integer
-)
+        D::Type, L_v::Integer, L_c::Integer, V_v::Integer, V_c::Integer
+    )
     K, V = keytype(D), valtype(D)
     s1 = slater_start(K, 0b0110, L_v, L_c, V_v, V_c)
     s2 = slater_start(K, 0b1001, L_v, L_c, V_v, V_c)
@@ -28,8 +28,8 @@ singlet in impurity and mirror site
 and all valence sites filled.
 """
 function CIWavefunction_singlet(
-    D::Type, L_v::Integer, L_c::Integer, V_v::Integer, V_c::Integer, excitation::Integer
-)
+        D::Type, L_v::Integer, L_c::Integer, V_v::Integer, V_c::Integer, excitation::Integer
+    )
     K, V = keytype(D), valtype(D)
     s1 = slater_start(K, 0b0110, L_v, L_c, 0, 0)
     s2 = slater_start(K, 0b1001, L_v, L_c, 0, 0)
@@ -58,14 +58,14 @@ and at most `n_max_restart` restarts.
 Calculation is stopped early if `⟨H^2⟩ <= variance`.
 """
 function ground_state!(
-    H::CIOperator,
-    ψ_start::CIWavefunction,
-    n_kryl::Integer,
-    n_max_restart::Integer,
-    variance::Real,
-)
+        H::CIOperator,
+        ψ_start::CIWavefunction,
+        n_kryl::Integer,
+        n_max_restart::Integer,
+        variance::Real,
+    )
     # check input
-    isapprox(norm(ψ_start), 1; atol=10 * eps()) ||
+    isapprox(norm(ψ_start), 1; atol = 10 * eps()) ||
         throw(ArgumentError("ψ_start is not normalized"))
     n_kryl >= 1 || throw(ArgumentError("n_kryl must be at least 1"))
     n_max_restart >= 1 || throw(ArgumentError("n_max_restart must be at least 1"))
@@ -99,7 +99,7 @@ function ground_state!(
         var = foo ⋅ foo
         if var <= variance
             # variance is below input
-            @info "ground state variance reached after $(n_kryl*itr) Krylov steps"
+            @info "ground state variance reached after $(n_kryl * itr) Krylov steps"
             break
         elseif itr == n_max_restart
             @info "Target variance not reached. Stopped at $(var)"
@@ -109,10 +109,10 @@ function ground_state!(
     # find constant term for E0
     for t in H.opbit.terms
         if iszero(t.mask) &&
-            iszero(t.left) &&
-            iszero(t.right) &&
-            iszero(t.change) &&
-            iszero(t.signmask)
+                iszero(t.left) &&
+                iszero(t.right) &&
+                iszero(t.change) &&
+                iszero(t.signmask)
             E0 = -t.value
             break
         end

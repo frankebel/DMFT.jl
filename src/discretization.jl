@@ -112,8 +112,8 @@ Assumes that `w` is a symmetric interval.
 Assumes that `imΔ` has only semipositive values.
 """
 function equal_weight_discretization(
-    imΔ::AbstractVector{<:Real}, w::AbstractVector{<:Real}, η::Real, n::Int
-)
+        imΔ::AbstractVector{<:Real}, w::AbstractVector{<:Real}, η::Real, n::Int
+    )
     n >= 3 || throw(ArgumentError("at least 3 poles necessary"))
     isodd(n) || throw(ArgumentError("need odd `n`"))
 
@@ -211,8 +211,8 @@ Discretize the given function `f` defined on locations `W` to `grid`.
 Returns a [`PolesSum`](@ref) object with `locations(P) == grid`.
 """
 function discretize_to_grid(
-    f::AbstractVector{<:Real}, W::AbstractVector{<:Real}, grid::AbstractVector{<:R}
-) where {R<:Real}
+        f::AbstractVector{<:Real}, W::AbstractVector{<:Real}, grid::AbstractVector{<:R}
+    ) where {R <: Real}
     # check input
     issorted(grid) || throw(ArgumentError("grid is not sorted"))
     allunique(grid) || throw(ArgumentError("grid has duplicate locations"))

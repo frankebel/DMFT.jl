@@ -9,15 +9,15 @@ using Test
         scl = 11
 
         # inner constructor
-        P = PolesContinuedFraction{Int,Int}(loc, amp, scl)
+        P = PolesContinuedFraction{Int, Int}(loc, amp, scl)
         @test P.locations === loc
         @test P.amplitudes === amp
         @test P.scale === scl
         # wrong input
-        @test_throws ArgumentError PolesContinuedFraction{Int,Int}(
+        @test_throws ArgumentError PolesContinuedFraction{Int, Int}(
             rand(Int, 5), rand(Int, 3), 1
         )
-        @test_throws ArgumentError PolesContinuedFraction{Int,Int}(
+        @test_throws ArgumentError PolesContinuedFraction{Int, Int}(
             rand(Int, 5), rand(Int, 6), 1
         )
 
@@ -34,8 +34,8 @@ using Test
 
         # conversion of type
         P = PolesContinuedFraction(loc, amp, scl)
-        P_new = PolesContinuedFraction{UInt,Float64}(P)
-        @test typeof(P_new) === PolesContinuedFraction{UInt,Float64}
+        P_new = PolesContinuedFraction{UInt, Float64}(P)
+        @test typeof(P_new) === PolesContinuedFraction{UInt, Float64}
         @test P_new.locations == loc
         @test P_new.amplitudes == amp
         @test P_new.scale == scl

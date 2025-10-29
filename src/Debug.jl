@@ -23,7 +23,7 @@ Return excitation of Slater determinant `s`.
 `m_filled`, `m_empty` are the masks of default filled/empty sites
 in vector of `CIWavefunction`.
 """
-@inline function get_excitation(s::S, m_filled::S, m_empty::S) where {S<:Unsigned}
+@inline function get_excitation(s::S, m_filled::S, m_empty::S) where {S <: Unsigned}
     return count_ones((s & (m_filled | m_empty) ⊻ m_filled))
 end
 
@@ -38,23 +38,24 @@ In Wavefunction `ψ` remove entries higher than `excitation`.
 in vector of `CIWavefunction`.
 """
 function excitation!(
-    ψ::Wavefunction, m_filled::S, m_empty::S, excitation::Int
-) where {S<:Unsigned}
+        ψ::Wavefunction, m_filled::S, m_empty::S, excitation::Int
+    ) where {S <: Unsigned}
     excitation >= 0 || throw(ArgumentError("`excitation` >= 0"))
     for k in keys(ψ)
         get_excitation(k, m_filled, m_empty) <= excitation || delete!(ψ, k)
     end
+    return
 end
 
 # Colored print of Slater determinant
 function colorprint(
-    io::IO,
-    s::Unsigned,
-    nfilled_bit::Int=0,
-    nempty_bit::Int=0,
-    nfilled::Int=0,
-    nempty::Int=0,
-)
+        io::IO,
+        s::Unsigned,
+        nfilled_bit::Int = 0,
+        nempty_bit::Int = 0,
+        nfilled::Int = 0,
+        nempty::Int = 0,
+    )
     # test input
     nsites = 2 + nfilled_bit + nempty_bit + nfilled + nempty
     2 * nsites <= bitsize(s) || throw(ArgumentError("insufficient bitsize"))
@@ -67,24 +68,24 @@ function colorprint(
     i = length(bs) - 2 * nsites
     print(io, bs[1:i]) # overflowing bits
     # (n, 2)
-    printstyled(io, bs[(i + 1):(i += nempty)]; color=:blue)
-    printstyled(io, bs[(i + 1):(i += nfilled)]; color=:cyan)
-    printstyled(io, bs[(i + 1):(i += nempty_bit)]; color=:green)
-    printstyled(io, bs[(i + 1):(i += nfilled_bit)]; color=:magenta)
-    printstyled(io, bs[(i + 1):(i += 2)]; color=:red)
+    printstyled(io, bs[(i + 1):(i += nempty)]; color = :blue)
+    printstyled(io, bs[(i + 1):(i += nfilled)]; color = :cyan)
+    printstyled(io, bs[(i + 1):(i += nempty_bit)]; color = :green)
+    printstyled(io, bs[(i + 1):(i += nfilled_bit)]; color = :magenta)
+    printstyled(io, bs[(i + 1):(i += 2)]; color = :red)
     # (n, 1)
-    printstyled(io, bs[(i + 1):(i += nempty)]; color=:blue)
-    printstyled(io, bs[(i + 1):(i += nfilled)]; color=:cyan)
-    printstyled(io, bs[(i + 1):(i += nempty_bit)]; color=:green)
-    printstyled(io, bs[(i + 1):(i += nfilled_bit)]; color=:magenta)
-    printstyled(io, bs[(i + 1):(i += 2)]; color=:red)
+    printstyled(io, bs[(i + 1):(i += nempty)]; color = :blue)
+    printstyled(io, bs[(i + 1):(i += nfilled)]; color = :cyan)
+    printstyled(io, bs[(i + 1):(i += nempty_bit)]; color = :green)
+    printstyled(io, bs[(i + 1):(i += nfilled_bit)]; color = :magenta)
+    printstyled(io, bs[(i + 1):(i += 2)]; color = :red)
     return nothing
 end
 
 # default stdout
 function colorprint(
-    s::Unsigned, nfilled_bit::Int=0, nempty_bit::Int=0, nfilled::Int=0, nempty::Int=0
-)
+        s::Unsigned, nfilled_bit::Int = 0, nempty_bit::Int = 0, nfilled::Int = 0, nempty::Int = 0
+    )
     return colorprint(stdout, s, nfilled_bit, nempty_bit, nfilled, nempty)
 end
 
@@ -102,8 +103,8 @@ excitation <= `excitation` in the first place.
 in vector of `CIWavefunction`.
 """
 function mul_excitation(
-    H::Operator, ψ::Wavefunction, m_filled::S, m_empty::S, excitation::Int
-) where {S<:Unsigned}
+        H::Operator, ψ::Wavefunction, m_filled::S, m_empty::S, excitation::Int
+    ) where {S <: Unsigned}
     ϕ = Wavefunction(ψ)
     for (k, v) in ψ, t in H.terms
         Fermions.Terms.is_mapped_right(t, k) || continue
@@ -121,8 +122,8 @@ end
 
 # Return all keys not present in other Wavefunction
 function diffkeys(
-    ϕ1::Wavefunction{<:Any,<:Any,T}, ϕ2::Wavefunction{<:Any,<:Any,T}
-) where {T}
+        ϕ1::Wavefunction{<:Any, <:Any, T}, ϕ2::Wavefunction{<:Any, <:Any, T}
+    ) where {T}
     length(ϕ1) >= length(ϕ2)
     result = keytype(T)[]
     for k in keys(ϕ1)

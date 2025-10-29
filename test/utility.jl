@@ -33,14 +33,14 @@ using Test
 
         E0_target = -21.527949990417255 # target ground state energy
         Δ = hybridization_function_bethe_simple(n_bath)
-        fs = FockSpace(Orbitals(2 + L_v + L_c), FermionicSpin(1//2))
+        fs = FockSpace(Orbitals(2 + L_v + L_c), FermionicSpin(1 // 2))
         n = occupations(fs)
-        H_int = U * n[1, -1//2] * n[1, 1//2]
+        H_int = U * n[1, -1 // 2] * n[1, 1 // 2]
         H, E0, ψ0 = init_system(Δ, H_int, -μ, L_v, L_c, p, eps())
         Hψ = H * ψ0
         variance = Hψ ⋅ Hψ
         @test variance < var
-        @test E0 ≈ E0_target rtol = 2e-13
+        @test E0 ≈ E0_target rtol = 2.0e-13
     end # init system
 
     @testset "δ_gaussian" begin
@@ -65,8 +65,8 @@ using Test
         G = greens_function_local(Z, 0, Hk)
         # test half-filling
         μ, filling = find_chemical_potential(Z, Hk, Σ, n_tot / 2)
-        @test μ ≈ 0 atol = 2e-3
-        @test filling ≈ n_tot / 2 atol = 2e-2
+        @test μ ≈ 0 atol = 2.0e-3
+        @test filling ≈ n_tot / 2 atol = 2.0e-2
     end # find chemical potential
 
     @testset "moment" begin

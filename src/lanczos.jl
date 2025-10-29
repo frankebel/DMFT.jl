@@ -12,13 +12,13 @@ Calculate `M` Lanczos steps
 storing coefficients in `a`, `b` and intermediate states in `states`.
 """
 function lanczos!(
-    a::Vector{Float64},
-    b::Vector{Float64},
-    states::Vector{CWF},
-    H::CIOperator,
-    q::CWF,
-    M::Integer,
-) where {CWF<:CIWavefunction}
+        a::Vector{Float64},
+        b::Vector{Float64},
+        states::Vector{CWF},
+        H::CIOperator,
+        q::CWF,
+        M::Integer,
+    ) where {CWF <: CIWavefunction}
     # check input
     length(states) == M + 1 || throw(ArgumentError("length of states must be M+1")) # need space for one more
     length(a) == M || throw(ArgumentError("length of a must be M-1"))

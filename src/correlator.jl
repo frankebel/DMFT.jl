@@ -10,8 +10,8 @@ C(ω) = \\left⟨ ψ_0 O^† \\frac{1}{ω - H} O ψ_0 \\right⟩.
 ```
 """
 function correlator(
-    H::CIOperator, ψ0::CI, O::Operator, n_kryl::Int
-) where {CI<:CIWavefunction}
+        H::CIOperator, ψ0::CI, O::Operator, n_kryl::Int
+    ) where {CI <: CIWavefunction}
     v = O * ψ0
     scale = norm(v)
     rmul!(v, inv(scale))
@@ -38,8 +38,8 @@ C(ω) = \\left⟨ ψ_0 O^† \\frac{1}{ω - H} O ψ_0 \\right⟩.
 ```
 """
 function correlator(
-    H::CIOperator, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int
-) where {CI<:CIWavefunction}
+        H::CIOperator, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int
+    ) where {CI <: CIWavefunction}
     V = Matrix{CI}(undef, 1, length(O)) # 1×n matrix
     for i in eachindex(V)
         V[i] = O[i] * ψ0
@@ -66,8 +66,8 @@ C^+(ω) = \\left⟨ ψ_0 O^† \\frac{1}{ω - H} O ψ_0 \\right⟩
 See also [`correlator_minus`](@ref).
 """
 function correlator_plus(
-    H::CIOperator, ψ0::CI, O::Operator, n_kryl::Int
-) where {CI<:CIWavefunction}
+        H::CIOperator, ψ0::CI, O::Operator, n_kryl::Int
+    ) where {CI <: CIWavefunction}
     C = correlator(H, ψ0, O, n_kryl)
 
     # poles at negative locatiions (never happens on exact arithmetic)
@@ -95,8 +95,8 @@ C^+(ω) = \\left⟨ ψ_0 O^† \\frac{1}{ω - H} O ψ_0 \\right⟩
 See also [`correlator_minus`](@ref).
 """
 function correlator_plus(
-    H::CIOperator, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int
-) where {CI<:CIWavefunction}
+        H::CIOperator, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int
+    ) where {CI <: CIWavefunction}
     C = correlator(H, ψ0, O, n_kryl)
 
     # poles at negative energies (never happens on exact arithmetic)
@@ -123,8 +123,8 @@ C^-(ω) = \\left⟨ ψ_0 O^† \\frac{1}{ω + H} O ψ_0 \\right⟩
 See also [`correlator_plus`](@ref).
 """
 function correlator_minus(
-    H::CIOperator, ψ0::CI, O::Operator, n_kryl::Int
-) where {CI<:CIWavefunction}
+        H::CIOperator, ψ0::CI, O::Operator, n_kryl::Int
+    ) where {CI <: CIWavefunction}
     C = correlator(H, ψ0, O, n_kryl)
 
     map!(-, locations(C)) # flip sign of eigenvalues
@@ -155,8 +155,8 @@ C^+(ω) = \\left⟨ ψ_0 O^† \\frac{1}{ω + H} O ψ_0 \\right⟩
 See also [`correlator_minus`](@ref).
 """
 function correlator_minus(
-    H::CIOperator, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int
-) where {CI<:CIWavefunction}
+        H::CIOperator, ψ0::CI, O::AbstractVector{<:Operator}, n_kryl::Int
+    ) where {CI <: CIWavefunction}
     C = correlator(H, ψ0, O, n_kryl)
 
     map!(-, locations(C)) # flip sign of eigenvalues

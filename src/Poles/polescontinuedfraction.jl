@@ -10,15 +10,15 @@ The scale factor ``s`` of type `B` rescales the whole object.
 P(ω) = \\frac{s^2}{ω - a_1 - \\frac{b_1^2}{ω - a_2 - …}}
 ```
 """
-struct PolesContinuedFraction{A<:Real,B<:Real} <: AbstractPolesContinuedFraction
+struct PolesContinuedFraction{A <: Real, B <: Real} <: AbstractPolesContinuedFraction
     locations::Vector{A}
     amplitudes::Vector{B}
     scale::B
 
-    function PolesContinuedFraction{A,B}(locations, amplitudes, scale) where {A,B}
+    function PolesContinuedFraction{A, B}(locations, amplitudes, scale) where {A, B}
         length(locations) == length(amplitudes) + 1 ||
             throw(ArgumentError("length mismatch"))
-        return new{A,B}(locations, amplitudes, scale)
+        return new{A, B}(locations, amplitudes, scale)
     end
 end
 
@@ -33,14 +33,14 @@ amplitudes `amp`, and scale `scl`.
 By default the scale is set to ``1``.
 """
 function PolesContinuedFraction(
-    loc::AbstractVector{A}, amp::AbstractVector{B}, scl=one(B)
-) where {A,B}
-    return PolesContinuedFraction{A,B}(loc, amp, scl)
+        loc::AbstractVector{A}, amp::AbstractVector{B}, scl = one(B)
+    ) where {A, B}
+    return PolesContinuedFraction{A, B}(loc, amp, scl)
 end
 
 # convert type
-function PolesContinuedFraction{A,B}(P::PolesContinuedFraction) where {A,B}
-    return PolesContinuedFraction{A,B}(
+function PolesContinuedFraction{A, B}(P::PolesContinuedFraction) where {A, B}
+    return PolesContinuedFraction{A, B}(
         Vector{A}(locations(P)), Vector{B}(amplitudes(P)), B(scale(P))
     )
 end
@@ -65,7 +65,7 @@ function Core.Array(P::PolesContinuedFraction)
     return Array(SymTridiagonal(P))
 end
 
-Base.eltype(::Type{<:PolesContinuedFraction{A,B}}) where {A,B} = promote_type(A, B)
+Base.eltype(::Type{<:PolesContinuedFraction{A, B}}) where {A, B} = promote_type(A, B)
 
 function Base.show(io::IO, P::PolesContinuedFraction)
     return print(io, summary(P), " with ", length(P), " poles")

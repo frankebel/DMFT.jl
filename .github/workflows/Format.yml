@@ -6,9 +6,11 @@ on:
     tags: ['*']
   pull_request:
 jobs:
-  code-style:
+  runic:
+    name: Runic formatting
     runs-on: ubuntu-latest
     steps:
-      - uses: julia-actions/julia-format@v4
+      - uses: actions/checkout@v4
+      - uses: fredrikekre/runic-action@v1
         with:
           version: '1'

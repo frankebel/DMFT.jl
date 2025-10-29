@@ -22,7 +22,7 @@ function PolesContinuedFraction(P::PolesSum)
     v_old = amplitudes(P)
     s = norm(v_old)
     v_old ./= s
-    isapprox(s, 1; atol=100 * eps()) && (s = one(s))
+    isapprox(s, 1; atol = 100 * eps()) && (s = one(s))
     # first Lanczos step
     V[:, 1] = v_old
     v_new = A * v_old
@@ -34,7 +34,7 @@ function PolesContinuedFraction(P::PolesSum)
         b[i - 1] = norm(v_new)
         if b[i - 1] < tol
             # stop early
-            @info "Lanczos stopping early: b[$(i-1)] = $(b[i-1])."
+            @info "Lanczos stopping early: b[$(i - 1)] = $(b[i - 1])."
             deleteat!(a, i:N)
             deleteat!(b, (i - 1):(N - 1))
             break
@@ -71,7 +71,7 @@ end
 function PolesContinuedFractionBlock(P::PolesSumBlock)
     n1 = length(P)
     n2 = size(P, 1) # block size
-    A = Diagonal(repeat(locations(P); inner=n2)) # block Lanczos with this matrix
+    A = Diagonal(repeat(locations(P); inner = n2)) # block Lanczos with this matrix
     amp = amplitudes(P)
     # Create first block Lanczos vectors.
     # Q1 = vcat(amp...) is type-unstable

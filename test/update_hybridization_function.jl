@@ -10,7 +10,7 @@ using Test
         Δ = update_hybridization_function(Δ0, μ, Σ_H, Σ)
 
         @test locations(Δ0) == [1.0, 5.0] # original must be unchanged
-        @test typeof(Δ) === PolesSum{Float64,Float64}
+        @test typeof(Δ) === PolesSum{Float64, Float64}
         @test length(Δ) == 8
         @test norm(
             locations(Δ) - [

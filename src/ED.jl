@@ -6,7 +6,7 @@ using LinearAlgebra
 using SparseArrays
 
 export
-# Functions
+    # Functions
     solve_impurity_ed
 
 """
@@ -18,7 +18,7 @@ function solve_impurity_ed(Δ::PolesSum, H_int::Operator, ϵ_imp::Real)
     # Get Hamiltonian
     H_nat, n_occ = to_natural_orbitals(Array(Δ))
     n_sites = size(H_nat, 1)
-    fs = FockSpace(Orbitals(n_sites), FermionicSpin(1//2))
+    fs = FockSpace(Orbitals(n_sites), FermionicSpin(1 // 2))
     H = natural_orbital_operator(
         H_nat, H_int, ϵ_imp, fs, n_occ, n_occ - 1, n_sites - n_occ - 1
     )
@@ -34,7 +34,7 @@ function solve_impurity_ed(Δ::PolesSum, H_int::Operator, ϵ_imp::Real)
     e0 = E0[1]
 
     # block with one less particle
-    foo = BlockOper(c[1, -1//2], block) * ψ0
+    foo = BlockOper(c[1, -1 // 2], block) * ψ0
     h_minus = Array(BlockOper(H, Block(qn, (n_occ - 1, n_occ)))) # 1 less in spin ↓
     @time "decomposition H minus" a_minus, V_minus = eigen(h_minus)
     b_minus = [dot(view(V_minus, :, i), foo) for i in axes(V_minus, 2)]
@@ -46,7 +46,7 @@ function solve_impurity_ed(Δ::PolesSum, H_int::Operator, ϵ_imp::Real)
     reverse!(b_minus)
 
     # block with one more particle
-    foo = BlockOper(c[1, -1//2]', block) * ψ0
+    foo = BlockOper(c[1, -1 // 2]', block) * ψ0
     h_plus = Array(BlockOper(H, Block(qn, (n_occ + 1, n_occ)))) # 1 more in spin ↓
     @time "decomposition H plus" a_plus, V_plus = eigen(h_plus)
     b_plus = [dot(view(V_plus, :, i), foo) for i in axes(V_plus, 2)]

@@ -10,13 +10,13 @@ P(ω) = ∑_i \\frac{w_i}{ω-a_i}.
 
 For a block variant see [`PolesSumBlock`](@ref).
 """
-struct PolesSum{A<:Real,B<:Number} <: AbstractPolesSum
+struct PolesSum{A <: Real, B <: Number} <: AbstractPolesSum
     locations::Vector{A}
     weights::Vector{B}
 
-    function PolesSum{A,B}(locations, weights) where {A,B}
+    function PolesSum{A, B}(locations, weights) where {A, B}
         length(locations) == length(weights) || throw(DimensionMismatch("length mismatch"))
-        return new{A,B}(locations, weights)
+        return new{A, B}(locations, weights)
     end
 end
 
@@ -41,13 +41,13 @@ julia> weights(P) === wgt
 true
 ```
 """
-function PolesSum(loc::AbstractVector{A}, wgt::AbstractVector{B}) where {A,B}
-    return PolesSum{A,B}(loc, wgt)
+function PolesSum(loc::AbstractVector{A}, wgt::AbstractVector{B}) where {A, B}
+    return PolesSum{A, B}(loc, wgt)
 end
 
 # convert type
-function PolesSum{A,B}(P::PolesSum) where {A,B}
-    return PolesSum{A,B}(Vector{A}(locations(P)), Vector{B}(weights(P)))
+function PolesSum{A, B}(P::PolesSum) where {A, B}
+    return PolesSum{A, B}(Vector{A}(locations(P)), Vector{B}(weights(P)))
 end
 
 """
@@ -64,7 +64,7 @@ function add_pole_at_zero!(P::PolesSum)
     return P
 end
 
-amplitude(P::PolesSum{<:Any,<:Real}, i::Integer) = sqrt(weight(P, i))
+amplitude(P::PolesSum{<:Any, <:Real}, i::Integer) = sqrt(weight(P, i))
 
 function evaluate_gaussian(P::PolesSum, ω::Real, σ::Real)
     real = zero(ω)
@@ -86,7 +86,7 @@ function evaluate_lorentzian(P::PolesSum, ω::Real, δ::Real)
     return result
 end
 
-function merge_degenerate_poles!(P::PolesSum, tol::Real=0)
+function merge_degenerate_poles!(P::PolesSum, tol::Real = 0)
     # check input
     tol >= 0 || throw(ArgumentError("tol must not be negative"))
     issorted(P) || throw(ArgumentError("P must be sorted"))
@@ -240,10 +240,10 @@ function merge_small_weight!(P::PolesSum, tol::Real)
     return P
 end
 
-function moment(P::PolesSum, n::Int=0)
+function moment(P::PolesSum, n::Int = 0)
     foo = map(i -> i[1]^n * i[2], zip(locations(P), weights(P)))
     # sort by abs to guarantee that odd moments are zero for symmetric input
-    sort!(foo; by=abs)
+    sort!(foo; by = abs)
     return sum(foo)
 end
 
@@ -325,10 +325,10 @@ function Base.copy(P::PolesSum)
     return PolesSum(copy(locations(P)), copy(weights(P)))
 end
 
-Base.eltype(::Type{<:PolesSum{A,B}}) where {A,B} = promote_type(A, B)
+Base.eltype(::Type{<:PolesSum{A, B}}) where {A, B} = promote_type(A, B)
 
 function Base.inv(P::PolesSum)
-    isapprox(moment(P, 0), 1; atol=1000 * eps()) ||
+    isapprox(moment(P, 0), 1; atol = 1000 * eps()) ||
         throw(ArgumentError("P does not have total weight 1"))
 
     PCF = PolesContinuedFraction(P)
@@ -344,7 +344,7 @@ end
 # create a better show?
 Base.show(io::IO, P::PolesSum) = print(io, length(P), "-element ", summary(P))
 
-function LinearAlgebra.axpby!(α::Number, x::P, β::Number, y::P) where {P<:PolesSum}
+function LinearAlgebra.axpby!(α::Number, x::P, β::Number, y::P) where {P <: PolesSum}
     wy = weights(y)
     rmul!(wy, β)
 

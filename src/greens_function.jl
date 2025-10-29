@@ -16,13 +16,13 @@ G(z) = \\frac{2}{D^2} \\left(z - \\mathrm{sgn}(\\mathrm{Re}(z)) \\sqrt{z^2 - D^2
 
 with ``\\mathrm{sgn}(0) = \\mathrm{sgn}(0^±)``.
 """
-function greens_function_bethe_analytic(z::Number, D::Real=1.0)
+function greens_function_bethe_analytic(z::Number, D::Real = 1.0)
     D > 0 || throw(DomainError(D, "negative half-bandwidth"))
     s = (-1)^signbit(real(z)) # sign(0) = sign(0^±)
     return 2 / D^2 * (z - s * sqrt((z + 0.0im)^2 - D^2))
 end
 
-function greens_function_bethe_analytic(Z::AbstractVector{<:Number}, D::Real=1.0)
+function greens_function_bethe_analytic(Z::AbstractVector{<:Number}, D::Real = 1.0)
     return map(z -> greens_function_bethe_analytic(z, D), Z)
 end
 
@@ -38,7 +38,7 @@ See also
 [`greens_function_bethe_grid`](@ref),
 [`greens_function_bethe_equal_weight`](@ref).
 """
-function greens_function_bethe_simple(n_bath::Int, D::Real=1.0)
+function greens_function_bethe_simple(n_bath::Int, D::Real = 1.0)
     # check input
     D > 0 || throw(DomainError(D, "negative half-bandwidth"))
 
@@ -60,7 +60,7 @@ See also
 [`greens_function_bethe_simple`](@ref),
 [`greens_function_bethe_equal_weight`](@ref).
 """
-function greens_function_bethe_grid(grid::AbstractVector{<:Real}, D::Real=1.0)
+function greens_function_bethe_grid(grid::AbstractVector{<:Real}, D::Real = 1.0)
     # check input
     foo = PolesSum(grid, grid)
     issorted(foo) || throw(ArgumentError("grid is not sorted"))
@@ -107,8 +107,8 @@ with half-bandwidth `D` and poles given in `grid`.
 Created using two semicircles at ``±U/2``.
 """
 function greens_function_bethe_grid_hubbard3(
-    grid::AbstractVector{<:Real}, U::Real=0.0, D::Real=1.0
-)
+        grid::AbstractVector{<:Real}, U::Real = 0.0, D::Real = 1.0
+    )
     # check input
     foo = PolesSum(grid, grid)
     issorted(foo) || throw(ArgumentError("grid is not sorted"))
@@ -161,7 +161,7 @@ See also
 [`greens_function_bethe_simple`](@ref),
 [`greens_function_bethe_grid`](@ref).
 """
-function greens_function_bethe_equal_weight(n_bath::Int, D::Real=1.0)
+function greens_function_bethe_equal_weight(n_bath::Int, D::Real = 1.0)
     isodd(n_bath) || throw(DomainError(n_bath, "number of bath sites must be odd"))
 
     wgt = 1 / n_bath # weight for each pole
@@ -213,8 +213,8 @@ G_\\mathrm{loc}(ω) = \\frac{1}{N_k} ∑_k [(ω + μ)I - H_k - Σ(ω)]^{-1}
 The self-energy `Σ` is optional.
 """
 function greens_function_local(
-    W::AbstractVector{<:Number}, μ::Real, Hk::AbstractVector{<:AbstractMatrix{<:Number}}
-)
+        W::AbstractVector{<:Number}, μ::Real, Hk::AbstractVector{<:AbstractMatrix{<:Number}}
+    )
     # check input
     nb = LinearAlgebra.checksquare(first(Hk)) # number of bands
     all(i -> size(i) == (nb, nb), Hk) ||
@@ -235,11 +235,11 @@ end
 
 # interaction with self-energy Σ
 function greens_function_local(
-    W::AbstractVector{<:Number},
-    μ::Real,
-    Hk::AbstractVector{<:AbstractMatrix{<:Number}},
-    Σ::AbstractVector{<:AbstractMatrix{<:Number}},
-)
+        W::AbstractVector{<:Number},
+        μ::Real,
+        Hk::AbstractVector{<:AbstractMatrix{<:Number}},
+        Σ::AbstractVector{<:AbstractMatrix{<:Number}},
+    )
     # check input
     nb = LinearAlgebra.checksquare(first(Hk)) # number of bands
     all(i -> size(i) == (nb, nb), Hk) ||
@@ -273,8 +273,8 @@ end
 Calculate the partial Green's function my summing over diagonal terms given by `indices`.
 """
 function greens_function_partial(
-    G::AbstractVector{<:AbstractMatrix{<:T}}, indices
-) where {T<:Number}
+        G::AbstractVector{<:AbstractMatrix{<:T}}, indices
+    ) where {T <: Number}
     result = zeros(T, length(G))
     for i in eachindex(G)
         for idx in indices
@@ -298,8 +298,8 @@ Calculate the non-interacting local spectrum using Gaussian broadening.
 - `σ::Real`: broadening of Gaussian
 """
 function spectral_function_gauss(
-    W::AbstractVector{<:Real}, μ::Real, Hk::AbstractVector{<:AbstractMatrix{<:T}}, σ::Real
-) where {T<:Number}
+        W::AbstractVector{<:Real}, μ::Real, Hk::AbstractVector{<:AbstractMatrix{<:T}}, σ::Real
+    ) where {T <: Number}
     # check input
     nb = LinearAlgebra.checksquare(first(Hk)) # number of bands
     all(i -> size(i) == (nb, nb), Hk) ||

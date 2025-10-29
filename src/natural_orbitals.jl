@@ -6,7 +6,7 @@ Transforms a single particle Hamiltonian `H` to natural orbital basis.
 `H[1,1]` is the onsite energy of the impurity.
 States with energies `E ∈ (-ϵ, ϵ)` are considered degenerate.
 """
-function to_natural_orbitals(H::AbstractMatrix{<:Real}, ϵ::Real=1e-8)
+function to_natural_orbitals(H::AbstractMatrix{<:Real}, ϵ::Real = 1.0e-8)
     ishermitian(H) || throw(ArgumentError("`H` not hermitian"))
     E, T = LAPACK.syev!('V', 'U', copy(H))
     n_lower = count(<=(-ϵ), E)
@@ -114,14 +114,14 @@ Convert natural orbital Hamiltonian `H_nat` to `Operator`.
 - `n_c_bit::Int=1`: number of conduction bath sites in bit component
 """
 function natural_orbital_operator(
-    H_nat::Matrix{T},
-    H_int::Operator,
-    ϵ_imp::T,
-    fock_space::FockSpace,
-    n_occ::Int,
-    n_v_bit::Int=1,
-    n_c_bit::Int=1,
-) where {T<:Real}
+        H_nat::Matrix{T},
+        H_int::Operator,
+        ϵ_imp::T,
+        fock_space::FockSpace,
+        n_occ::Int,
+        n_v_bit::Int = 1,
+        n_c_bit::Int = 1,
+    ) where {T <: Real}
     ishermitian(H_nat) || throw(ArgumentError("H_nat not hermitian"))
     n = size(H_nat, 1)
     n_emp = n - n_occ
@@ -132,8 +132,8 @@ function natural_orbital_operator(
     c = annihilators(fock_space)
     # impurity i
     H = H_int
-    H += ϵ_imp * c[1, -1//2]' * c[1, -1//2]
-    H += ϵ_imp * c[1, 1//2]' * c[1, 1//2]
+    H += ϵ_imp * c[1, -1 // 2]' * c[1, -1 // 2]
+    H += ϵ_imp * c[1, 1 // 2]' * c[1, 1 // 2]
     for σ in axes(c, 2)
         # mirror bath site b
         H += H_nat[n_occ + 1, n_occ + 1] * c[2, σ]' * c[2, σ]
@@ -228,15 +228,15 @@ Convert natural orbital Hamiltonian `H_nat` to `CIOperator`.
 See also `CIOperator`.
 """
 function natural_orbital_ci_operator(
-    H_nat::Matrix{T},
-    H_int::Operator,
-    ϵ_imp::T,
-    fock_space::FockSpace,
-    n_occ::Int,
-    n_v_bit::Int=1,
-    n_c_bit::Int=1,
-    excitation::Int=1,
-) where {T<:Real}
+        H_nat::Matrix{T},
+        H_int::Operator,
+        ϵ_imp::T,
+        fock_space::FockSpace,
+        n_occ::Int,
+        n_v_bit::Int = 1,
+        n_c_bit::Int = 1,
+        excitation::Int = 1,
+    ) where {T <: Real}
     # Check if function for zero chain length should be used.
     n_v_bit === n_c_bit === 0 && return _natural_orbital_ci_operator_zero(
         H_nat, H_int, ϵ_imp, fock_space, n_occ, excitation
@@ -260,8 +260,8 @@ function natural_orbital_ci_operator(
     # Create Bitoperator H_bit.
     H_bit = H_int
     # impurity i
-    H_bit += ϵ_imp * c[1, -1//2]' * c[1, -1//2]
-    H_bit += ϵ_imp * c[1, 1//2]' * c[1, 1//2]
+    H_bit += ϵ_imp * c[1, -1 // 2]' * c[1, -1 // 2]
+    H_bit += ϵ_imp * c[1, 1 // 2]' * c[1, 1 // 2]
     for σ in axes(c, 2)
         # mirror bath site b
         H_bit += H_nat[n_occ + 1, n_occ + 1] * c[2, σ]' * c[2, σ]
@@ -330,13 +330,13 @@ end
 
 # Same as `natural_orbital_operator` but with `n_v_bit === n_c_bit === 0`.
 function _natural_orbital_ci_operator_zero(
-    H_nat::Matrix{T},
-    H_int::Operator,
-    ϵ_imp::T,
-    fock_space::FockSpace,
-    n_occ::Int,
-    excitation::Int=1,
-) where {T<:Real}
+        H_nat::Matrix{T},
+        H_int::Operator,
+        ϵ_imp::T,
+        fock_space::FockSpace,
+        n_occ::Int,
+        excitation::Int = 1,
+    ) where {T <: Real}
     ishermitian(H_nat) || throw(ArgumentError("H_nat not hermitian"))
     nflavours(fock_space) >= 2 || throw(ArgumentError("fock_space too small"))
     excitation >= 0 || throw(ArgumentError("negative excitation"))
@@ -350,8 +350,8 @@ function _natural_orbital_ci_operator_zero(
     # Create Bitoperator H_bit.
     H_bit = H_int
     # impurity i
-    H_bit += ϵ_imp * c[1, -1//2]' * c[1, -1//2]
-    H_bit += ϵ_imp * c[1, 1//2]' * c[1, 1//2]
+    H_bit += ϵ_imp * c[1, -1 // 2]' * c[1, -1 // 2]
+    H_bit += ϵ_imp * c[1, 1 // 2]' * c[1, 1 // 2]
     for σ in axes(c, 2)
         # mirror bath site b
         H_bit += H_nat[n_occ + 1, n_occ + 1] * c[2, σ]' * c[2, σ]

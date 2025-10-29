@@ -66,8 +66,8 @@ for (sytrd, orgtr, elty) in ((:dsytrd_, :dorgtr_, :Float64), (:ssytrd_, :sorgtr_
         end
 
         function orgtr!(
-            uplo::AbstractChar, A::AbstractMatrix{$elty}, tau::AbstractArray{$elty}
-        )
+                uplo::AbstractChar, A::AbstractMatrix{$elty}, tau::AbstractArray{$elty}
+            )
             chkstride1(A)
             n = checksquare(A)
             work = Vector{$elty}(undef, 1)
@@ -104,6 +104,7 @@ for (sytrd, orgtr, elty) in ((:dsytrd_, :dorgtr_, :Float64), (:ssytrd_, :sorgtr_
                     resize!(work, lwork)
                 end
             end
+            return
         end
     end
 end

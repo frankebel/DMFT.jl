@@ -11,12 +11,12 @@ The scale factor ``S`` rescales the whole object.
 P(ω) = S \\frac{1}{ω-A_1-B_1\\frac{1}{ω-A_2-…}B_1} S
 ```
 """
-struct PolesContinuedFractionBlock{A<:Number,B<:Number} <: AbstractPolesContinuedFraction
+struct PolesContinuedFractionBlock{A <: Number, B <: Number} <: AbstractPolesContinuedFraction
     locations::Vector{Matrix{A}}
     amplitudes::Vector{Matrix{B}}
     scale::Matrix{B}
 
-    function PolesContinuedFractionBlock{A,B}(locations, amplitudes, scale) where {A,B}
+    function PolesContinuedFractionBlock{A, B}(locations, amplitudes, scale) where {A, B}
         length(locations) == length(amplitudes) + 1 ||
             throw(ArgumentError("length mismatch"))
         # hermitian
@@ -30,7 +30,7 @@ struct PolesContinuedFractionBlock{A<:Number,B<:Number} <: AbstractPolesContinue
         all(i -> size(i) == s, amplitudes) ||
             throw(DimensionMismatch("amplitudes do not have matching size"))
         size(scale) == s || throw(DimensionMismatch("scale does not have matching size"))
-        return new{A,B}(locations, amplitudes, scale)
+        return new{A, B}(locations, amplitudes, scale)
     end
 end
 
@@ -49,16 +49,16 @@ and scale `scl`.
 By default the scale is set to the identity matrix ``1``.
 """
 function PolesContinuedFractionBlock(
-    loc::AbstractVector{<:AbstractMatrix{<:A}},
-    amp::AbstractVector{<:AbstractMatrix{<:B}},
-    scl::AbstractMatrix{<:B},
-) where {A,B}
-    return PolesContinuedFractionBlock{A,B}(loc, amp, scl)
+        loc::AbstractVector{<:AbstractMatrix{<:A}},
+        amp::AbstractVector{<:AbstractMatrix{<:B}},
+        scl::AbstractMatrix{<:B},
+    ) where {A, B}
+    return PolesContinuedFractionBlock{A, B}(loc, amp, scl)
 end
 
 # convert type
-function PolesContinuedFractionBlock{A,B}(P::PolesContinuedFractionBlock) where {A,B}
-    return PolesContinuedFractionBlock{A,B}(
+function PolesContinuedFractionBlock{A, B}(P::PolesContinuedFractionBlock) where {A, B}
+    return PolesContinuedFractionBlock{A, B}(
         map(i -> Matrix{A}(i), locations(P)),
         map(i -> Matrix{B}(i), amplitudes(P)),
         Matrix{B}(scale(P)),
@@ -67,10 +67,10 @@ end
 
 # scale is identity matrix
 function PolesContinuedFractionBlock(
-    loc::AbstractVector{<:AbstractMatrix{<:A}}, amp::AbstractVector{<:AbstractMatrix{<:B}}
-) where {A,B}
+        loc::AbstractVector{<:AbstractMatrix{<:A}}, amp::AbstractVector{<:AbstractMatrix{<:B}}
+    ) where {A, B}
     scl = LinearAlgebra.I(size(first(loc), 1))
-    return PolesContinuedFractionBlock{A,B}(loc, amp, scl)
+    return PolesContinuedFractionBlock{A, B}(loc, amp, scl)
 end
 
 function evaluate_lorentzian(P::PolesContinuedFractionBlock, ω::Real, δ::Real)
@@ -100,7 +100,7 @@ function Core.Array(P::PolesContinuedFractionBlock)
     return result
 end
 
-Base.eltype(::Type{<:PolesContinuedFractionBlock{A,B}}) where {A,B} = promote_type(A, B)
+Base.eltype(::Type{<:PolesContinuedFractionBlock{A, B}}) where {A, B} = promote_type(A, B)
 
 Base.size(P::PolesContinuedFractionBlock) = size(scale(P))
 Base.size(P::PolesContinuedFractionBlock, i) = size(scale(P), i)

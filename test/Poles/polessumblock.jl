@@ -8,7 +8,7 @@ using Test
         wgt = [[1 2; 2 1], [3 4; 4 3]]
 
         # inner constructor
-        P = PolesSumBlock{Int,Int}(loc, wgt)
+        P = PolesSumBlock{Int, Int}(loc, wgt)
         @test P.locations === loc
         @test P.weights === wgt
         @test_throws DimensionMismatch PolesSumBlock(rand(3), wgt) # length mismatch
@@ -19,14 +19,14 @@ using Test
         P = PolesSumBlock(loc, wgt)
         @test P.locations === loc
         @test P.weights === wgt
-        P = PolesSumBlock(loc, [1+2im 3im; 4 5+6im])
+        P = PolesSumBlock(loc, [1 + 2im 3im; 4 5 + 6im])
         @test P.locations === loc
-        @test P.weights == [[5 4+8im; 4-8im 16], [9 18+15im; 18-15im 61]]
+        @test P.weights == [[5 4 + 8im; 4 - 8im 16], [9 18 + 15im; 18 - 15im 61]]
 
         # conversion of type
         P = PolesSumBlock(loc, wgt)
-        P_new = PolesSumBlock{UInt,Float64}(P)
-        @test typeof(P_new) === PolesSumBlock{UInt,Float64}
+        P_new = PolesSumBlock{UInt, Float64}(P)
+        @test typeof(P_new) === PolesSumBlock{UInt, Float64}
         @test P_new.locations == loc
         @test P_new.weights == wgt
     end # constructor
@@ -42,14 +42,14 @@ using Test
             @inferred amplitude(P, 1)
             @test norm(
                 amplitude(P, 1) -
-                [1+sqrt(3) (sqrt(3) - 1)im; -(sqrt(3) - 1)im 1+sqrt(3)] ./ (2 * sqrt(2)),
+                    [1 + sqrt(3) (sqrt(3) - 1)im; -(sqrt(3) - 1)im 1 + sqrt(3)] ./ (2 * sqrt(2)),
             ) < 10 * eps()
         end # amplitude
 
         @testset "amplitudes" begin
             v1 = [1 + 2im, 4] # vector from which first weights are constructed
             v2 = [3im, 5 + 6im] # vector from which second weights are constructed
-            P = PolesSumBlock(0:1, [1+2im 3im; 4 5+6im])
+            P = PolesSumBlock(0:1, [1 + 2im 3im; 4 5 + 6im])
             @inferred amplitudes(P)
             amp = amplitudes(P)
             @test norm(amp[1] - 1 / sqrt(21) * v1 * v1') < 20 * eps()
@@ -64,8 +64,8 @@ using Test
             P = PolesSumBlock(loc, amp)
             @test norm(
                 evaluate_gaussian(P, ω, σ) - [
-                    -1.5277637226549838-1.4345225621076145im -1.90970465331873-2.00833158695066im
-                    -1.90970465331873-2.00833158695066im -2.2916455839824765-2.8690451242152295im
+                    -1.5277637226549838 - 1.4345225621076145im -1.90970465331873 - 2.00833158695066im
+                    -1.90970465331873 - 2.00833158695066im -2.2916455839824765 - 2.8690451242152295im
                 ],
             ) < 10 * eps()
         end # evaluate_gaussian
@@ -79,8 +79,8 @@ using Test
             P = PolesSumBlock(loc, amp)
             @test norm(
                 evaluate_lorentzian(P, ω, δ) - [
-                    3.419109056634164-5.796080126589452im 3.669440321902302-6.127487634859227im
-                    3.669440321902302-6.127487634859227im 3.9413975570979876-6.478614061451364im
+                    3.419109056634164 - 5.796080126589452im 3.669440321902302 - 6.127487634859227im
+                    3.669440321902302 - 6.127487634859227im 3.9413975570979876 - 6.478614061451364im
                 ],
             ) < eps()
             # grid
@@ -304,10 +304,10 @@ using Test
         end # sort
 
         @testset "transpose" begin
-            P = PolesSumBlock(0:1, [[5 4+8im; 4-8im 16], [9 18+15im; 18-15im 61]])
+            P = PolesSumBlock(0:1, [[5 4 + 8im; 4 - 8im 16], [9 18 + 15im; 18 - 15im 61]])
             Pt = transpose(P)
             @test locations(Pt) == 0:1
-            @test weights(Pt) == [[5 4-8im; 4+8im 16], [9 18-15im; 18+15im 61]]
+            @test weights(Pt) == [[5 4 - 8im; 4 + 8im 16], [9 18 - 15im; 18 + 15im 61]]
         end # transpose
     end # base
 end # PolesSumBlock

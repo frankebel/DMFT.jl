@@ -36,8 +36,8 @@ using Test
         # write
         @test write_hdf5("test.h5", P) === nothing
         # read
-        @inferred read_hdf5("test.h5", PolesSum{Float64,Int})
-        foo = read_hdf5("test.h5", PolesSum{Float64,Int})
+        @inferred read_hdf5("test.h5", PolesSum{Float64, Int})
+        foo = read_hdf5("test.h5", PolesSum{Float64, Int})
         @test locations(foo) == [1, 2]
         @test weights(foo) == [3.0, 4.0]
     end # PolesSum
@@ -47,8 +47,8 @@ using Test
         # write
         @test write_hdf5("test.h5", P) === nothing
         # read
-        @inferred read_hdf5("test.h5", PolesSumBlock{Float64,Int})
-        foo = read_hdf5("test.h5", PolesSumBlock{Float64,Int})
+        @inferred read_hdf5("test.h5", PolesSumBlock{Float64, Int})
+        foo = read_hdf5("test.h5", PolesSumBlock{Float64, Int})
         @test locations(foo) == [1.0, 2]
         @test weights(foo) == [[1 0; 0 1], [2 1; 1 0]]
     end # PolesSumBlock
@@ -58,8 +58,8 @@ using Test
         # write
         @test write_hdf5("test.h5", P) === nothing
         # read
-        @inferred read_hdf5("test.h5", PolesContinuedFraction{Float64,Int})
-        foo = read_hdf5("test.h5", PolesContinuedFraction{Float64,Int})
+        @inferred read_hdf5("test.h5", PolesContinuedFraction{Float64, Int})
+        foo = read_hdf5("test.h5", PolesContinuedFraction{Float64, Int})
         @test locations(foo) == [1.0, 2]
         @test amplitudes(foo) == [3]
         @test DMFT.scale(foo) == 4
@@ -70,8 +70,8 @@ using Test
         # write
         @test write_hdf5("test.h5", P) === nothing
         # read
-        @inferred read_hdf5("test.h5", PolesContinuedFractionBlock{Int,Int})
-        foo = read_hdf5("test.h5", PolesContinuedFractionBlock{Int,Int})
+        @inferred read_hdf5("test.h5", PolesContinuedFractionBlock{Int, Int})
+        foo = read_hdf5("test.h5", PolesContinuedFractionBlock{Int, Int})
         @test locations(foo) == [[1 0; 0 1], [2 1; 1 0]]
         @test amplitudes(foo) == [[3 1; 1 0]]
         @test DMFT.scale(foo) == [0 0; 0 0]

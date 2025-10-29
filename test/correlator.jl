@@ -19,11 +19,11 @@ using Test
 
     Δ0 = hybridization_function_bethe_simple(n_bath)
     # Operators for positive frequencies. Negative ones are calculated by adjoint.
-    fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1//2))
+    fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1 // 2))
     c = annihilators(fs)
     n = occupations(fs)
-    H_int = U * n[1, 1//2] * n[1, -1//2]
-    d_dag = c[1, -1//2]' # d_↓^†
+    H_int = U * n[1, 1 // 2] * n[1, -1 // 2]
+    d_dag = c[1, -1 // 2]' # d_↓^†
     q_dag = H_int * d_dag - d_dag * H_int  # q_↓^† = [H_int, d^†]
     O = [d_dag, q_dag]
 
@@ -32,7 +32,7 @@ using Test
     @testset "Lanczos" begin
         # G+
         G_plus = correlator_plus(H, ψ0, d_dag, n_kryl)
-        @test typeof(G_plus) === PolesSum{Float64,Float64}
+        @test typeof(G_plus) === PolesSum{Float64, Float64}
         @test length(G_plus) === 50
         @test issorted(G_plus)
         @test all(>=(0), locations(G_plus))
@@ -40,7 +40,7 @@ using Test
         @test DMFT.moment(G_plus, 0) ≈ 0.5 atol = 100 * eps()
         # G-
         G_minus = correlator_minus(H, ψ0, d_dag', n_kryl)
-        @test typeof(G_minus) === PolesSum{Float64,Float64}
+        @test typeof(G_minus) === PolesSum{Float64, Float64}
         @test length(G_minus) === 50
         @test issorted(G_minus)
         @test all(<=(0), locations(G_minus))
@@ -54,13 +54,13 @@ using Test
     @testset "block Lanczos" begin
         # C+
         C_plus = correlator_plus(H, ψ0, O, n_kryl)
-        @test typeof(C_plus) === PolesSumBlock{Float64,Float64}
+        @test typeof(C_plus) === PolesSumBlock{Float64, Float64}
         @test issorted(C_plus)
         @test length(C_plus) == length(O) * n_kryl
         @test all(>=(0), locations(C_plus))
         # C-
         C_minus = correlator_minus(H, ψ0, map(adjoint, O), n_kryl)
-        @test typeof(C_minus) === PolesSumBlock{Float64,Float64}
+        @test typeof(C_minus) === PolesSumBlock{Float64, Float64}
         @test issorted(C_minus)
         @test length(C_minus) == length(O) * n_kryl
         @test all(<=(0), locations(C_minus))
@@ -77,8 +77,8 @@ using Test
         m_pos = moments(G_plus, 0:10)
         m_neg = moments(G_minus, 0:10)
         ratio = m_pos ./ m_neg
-        @test all(r -> isapprox(r, 1; atol=500 * eps()), ratio[1:2:end])
-        @test all(r -> isapprox(r, -1; atol=500 * eps()), ratio[2:2:end])
+        @test all(r -> isapprox(r, 1; atol = 500 * eps()), ratio[1:2:end])
+        @test all(r -> isapprox(r, -1; atol = 500 * eps()), ratio[2:2:end])
 
         # Hartree term
         O_H = O[1]' * O[2] + O[2] * O[1]'

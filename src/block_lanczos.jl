@@ -9,8 +9,8 @@ Block Lanczos algorithm for given operator `H`, states in `W` and `n_kryl` Krylo
 Returns main diagonal `A` and subdiagonal `B`.
 """
 function block_lanczos(
-    H::CIOperator, Q1::AbstractMatrix{<:CWF}, N::Integer
-) where {CWF<:CIWavefunction}
+        H::CIOperator, Q1::AbstractMatrix{<:CWF}, N::Integer
+    ) where {CWF <: CIWavefunction}
     foo, q = size(Q1)
     isone(foo) || throw(ArgumentError("input matrix must have 1 row"))
     A = Vector{Matrix{Float64}}(undef, N)
@@ -76,8 +76,8 @@ and not all `N` steps are run.
 Returns main diagonal `A`, lower diagonal `B` and states `Q`.
 """
 function block_lanczos_full_ortho(
-    H::AbstractMatrix{T1}, Q1::Matrix{T2}, N::Integer
-) where {T1<:Number,T2<:Number}
+        H::AbstractMatrix{T1}, Q1::Matrix{T2}, N::Integer
+    ) where {T1 <: Number, T2 <: Number}
     tol = sqrt(1000 * eps())
     T = promote_type(T1, T2)
     n, q = size(Q1)
@@ -116,7 +116,7 @@ function block_lanczos_full_ortho(
         _orthonormalize_GramSchmidt!(Q[j]) # numerical instability
         if norm(B[j - 1]) < tol
             # stop early
-            @info "block Lanczos stopping early: norm(B[$(j-1)]) = $(norm(B[j-1]))"
+            @info "block Lanczos stopping early: norm(B[$(j - 1)]) = $(norm(B[j - 1]))"
             deleteat!(A, j:N)
             deleteat!(B, (j - 1):(N - 1))
             deleteat!(Q, j:N)

@@ -23,11 +23,11 @@ using Test
     Δ0 = hybridization_function_bethe_simple(n_bath)
 
     # Operators for positive frequencies. Negative ones are calculated by adjoint.
-    fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1//2))
+    fs = FockSpace(Orbitals(2 + n_v_bit + n_c_bit), FermionicSpin(1 // 2))
     c = annihilators(fs)
     n = occupations(fs)
-    H_int = U * n[1, 1//2] * n[1, -1//2]
-    d_dag = c[1, -1//2]' # d_↓^†
+    H_int = U * n[1, 1 // 2] * n[1, -1 // 2]
+    d_dag = c[1, -1 // 2]' # d_↓^†
     q_dag = H_int * d_dag - d_dag * H_int  # q_↓^† = [H_int, d^†]
     O = [q_dag, d_dag]
 
@@ -42,17 +42,17 @@ using Test
 
         # self-energy
         Σ_H, Σ = self_energy_dyson(ϵ_imp, Δ0, G_imp, W)
-        merge_small_weight!(Σ, 1e-11)
+        merge_small_weight!(Σ, 1.0e-11)
 
         # new hypridization function
         Δ = update_hybridization_function(Δ0, μ, Σ_H, Σ)
         merge_degenerate_poles!(Δ)
-        merge_small_weight!(Δ, 1e-11)
+        merge_small_weight!(Δ, 1.0e-11)
         Δ_new = discretize_similar_weight(Δ, sqrt(eps()), n_bath)
 
         @test length(Δ_new) == 101
         @test iszero(locations(Δ_new)[51])
-        @test weight(Δ_new, 51) ≈ 0.0020833288949242113 atol = 1e-7
+        @test weight(Δ_new, 51) ≈ 0.0020833288949242113 atol = 1.0e-7
         @test DMFT.moment(Δ_new, 0) ≈ 0.25 atol = 10 * eps()
         @test DMFT.moment(Δ_new, 1) ≈ 0.0 atol = sqrt(eps())
 
@@ -80,10 +80,10 @@ using Test
         # new hybridization function
         Δ_grid = Δ0_analytic(Z .+ μ - Σ)
         Δ_new_L = equal_weight_discretization(-imag(Δ_grid), W, δ, n_bath)
-        @test typeof(Δ_new_L) === PolesSum{Float64,Float64}
+        @test typeof(Δ_new_L) === PolesSum{Float64, Float64}
         @test typeof(Δ_grid) === Vector{ComplexF64}
         @test length(Δ_new_L) === n_bath
-        @test all(b -> isapprox(b, 1 / sqrt(n_bath) / 2; rtol=3e-3), amplitudes(Δ_new_L))
+        @test all(b -> isapprox(b, 1 / sqrt(n_bath) / 2; rtol = 3.0e-3), amplitudes(Δ_new_L))
         # small weight loss due to truncated interval
         @test 0.2486 <= DMFT.moment(Δ_new_L, 0) <= 0.25
         @test DMFT.moment(Δ_new_L, 1) < 200 * eps() # PHS
@@ -94,13 +94,13 @@ using Test
         # new hybridization function
         Δ_grid = Δ0_analytic(Z .+ μ - Σ)
         Δ_new_G = equal_weight_discretization(-imag(Δ_grid), real(Z), δ, n_bath)
-        @test typeof(Δ_new_G) === PolesSum{Float64,Float64}
+        @test typeof(Δ_new_G) === PolesSum{Float64, Float64}
         @test typeof(Δ_grid) === Vector{ComplexF64}
         @test length(Δ_new_G) === n_bath
         weights_without_zero = copy(weights(Δ_new_G))
         popat!(weights_without_zero, cld(n_bath, 2))
-        @test all(b -> isapprox(b, inv(4 * n_bath); atol=2e-5), weights_without_zero)
-        @test weight(Δ_new_G, cld(n_bath, 2)) ≈ inv(4 * n_bath) atol = 2e-4
+        @test all(b -> isapprox(b, inv(4 * n_bath); atol = 2.0e-5), weights_without_zero)
+        @test weight(Δ_new_G, cld(n_bath, 2)) ≈ inv(4 * n_bath) atol = 2.0e-4
         # small weight loss due to truncated interval
         @test 0.2486 <= DMFT.moment(Δ_new_G, 0) <= 0.25
         @test DMFT.moment(Δ_new_G, 1) < 200 * eps() # PHS

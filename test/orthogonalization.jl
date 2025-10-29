@@ -54,7 +54,7 @@ using Test
     end # _orthonormalize_SVD
 
     @testset "_orthonormalize_GramSchmidt!" begin
-        V = [0 3 1; 0 0 1; 100*eps() 8 0]
+        V = [0 3 1; 0 0 1; 100 * eps() 8 0]
         @test DMFT._orthonormalize_GramSchmidt!(V) === V
         @test view(V, :, 1) == zeros(3)
         @test view(V, :, 2) == 1 / sqrt(73) * [3, 0, 8]
@@ -70,7 +70,7 @@ using Test
         @test DMFT._orthonormalize_GramSchmidt!(V) == foo
 
         # no allocations
-        V = [0 3 1; 0 0 1; 100*eps() 8 0]
+        V = [0 3 1; 0 0 1; 100 * eps() 8 0]
         @test iszero(@allocated(DMFT._orthonormalize_GramSchmidt!(V)))
     end # _orthonormalize_GramSchmidt!
 

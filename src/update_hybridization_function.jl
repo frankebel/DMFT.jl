@@ -13,8 +13,8 @@ Calculate the new hybridization function in [`PolesSum`](@ref) representation.
 ```
 """
 function update_hybridization_function(
-    Δ0::PolesSum{R,R}, μ::R, Σ_H::R, Σ::PolesSum{R,R}
-) where {R<:Real}
+        Δ0::PolesSum{R, R}, μ::R, Σ_H::R, Σ::PolesSum{R, R}
+    ) where {R <: Real}
     Σ = remove_zero_weight(Σ)
 
     n = length(Σ) + 1

@@ -21,15 +21,15 @@ end
 Return Hamiltonian, ground state energy, and ground state.
 """
 function init_system(
-    Δ::PolesSum, H_int::Operator, ϵ_imp::Real, L_v::Int, L_c::Int, p::Int, var::Real
-)
+        Δ::PolesSum, H_int::Operator, ϵ_imp::Real, L_v::Int, L_c::Int, p::Int, var::Real
+    )
     arr = Array(Δ)
     n_sites = size(arr, 1)
     H_nat, n_occ = to_natural_orbitals(arr)
     n_bit, V_v, V_c = get_CI_parameters(n_sites, n_occ, L_c, L_v)
-    fs = FockSpace(Orbitals(n_bit), FermionicSpin(1//2))
+    fs = FockSpace(Orbitals(n_bit), FermionicSpin(1 // 2))
     H = natural_orbital_ci_operator(H_nat, H_int, ϵ_imp, fs, n_occ, L_v, L_c, p)
-    ψ_start = CIWavefunction_singlet(Dict{UInt64,Float64}, L_v, L_c, V_v, V_c, p)
+    ψ_start = CIWavefunction_singlet(Dict{UInt64, Float64}, L_v, L_c, V_v, V_c, p)
     E0, ψ0 = ground_state!(H, ψ_start, 5, typemax(Int), var)
     return H, E0, ψ0
 end
@@ -95,13 +95,13 @@ or `n_max` iterations are surpassed.
 Returns the calculated chemical potential and effective filling.
 """
 function find_chemical_potential(
-    W::AbstractVector{<:Number},
-    Hk::AbstractVector{<:AbstractMatrix{<:Number}},
-    Σ::AbstractVector{<:AbstractMatrix{<:Number}},
-    n::Real;
-    tol::Real=1e-3, # tolerance Δμ
-    n_max::Int=30, # maximum number of steps
-)
+        W::AbstractVector{<:Number},
+        Hk::AbstractVector{<:AbstractMatrix{<:Number}},
+        Σ::AbstractVector{<:AbstractMatrix{<:Number}},
+        n::Real;
+        tol::Real = 1.0e-3, # tolerance Δμ
+        n_max::Int = 30, # maximum number of steps
+    )
     # check input
     nb = LinearAlgebra.checksquare(first(Hk)) # number of bands
     all(i -> size(i) == (nb, nb), Hk) ||
@@ -151,10 +151,10 @@ function find_chemical_potential(
 end
 
 function _get_filling(
-    W::AbstractArray{<:Number}, # frequency grid
-    μ::Real, # chemical potential
-    ev::AbstractArray{<:Number,3}, # eigenvalues
-)
+        W::AbstractArray{<:Number}, # frequency grid
+        μ::Real, # chemical potential
+        ev::AbstractArray{<:Number, 3}, # eigenvalues
+    )
     # n ∝ ∑_{b,k,ω≤0} (ω+μ-ev_{bkω})^{-1}
     filling = zero(ComplexF64)
     ω0 = findlast(i -> real(i) <= 0, W) # sum all indices ω <= 0
@@ -181,7 +181,7 @@ Return the `n`-th moment of `f`
 
 The function `f` is defined over the grid `W`.
 """
-function moment(f::AbstractVector{<:Complex}, W::AbstractVector{<:Real}, n::Int=0)
+function moment(f::AbstractVector{<:Complex}, W::AbstractVector{<:Real}, n::Int = 0)
     # check input
     eachindex(f) == eachindex(W) || throw(ArgumentError("f, W use different indexing"))
 
@@ -202,7 +202,7 @@ function moment(f::AbstractVector{<:Complex}, W::AbstractVector{<:Real}, n::Int=
     return result
 end
 
-function _derivative(P::PolesSum, ω::R, tol::Real=0) where {R<:Real}
+function _derivative(P::PolesSum, ω::R, tol::Real = 0) where {R <: Real}
     tol >= 0 || throw(ArgumentError("tol must be semipositive"))
 
     result = zero(promote_type(eltype(P), R))
@@ -226,7 +226,7 @@ Skip all weights `< tol`.
 
 See also [`quasiparticle_weight_gaussian`](@ref).
 """
-function quasiparticle_weight(Σ::PolesSum, tol::Real=0)
+function quasiparticle_weight(Σ::PolesSum, tol::Real = 0)
     tol >= 0 || throw(ArgumentError("tol must be semipositive"))
 
     foo = _derivative(Σ, zero(eltype(Σ)), tol)
@@ -255,8 +255,8 @@ where ``ϵ = W_{i+n} - W{i}`` is the step size of the grid.
 Assumes an equidistant grid.
 """
 function quasiparticle_weight(
-    Σ::AbstractVector{<:Complex}, W::AbstractVector{<:Real}, n::Integer
-)
+        Σ::AbstractVector{<:Complex}, W::AbstractVector{<:Real}, n::Integer
+    )
     issorted(W) || throw(ArgumentError("W must be sorted"))
     length(Σ) == length(W) || throw(ArgumentError("Σ, W must have same length"))
     n >= 0 || throw(ArgumentError("n must be positive"))

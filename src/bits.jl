@@ -50,13 +50,13 @@ If `0bwxyz` is given the occupation are taken as:
 E.g. for opposite occupation: `0b1001`, `0b0110`.
 """
 function slater_start(
-    slaterdet::Type{<:Unsigned},
-    bi::UInt8,
-    nfilled_bit::Int,
-    nempty_bit::Int,
-    nfilled::Int,
-    nempty::Int,
-)
+        slaterdet::Type{<:Unsigned},
+        bi::UInt8,
+        nfilled_bit::Int,
+        nempty_bit::Int,
+        nfilled::Int,
+        nempty::Int,
+    )
     # test input
     nbit = 2 + nfilled_bit + nempty_bit
     nvector = nfilled + nempty
