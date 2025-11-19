@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `ground_state` → `ground_state!` ([#134](https://github.com/frankebel/DMFT.jl/pull/134)) ([a34264e](https://github.com/frankebel/DMFT.jl/commit/a34264eed1918df37d01329d9fb7c3eec335182d))
 - require Julia `>=1.12` ([#153](https://github.com/frankebel/DMFT.jl/pull/153)) ([494ffac](https://github.com/frankebel/DMFT.jl/commit/494ffac738d7848ec907465dba37a4ad67781bbb))
+- logarithmic broadening keeps pole at zero frequency unchanged ([#156](https://github.com/frankebel/DMFT.jl/pull/156)) ([1b72fba](https://github.com/frankebel/DMFT.jl/commit/1b72fba8dee742916b357d16f36ef03f90654659))
 
 ### Removed
 
