@@ -117,6 +117,14 @@ end
     ndet(nbit::Int, nup::Int, ndown::Int, excitation::Int, nfilled::Int, nempty::Int)
 
 Number of Slater determinants for given excitation.
+
+Parameters:
+- `nbit::Int`: number of bath sites in ``|ψ_\\mathrm{I}⟩``
+- `nup::Int`: number of up-electrons in ``|ψ_\\mathrm{I}⟩``
+- `ndown::Int`: number of down-electrons in ``|ψ_\\mathrm{I}⟩``
+- `excitation::Int`: number of excitations in ``|ψ_\\mathrm{II}⟩``
+- `nfilled::Int`: number of valence bath sites in ``|ψ_\\mathrm{II}⟩``
+- `nempty::Int`: number of conduction bath sites in ``|ψ_\\mathrm{II}⟩``
 """
 function ndet(nbit::Int, nup::Int, ndown::Int, excitation::Int, nfilled::Int, nempty::Int)
     result = 0
