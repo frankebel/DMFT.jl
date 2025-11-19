@@ -273,12 +273,7 @@ function spectral_function_loggaussian(P::PolesSum, ω::Real, b::Real)
     result = zero(ω)
     iszero(ω) && return result # no weight at ω == 0
     for i in eachindex(P)
-        if iszero(locations(P)[i])
-            # special case, move half of weight to left/right respectively
-            issorted(P) || throw(ArgumentError("P is not sorted"))
-            loc = ω > 0 ? locations(P)[i + 1] / 2 : locations(P)[i - 1] / 2
-            w = weight(P, i) / 2
-        elseif sign(ω) == sign(locations(P)[i])
+        if sign(ω) == sign(locations(P)[i])
             # only contribute weight if on same side of real axis
             w = weight(P, i)
             loc = locations(P)[i]
