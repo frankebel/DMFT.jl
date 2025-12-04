@@ -32,8 +32,8 @@ using Test
         W, S_sqrt = DMFT._orthonormalize_SVD(V0)
         # Block Lanczos
         a, b = DMFT.block_lanczos(H, W, n_kryl)
-        @test length(a) === n_kryl
-        @test length(b) === n_kryl - 1
+        @test length(a) == n_kryl
+        @test length(b) == n_kryl - 1
         @test all(ishermitian, a)
         @test all(ishermitian, b)
 

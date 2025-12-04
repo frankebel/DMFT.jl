@@ -60,7 +60,7 @@ using Test
         n_tot = 100 # number of poles ≙ filling for μ = ∞
         h = Diagonal(range(-1, 1, n_tot)) # uniform density in [-1, 1]
         Hk = [h]
-        Z = collect(-10:0.01:10) .+ 0.05im
+        Z = (-10:0.01:10) .+ 0.05im
         Σ = [zero(h) for _ in eachindex(Z)]
         G = greens_function_local(Z, 0, Hk)
         # test half-filling

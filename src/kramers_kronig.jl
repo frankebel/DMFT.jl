@@ -1,7 +1,7 @@
 # PERF: use convolution theorem and FFT for higher performance
 
 """
-    realKK(A::V, ω::V) where {V<:AbstractVector{<:Real}}
+    realKK(A::AbstractVector{<:Real}, ω::AbstractVector{<:Real})
 
 Calculate the real part of a function given its imaginary part `A`
 using Kramers-Kronig relations
@@ -12,7 +12,7 @@ using Kramers-Kronig relations
 
 See also [`imagKK`](@ref).
 """
-function realKK(A::V, ω::V) where {V <: AbstractVector{<:Real}}
+function realKK(A::AbstractVector{<:Real}, ω::AbstractVector{<:Real})
     length(A) == length(ω) || throw(DimensionMismatch("length mismatch"))
     result = zero(A)
     # all frequencies ω
@@ -31,7 +31,7 @@ function realKK(A::V, ω::V) where {V <: AbstractVector{<:Real}}
 end
 
 """
-    imagKK(A::V, ω::V) where {V<:AbstractVector{<:Real}}
+    imagKK(A::AbstractVector{<:Real}, ω::AbstractVector{<:Real})
 
 Calculate the imaginary part of a function given its real part `A`
 using Kramers-Kronig relations
@@ -42,6 +42,6 @@ using Kramers-Kronig relations
 
 See also [`realKK`](@ref).
 """
-function imagKK(A::V, ω::V) where {V <: AbstractVector{<:Real}}
+function imagKK(A::AbstractVector{<:Real}, ω::AbstractVector{<:Real})
     return -realKK(A, ω)
 end

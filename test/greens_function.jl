@@ -56,7 +56,7 @@ using Test
             @test locations(G) !== W
             @test only(weights(G)) === 1.0
             # 101 poles
-            W = collect(range(-1, 1; length = 101))
+            W = range(-1, 1; length = 101)
             G = greens_function_bethe_grid(W)
             @test typeof(G) === PolesSum{Float64, Float64}
             @test length(G) === 101
@@ -66,7 +66,7 @@ using Test
             @test norm(weights(G) - reverse(weights(G))) < 10 * eps()
             @test weight(G, 51) ≈ 0.012732183237577577 atol = eps()
             # 100 poles
-            W = collect(range(-1, 1; length = 100))
+            W = range(-1, 1; length = 100)
             G = greens_function_bethe_grid(W)
             @test typeof(G) === PolesSum{Float64, Float64}
             @test length(G) === 100
@@ -76,7 +76,7 @@ using Test
             @test norm(weights(G) - reverse(weights(G))) < 10 * eps()
             @test weight(G, 51) ≈ 0.012860130639746004 atol = eps()
             # 101 poles, D = 2
-            W = collect(range(-3, 3; length = 101))
+            W = range(-3, 3; length = 101)
             G = greens_function_bethe_grid(W, 2)
             @test DMFT.moment(G, 0) ≈ 1 rtol = 10 * eps()
             @test norm(weights(G) - reverse(weights(G))) < 10 * eps()
@@ -98,7 +98,7 @@ using Test
             @test locations(G) == [5.0]
             @test weights(G) == [1.0]
             # uniform grid
-            grid = collect(range(-5, 5; length = 101))
+            grid = range(-5, 5; length = 101)
             # U = 0
             G = greens_function_bethe_grid_hubbard3(grid)
             G0 = greens_function_bethe_grid(grid)
@@ -128,7 +128,7 @@ using Test
 
     @testset "user supplied dispersion" begin
         Hk = [[1 + 0.0im 2; 2 1], [3 4; 4 3]]
-        Z = collect(-10:-9) .+ 0.1im
+        Z = (-10:-9) .+ 0.1im
         Σ = [Diagonal([0, 5 + im]), Diagonal([0, 6 + im])] # self-energy only on [2, 2] index
 
         @testset "non-interacting" begin

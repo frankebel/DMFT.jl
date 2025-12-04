@@ -4,15 +4,15 @@ using Test
 
 @testset "PolesContinuedFraction" begin
     @testset "constructor" begin
-        loc = collect(0:5)
-        amp = collect(6:10)
+        loc = 0:5
+        amp = 6:10
         scl = 11
 
         # inner constructor
         P = PolesContinuedFraction{Int, Int}(loc, amp, scl)
-        @test P.locations === loc
-        @test P.amplitudes === amp
-        @test P.scale === scl
+        @test P.locations == loc
+        @test P.amplitudes == amp
+        @test P.scale == scl
         # wrong input
         @test_throws ArgumentError PolesContinuedFraction{Int, Int}(
             rand(Int, 5), rand(Int, 3), 1
@@ -23,14 +23,14 @@ using Test
 
         # outer constructor
         P = PolesContinuedFraction(loc, amp, scl)
-        @test P.locations === loc
-        @test P.amplitudes === amp
-        @test P.scale === scl
+        @test P.locations == loc
+        @test P.amplitudes == amp
+        @test P.scale == scl
         # default scale
         P = PolesContinuedFraction(loc, amp)
-        @test P.locations === loc
-        @test P.amplitudes === amp
-        @test P.scale === one(Int)
+        @test P.locations == loc
+        @test P.amplitudes == amp
+        @test P.scale == one(Int)
 
         # conversion of type
         P = PolesContinuedFraction(loc, amp, scl)
@@ -44,7 +44,7 @@ using Test
     @testset "custom functions" begin
         @testset "amplitude" begin
             loc = 0:5
-            amp = collect(6:10)
+            amp = 6:10
             P = PolesContinuedFraction(loc, amp)
             @test amplitude(P, 1) === amp[1]
             @test amplitude(P, 5) === amp[5]
@@ -52,9 +52,9 @@ using Test
 
         @testset "amplitudes" begin
             loc = 0:5
-            amp = collect(6:10)
+            amp = 6:10
             P = PolesContinuedFraction(loc, amp)
-            @test amplitudes(P) === amp
+            @test amplitudes(P) == amp
         end # amplitudes
 
         @testset "evaluate_lorentzian" begin
@@ -71,10 +71,10 @@ using Test
         end # evaluate_lorentzian
 
         @testset "locations" begin
-            loc = collect(0:5)
+            loc = 0:5
             amp = 6:10
             P = PolesContinuedFraction(loc, amp)
-            @test locations(P) === loc
+            @test locations(P) == loc
         end # locations
 
         @testset "scale" begin

@@ -4,23 +4,23 @@ using Test
 
 @testset "PolesSumBlock" begin
     @testset "constructor" begin
-        loc = collect(0:1)
+        loc = 0:1
         wgt = [[1 2; 2 1], [3 4; 4 3]]
 
         # inner constructor
         P = PolesSumBlock{Int, Int}(loc, wgt)
-        @test P.locations === loc
-        @test P.weights === wgt
+        @test P.locations == loc
+        @test P.weights == wgt
         @test_throws DimensionMismatch PolesSumBlock(rand(3), wgt) # length mismatch
         @test_throws ArgumentError PolesSumBlock([1], [[1 2im; 2im 1]]) # not hermitian
         @test_throws DimensionMismatch PolesSumBlock(0:1, [[1 2im; -2im 1], [1;;]]) # wrong size
 
         # outer constructors
         P = PolesSumBlock(loc, wgt)
-        @test P.locations === loc
-        @test P.weights === wgt
+        @test P.locations == loc
+        @test P.weights == wgt
         P = PolesSumBlock(loc, [1 + 2im 3im; 4 5 + 6im])
-        @test P.locations === loc
+        @test P.locations == loc
         @test P.weights == [[5 4 + 8im; 4 - 8im 16], [9 18 + 15im; 18 - 15im 61]]
 
         # conversion of type

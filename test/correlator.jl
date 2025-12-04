@@ -14,7 +14,7 @@ using Test
     e = 2
     n_kryl = 50
     var = eps()
-    W = collect(-10:0.002:10)
+    W = -10:0.002:10
     δ = 0.08
 
     Δ0 = hybridization_function_bethe_simple(n_bath)

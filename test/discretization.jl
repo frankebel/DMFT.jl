@@ -14,7 +14,7 @@ using Test
     e = 1
     n_kryl = 100
     var = eps()
-    W = collect(-5:0.001:5)
+    W = -5:0.001:5
     δ = 0.04
     # do not change parameters below
     Z = W .+ im * δ
@@ -111,7 +111,7 @@ using Test
     end # block Lanczos
 
     # Discretization for Gaussian returned wrong number of poles.
-    w = collect(-10:0.0002:10)
+    w = -10:0.0002:10
     g = similar(w)
     @. g = exp(-w^2)
     wrong_length = 0

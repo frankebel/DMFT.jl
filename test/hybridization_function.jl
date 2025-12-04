@@ -49,7 +49,7 @@ using Test
         end # simple
 
         @testset "grid Hubbard III" begin
-            grid = collect(range(-5, 5; length = 101))
+            grid = range(-5, 5; length = 101)
             # U = 0
             Δ = hybridization_function_bethe_grid_hubbard3(grid)
             Δ0 = hybridization_function_bethe_grid(grid)
@@ -68,7 +68,7 @@ using Test
 
         @testset "grid" begin
             # 101 poles
-            W = collect(range(-1, 1; length = 101))
+            W = range(-1, 1; length = 101)
             Δ = hybridization_function_bethe_grid(W)
             @test typeof(Δ) === PolesSum{Float64, Float64}
             @test length(Δ) === 101
@@ -78,7 +78,7 @@ using Test
             @test norm(weights(Δ) - reverse(weights(Δ))) < 10 * eps()
             @test amplitudes(Δ)[51] ≈ 0.056418488187777546 atol = eps()
             # 100 poles
-            W = collect(range(-1, 1; length = 100))
+            W = range(-1, 1; length = 100)
             Δ = hybridization_function_bethe_grid(W)
             @test typeof(Δ) === PolesSum{Float64, Float64}
             @test length(Δ) === 100
@@ -88,7 +88,7 @@ using Test
             @test norm(weights(Δ) - reverse(weights(Δ))) < 10 * eps()
             @test amplitudes(Δ)[51] ≈ 0.05670125801017559 atol = eps()
             # 101 poles, D = 2
-            W = collect(range(-3, 3; length = 101))
+            W = range(-3, 3; length = 101)
             Δ = hybridization_function_bethe_grid(W, 2)
             @test sum(weights(Δ)) ≈ 1 rtol = 10 * eps()
             @test norm(weights(Δ) - reverse(weights(Δ))) < 10 * eps()

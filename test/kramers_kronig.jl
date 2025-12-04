@@ -5,13 +5,13 @@ using LinearAlgebra
 @testset "Kramers-Kronig" begin
     # complex function in pole residue
     n_bath = 301
-    a = collect(range(2, 6, n_bath ÷ 2))
+    a = range(2, 6, n_bath ÷ 2)
     a = [-reverse(a); 0; a]
     b = fill(inv(n_bath - 1), n_bath ÷ 2)
     b = [b; 0; b]
     G = PolesSum(a, b)
     # evaluate on grid
-    ω = collect(-10:0.002:10)
+    ω = -10:0.002:10
     δ = 0.02
     foo = evaluate_lorentzian(G, ω, δ)
     r = real(foo)

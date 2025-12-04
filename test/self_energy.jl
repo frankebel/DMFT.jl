@@ -15,7 +15,7 @@ using Test
     n_kryl = 100
     var = eps()
     step_size = 0.02
-    W = collect(-10:step_size:10)
+    W = -10:step_size:10
     δ = 0.08
     tol = 1.0e-8 # merge weights smaller than this
 

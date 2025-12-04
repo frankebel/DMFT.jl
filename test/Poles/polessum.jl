@@ -5,22 +5,22 @@ using Test
 
 @testset "PolesSum" begin
     @testset "constructor" begin
-        loc = collect(0:5)
-        wgt = collect(5:10)
+        loc = 0:5
+        wgt = 5:10
 
         # inner constructor
         P = PolesSum{Int, Int}(loc, wgt)
         @test typeof(P) === PolesSum{Int, Int}
-        @test P.locations === loc
-        @test P.weights === wgt
+        @test P.locations == loc
+        @test P.weights == wgt
         # length mismatch
         @test_throws DimensionMismatch PolesSum{Int, Int}(rand(3), rand(4))
         @test_throws DimensionMismatch PolesSum{Int, Int}(rand(4), rand(3))
 
         # outer constructor
         P = PolesSum(loc, wgt)
-        @test P.locations === loc
-        @test P.weights === wgt
+        @test P.locations == loc
+        @test P.weights == wgt
 
         # conversion of type
         P = PolesSum(loc, wgt)
@@ -466,7 +466,7 @@ using Test
         end # eltype
 
         @testset "inv" begin
-            grid = collect(range(-1, 1; length = 101))
+            grid = range(-1, 1; length = 101)
             G = greens_function_bethe_grid(grid)
             a0, P = inv(G)
             @test length(P) === 100 # originally 101 poles
