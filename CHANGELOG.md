@@ -5,9 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.9.0] - 2025-12-04
 
-## Added
+### Added
 
 - calculate self-energy using Schur complement ([#131](https://github.com/frankebel/DMFT.jl/pull/131)) ([caeee45](https://github.com/frankebel/DMFT.jl/commit/caeee45b179c39f7e412348dd9a15471951b7a8a))
 - calculate quasiparticle weight using `quasiparticle_weight` ([#132](https://github.com/frankebel/DMFT.jl/pull/132)) ([80f7666](https://github.com/frankebel/DMFT.jl/commit/80f766698407dee54318f4b8a4799cfceae4c035))
