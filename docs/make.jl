@@ -1,6 +1,7 @@
 using Changelog
 using DMFT
 using Documenter
+using Literate
 
 DocMeta.setdocmeta!(DMFT, :DocTestSetup, :(using DMFT); recursive = true)
 
@@ -12,6 +13,9 @@ Changelog.generate(
     repo = "frankebel/DMFT.jl",
 )
 
+# generate documentation
+Literate.markdown("src/tutorial.jl", "src/generated")
+
 makedocs(;
     modules = [DMFT],
     authors = "Frank Ebel and contributors",
@@ -20,7 +24,10 @@ makedocs(;
         canonical = "https://frankebel.github.io/DMFT.jl", edit_link = "main", assets = String[]
     ),
     pages = [
-        "Home" => "index.md", "API reference" => "api.md", "Changelog" => "changelog.md",
+        "Home" => "index.md",
+        "Tutorial" => "generated/tutorial.md",
+        "API reference" => "api.md",
+        "Changelog" => "changelog.md",
     ],
 )
 
