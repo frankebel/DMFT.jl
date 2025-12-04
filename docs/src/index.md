@@ -22,12 +22,12 @@ and interaction
 H_\mathrm{int} = U d_\uparrow^\dagger d_\downarrow^\dagger d_\downarrow d_\uparrow,
 ```
 
-it will calculate the retarded Green's function
+it will calculate the retarded Green's function on the real axis
 
 ```math
 \begin{aligned}
 G(t) &= - \mathrm{i} \Theta(t) \langle \{ d_\alpha^\dagger(t), d_\alpha \} \rangle \\
-G(z) &= \int_{-\infty}^\infty G(t) \mathrm{e}^{\mathrm{i}zt} \mathrm{d}t.
+G(ω) &= \lim_{δ→0^+} \int_{-∞}^∞ G(t) \mathrm{e}^{\mathrm{i}(ω+\mathrm{i}δ)t} \mathrm{d}t.
 \end{aligned}
 ```
 
