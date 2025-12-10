@@ -3,9 +3,9 @@
 # We first load necessary packages.
 
 using CairoMakie
-using RAS_DMFT
 using Fermions
 using LinearAlgebra
+using RAS_DMFT
 
 # ## Non-interacting Bethe lattice in infinite dimensions
 
@@ -17,15 +17,15 @@ using LinearAlgebra
 # ```math
 # ρ(ω) = -\frac{1}{π}\mathrm{Im}G(ω).
 # ```
-# Let's plot it:
+# Let us plot it:
 D = 1.0 # half-bandwith
 W = range(-2 * D, 2 * D; length = 1_000) # frequency grid
 g = greens_function_bethe_analytic(W, D)
 
 f = Figure();
 ax = Axis(f[1, 1]; xlabel = L"ω/D", ylabel = L"DG")
-lines!(ax, W, real(g); label = L"\mathrm{Re} G")
-lines!(ax, W, imag(g); label = L"\mathrm{Im} G")
+lines!(ax, W, real(g); label = L"\mathrm{Re}~G_0")
+lines!(ax, W, imag(g); label = L"\mathrm{Im}~G_0")
 axislegend(ax; position = :lt)
 xlims!(ax, first(W), last(W))
 #md save("G0.svg", f); nothing # hide
@@ -82,7 +82,7 @@ U = 2.0 # Coulomb interaction
 L = 1 # number of chain sites to be treated exactly
 p = 2 # order of excitations for remaining chains
 # Operators for exact part.
-# This is necessary to introducte the interacting part and Hartree term.
+# This is necessary to introduce the interacting part and Hartree term.
 # One can also introduce other operators, e.g., ``S_z``, ``S^2``
 # and measure their expectation values.
 fs = FockSpace(Orbitals(2 + 2 * L), FermionicSpin(1 // 2))
@@ -126,7 +126,7 @@ dot(ψ0, d_occ, ψ0) # expectation value
 q_dag_tilde = q_dag - Σ_H * d_dag
 O_plus = [q_dag_tilde, d_dag] # for C+
 O_minus = map(adjoint, O_plus); # for C-
-# As we have two operators as input, we will create ``2×2`` block correlators .
+# As we have two operators as input, we will create ``2×2`` block correlators.
 # If we use ``n`` Krylov steps, each will have ``2n`` poles.
 n_kryl = 50
 C_plus = correlator_plus(H, ψ0, O_plus, n_kryl)
@@ -138,7 +138,7 @@ C = transpose(C_minus) + C_plus
 G = PolesSum(C, 2, 2)
 f = Figure();
 ax = Axis(f[1, 1]; xlabel = L"ω/D", ylabel = L"πDA(ω)")
-lines!(ax, W, -imag(evaluate_gaussian(G0, W, σ)))
+lines!(ax, W, -imag(evaluate_gaussian(G, W, σ)))
 xlims!(ax, first(W), last(W))
 #md save("spectrum1.svg", f); nothing # hide
 #md # ![](spectrum1.svg)
@@ -149,8 +149,8 @@ xlims!(ax, first(W), last(W))
 sigma = evaluate_gaussian(Σ, W, σ)
 f = Figure();
 ax = Axis(f[1, 1]; xlabel = L"ω/D", ylabel = L"Σ(ω)/D")
-lines!(ax, W, real(sigma); label = L"\mathrm{Re} Σ")
-lines!(ax, W, imag(sigma); label = L"\mathrm{Im} Σ")
+lines!(ax, W, real(sigma); label = L"\mathrm{Re}~Σ")
+lines!(ax, W, imag(sigma); label = L"\mathrm{Im}~Σ")
 axislegend(ax; position = :lt)
 xlims!(ax, first(W), last(W))
 #md save("self-energy1.svg", f); nothing # hide
@@ -158,11 +158,18 @@ xlims!(ax, first(W), last(W))
 
 # We can calculate the quasiparticle weight
 # ```math
-# Z = \left(1 - \left.\frac{∂\mathrm{Re}Σ}{∂ω}\right|_{ω=0}\right)^{-1}
+# \begin{align}
+# Z
+# &=
+# \left(1 - \left.\frac{∂\mathrm{Re}~Σ}{∂ω}\right|_{ω=0}\right)^{-1} \\
+# &=
+# \left(1 + \sum_i \frac{w_i}{ϵ_i^2}\right)^{-1}
+# \end{align}
 # ```
 # directly on the real axis without the use of a difference quotient.
-# Due to poles at $ω≈0$ this will diverge,
-# which necesessiating poles with small weight given by the second parameter.
+# Due to poles at $ϵ_i≈0$ this will diverge,
+# and poles with small weight need to be ignored.
+# This is controlled by the second parameter.
 quasiparticle_weight(Σ, sqrt(eps()))
 
 # ### Update hybridization

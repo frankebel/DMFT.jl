@@ -1,9 +1,9 @@
 [deps]
 Changelog = "5217a498-cd5d-4ec6-b8c2-9b85a09b6e3e"
-RAS_DMFT = "a6c836f4-75b2-4167-a711-17703ee59b5f"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 Fermions = "5323e9fa-b7db-5fd3-973f-d33ddadd0ada"
 Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
+RAS_DMFT = "a6c836f4-75b2-4167-a711-17703ee59b5f"
 
 [compat]
 Changelog = "1"
