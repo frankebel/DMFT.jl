@@ -1,5 +1,5 @@
-using DMFT
-using DMFT.Debug
+using RAS_DMFT
+using RAS_DMFT.Debug
 using Fermions
 using Fermions.Bits
 using Fermions.Wavefunctions

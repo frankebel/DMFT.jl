@@ -1,5 +1,5 @@
-using DMFT
-using DMFT.ED
+using RAS_DMFT
+using RAS_DMFT.ED
 using Fermions
 using LinearAlgebra
 using Test
@@ -19,7 +19,7 @@ using Test
         n_sites = n_bath + 1
         @test length(G) ==
             2 * binomial(n_sites, n_sites ÷ 2) * binomial(n_sites, n_bath ÷ 2)
-        @test DMFT.moment(G, 0) ≈ 1 rtol = 10 * eps()
+        @test RAS_DMFT.moment(G, 0) ≈ 1 rtol = 10 * eps()
         # PHS
         @test norm(locations(G) + reverse(locations(G))) < 200 * eps()
         @test norm(wgt - reverse(wgt)) < 40 * eps()

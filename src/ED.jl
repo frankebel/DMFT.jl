@@ -1,6 +1,6 @@
 module ED
 
-using ..DMFT
+using ..RAS_DMFT
 using Fermions
 using LinearAlgebra
 using SparseArrays

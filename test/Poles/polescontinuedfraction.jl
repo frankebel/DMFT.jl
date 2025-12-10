@@ -1,4 +1,4 @@
-using DMFT
+using RAS_DMFT
 using LinearAlgebra
 using Test
 
@@ -82,7 +82,7 @@ using Test
             amp = 6:10
             scl = 5
             P = PolesContinuedFraction(loc, amp, scl)
-            @test DMFT.scale(P) === scl
+            @test RAS_DMFT.scale(P) === scl
         end # scale
 
         @testset "weight" begin

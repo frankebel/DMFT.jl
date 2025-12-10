@@ -1,4 +1,4 @@
-using DMFT.Combinatorics
+using RAS_DMFT.Combinatorics
 using Test
 
 @testset "Combinatorics" begin

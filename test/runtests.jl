@@ -1,4 +1,4 @@
-using DMFT
+using RAS_DMFT
 using Logging
 using Test
 
@@ -6,7 +6,7 @@ Logging.disable_logging(Logging.Info)
 
 include("aqua.jl")
 
-@testset "DMFT.jl" begin
+@testset "RAS_DMFT.jl" begin
     include("bits.jl")
     include("Poles/polessum.jl")
     include("Poles/polessumblock.jl")

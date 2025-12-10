@@ -1,7 +1,7 @@
-# DMFT
+# RAS_DMFT
 
-[![Build Status](https://github.com/frankebel/DMFT.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/frankebel/DMFT.jl/actions/workflows/CI.yml)
-[![codecov](https://codecov.io/gh/frankebel/DMFT.jl/graph/badge.svg?token=5ACAMMA64E)](https://codecov.io/gh/frankebel/DMFT.jl)
+[![Build Status](https://github.com/frankebel/RAS_DMFT.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/frankebel/RAS_DMFT.jl/actions/workflows/CI.yml)
+[![codecov](https://codecov.io/gh/frankebel/RAS_DMFT.jl/graph/badge.svg?token=5ACAMMA64E)](https://codecov.io/gh/frankebel/RAS_DMFT.jl)
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 [![code style: runic](https://img.shields.io/badge/code_style-%E1%9A%B1%E1%9A%A2%E1%9A%BE%E1%9B%81%E1%9A%B2-black)](https://github.com/fredrikekre/Runic.jl)
 
@@ -15,13 +15,13 @@ it needs to be added
 
 ```sh
 export JULIA_PKG_USE_CLI_GIT="true"
-julia --project=path/to/project --eval 'using Pkg; Pkg.add(url="https://github.com/frankebel/DMFT.jl")'
+julia --project=path/to/project --eval 'using Pkg; Pkg.add(url="https://github.com/frankebel/RAS_DMFT.jl")'
 ```
 
 If the package is installed, you can run all tests with
 
 ```julia
-julia --project=path/to/project --eval 'using Pkg; Pkg.test("DMFT")'
+julia --project=path/to/project --eval 'using Pkg; Pkg.test("RAS_DMFT")'
 ```
 
 ## Documentation

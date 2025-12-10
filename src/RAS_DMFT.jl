@@ -1,4 +1,4 @@
-module DMFT
+module RAS_DMFT
 
 using Distributions
 using Fermions

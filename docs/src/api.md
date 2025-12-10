@@ -1,25 +1,25 @@
 # API reference
 
-## DMFT
+## RAS_DMFT
 
 ```@autodocs
-Modules = [DMFT]
+Modules = [RAS_DMFT]
 ```
 
-## DMFT.Combinatorics
+## RAS_DMFT.Combinatorics
 
 ```@autodocs
-Modules = [DMFT.Combinatorics]
+Modules = [RAS_DMFT.Combinatorics]
 ```
 
-## DMFT.Debug
+## RAS_DMFT.Debug
 
 ```@autodocs
-Modules = [DMFT.Debug]
+Modules = [RAS_DMFT.Debug]
 ```
 
-## DMFT.ED
+## RAS_DMFT.ED
 
 ```@autodocs
-Modules = [DMFT.ED]
+Modules = [RAS_DMFT.ED]
 ```

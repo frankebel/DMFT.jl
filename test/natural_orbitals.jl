@@ -1,4 +1,4 @@
-using DMFT
+using RAS_DMFT
 using Fermions
 using Fermions.Wavefunctions
 using LinearAlgebra
@@ -370,8 +370,8 @@ using Test
             fs = FockSpace(Orbitals(4), FermionicSpin(1 // 2)) # too many Orbitals on purpose
             n = occupations(fs)
             H_int = U * n[1, -1 // 2] * n[1, 1 // 2]
-            H1 = DMFT._natural_orbital_ci_operator_zero(H_nat1, H_int, -μ, fs, n_occ, 2)
-            H2 = DMFT._natural_orbital_ci_operator_zero(H_nat2, H_int, -μ, fs, n_occ, 2)
+            H1 = RAS_DMFT._natural_orbital_ci_operator_zero(H_nat1, H_int, -μ, fs, n_occ, 2)
+            H2 = RAS_DMFT._natural_orbital_ci_operator_zero(H_nat2, H_int, -μ, fs, n_occ, 2)
             @test typeof(H1) == typeof(H2)
             @test H1 == H2
 
@@ -483,7 +483,7 @@ using Test
         ϕ = deepcopy(ϕ_start)
         ψ = deepcopy(ψ_start)
         for _ in 1:niter
-            ϕ = DMFT.Debug.mul_excitation(H_wf, ϕ, m_valence, m_conduction, e)
+            ϕ = RAS_DMFT.Debug.mul_excitation(H_wf, ϕ, m_valence, m_conduction, e)
             ψ = H_ciwf * ψ
             # normalize
             normalize!(ϕ)

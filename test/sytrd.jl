@@ -1,4 +1,4 @@
-using DMFT
+using RAS_DMFT
 using LinearAlgebra
 using Test
 

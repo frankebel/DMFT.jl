@@ -1,27 +1,27 @@
 using Changelog
-using DMFT
+using RAS_DMFT
 using Documenter
 using Literate
 
-DocMeta.setdocmeta!(DMFT, :DocTestSetup, :(using DMFT); recursive = true)
+DocMeta.setdocmeta!(RAS_DMFT, :DocTestSetup, :(using RAS_DMFT); recursive = true)
 
 # generate changelog
 Changelog.generate(
     Changelog.Documenter(),
     joinpath(@__DIR__, "../CHANGELOG.md"),
     joinpath(@__DIR__, "src/changelog.md");
-    repo = "frankebel/DMFT.jl",
+    repo = "frankebel/RAS_DMFT.jl",
 )
 
 # generate documentation
 Literate.markdown("src/tutorial.jl", "src/generated")
 
 makedocs(;
-    modules = [DMFT],
+    modules = [RAS_DMFT],
     authors = "Frank Ebel and contributors",
-    sitename = "DMFT.jl",
+    sitename = "RAS_DMFT.jl",
     format = Documenter.HTML(;
-        canonical = "https://frankebel.github.io/DMFT.jl", edit_link = "main", assets = String[]
+        canonical = "https://frankebel.github.io/RAS_DMFT.jl", edit_link = "main", assets = String[]
     ),
     pages = [
         "Home" => "index.md",
@@ -31,5 +31,5 @@ makedocs(;
     ],
 )
 
-# only works for public repos, see <https://github.com/frankebel/DMFT.jl/settings/pages>
-# deploydocs(; repo="github.com/frankebel/DMFT.jl", devbranch="main")
+# only works for public repos, see <https://github.com/frankebel/RAS_DMFT.jl/settings/pages>
+# deploydocs(; repo="github.com/frankebel/RAS_DMFT.jl", devbranch="main")

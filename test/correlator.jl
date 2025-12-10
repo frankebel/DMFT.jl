@@ -1,4 +1,4 @@
-using DMFT
+using RAS_DMFT
 using Fermions
 using LinearAlgebra
 using Test
@@ -37,7 +37,7 @@ using Test
         @test issorted(G_plus)
         @test all(>=(0), locations(G_plus))
         @test all(>=(0), weights(G_plus))
-        @test DMFT.moment(G_plus, 0) ≈ 0.5 atol = 100 * eps()
+        @test RAS_DMFT.moment(G_plus, 0) ≈ 0.5 atol = 100 * eps()
         # G-
         G_minus = correlator_minus(H, ψ0, d_dag', n_kryl)
         @test typeof(G_minus) === PolesSum{Float64, Float64}
@@ -45,10 +45,10 @@ using Test
         @test issorted(G_minus)
         @test all(<=(0), locations(G_minus))
         @test all(>=(0), weights(G_minus))
-        @test DMFT.moment(G_minus, 0) ≈ 0.5 atol = 100 * eps()
+        @test RAS_DMFT.moment(G_minus, 0) ≈ 0.5 atol = 100 * eps()
         # symmetry: first moment must be zero
         G = G_plus + G_minus
-        @test DMFT.moment(G, 1) ≈ 0 atol = 100 * eps()
+        @test RAS_DMFT.moment(G, 1) ≈ 0 atol = 100 * eps()
     end # Lanczos
 
     @testset "block Lanczos" begin
@@ -70,8 +70,8 @@ using Test
         G_minus = PolesSum(copy(locations(C_minus)), map(i -> i[1, 1], weights(C_minus)))
 
         # half-filling
-        @test DMFT.moment(G_plus, 0) ≈ 0.5 rtol = 150 * eps()
-        @test DMFT.moment(G_minus, 0) ≈ 0.5 rtol = 150 * eps()
+        @test RAS_DMFT.moment(G_plus, 0) ≈ 0.5 rtol = 150 * eps()
+        @test RAS_DMFT.moment(G_minus, 0) ≈ 0.5 rtol = 150 * eps()
 
         # compare absolute moments of impurity Green's function
         m_pos = moments(G_plus, 0:10)

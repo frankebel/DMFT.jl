@@ -1,10 +1,10 @@
 ```@meta
-CurrentModule = DMFT
+CurrentModule = RAS_DMFT
 ```
 
 # Real frequency DMFT solver
 
-`DMFT.jl` can be used to calculate a single Hubbard band using DMFT on the real frequency axis.
+`RAS_DMFT.jl` can be used to calculate a single Hubbard band using DMFT on the real frequency axis.
 
 Given a single impurity Anderson Hamiltonian (SIAM) $H=H_0 + H_\mathrm{int}$ with
 
@@ -39,27 +39,27 @@ it needs to be added
 
 ```sh
 export JULIA_PKG_USE_CLI_GIT="true"
-julia --project=path/to/project --eval 'using Pkg; Pkg.add(url="https://github.com/frankebel/DMFT.jl")'
+julia --project=path/to/project --eval 'using Pkg; Pkg.add(url="https://github.com/frankebel/RAS_DMFT.jl")'
 ```
 
 If the package is installed, you can run all tests with
 
 ```julia
-julia --project=path/to/project --eval 'using Pkg; Pkg.test("DMFT")'
+julia --project=path/to/project --eval 'using Pkg; Pkg.test("RAS_DMFT")'
 ```
 
 ## Modules
 
-The main module is called `DMFT` and can be put into the namespace by
+The main module is called `RAS_DMFT` and can be put into the namespace by
 
 ```julia
-using DMFT
+using RAS_DMFT
 ```
 
 There are also submodules
 
-- `DMFT.Combinatorics`
-- `DMFT.Debug`
-- `DMFT.ED`
+- `RAS_DMFT.Combinatorics`
+- `RAS_DMFT.Debug`
+- `RAS_DMFT.ED`
 
 which are not necessary to be called in 99 % of all cases.

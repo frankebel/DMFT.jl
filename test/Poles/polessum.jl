@@ -1,4 +1,4 @@
-using DMFT
+using RAS_DMFT
 using Distributions
 using LinearAlgebra
 using Test
@@ -263,14 +263,14 @@ using Test
 
         @testset "moment" begin
             P = PolesSum([-0.5, 0.0, 0.5], [0.0625, 2.25, 0.0625])
-            @test DMFT.moment(P) == 2.375
-            @test iszero(DMFT.moment(P, 1))
-            @test DMFT.moment(P, 2) == 0.03125
-            @test iszero(DMFT.moment(P, 101))
+            @test RAS_DMFT.moment(P) == 2.375
+            @test iszero(RAS_DMFT.moment(P, 1))
+            @test RAS_DMFT.moment(P, 2) == 0.03125
+            @test iszero(RAS_DMFT.moment(P, 101))
             # odd moment must vanish for even function
             P = PolesSum([-1.0, -eps(), -2.0, 2.0, eps(), 1.0], fill(1.0, 6))
-            @test iszero(DMFT.moment(P, 1))
-            @test iszero(DMFT.moment(P, 101))
+            @test iszero(RAS_DMFT.moment(P, 1))
+            @test iszero(RAS_DMFT.moment(P, 101))
         end # moment
 
         @testset "moments" begin
@@ -474,7 +474,7 @@ using Test
             @test abs(a0) < eps()
             @test norm(locations(P) + reverse(locations(P))) < 100 * eps()
             @test norm(weights(P) - reverse(weights(P))) < 100 * eps()
-            @test DMFT.moment(P, 0) ≈ 0.25 atol = 1.0e-4 # total weight
+            @test RAS_DMFT.moment(P, 0) ≈ 0.25 atol = 1.0e-4 # total weight
             # evaluate
             δ = 0.1
             @test norm(

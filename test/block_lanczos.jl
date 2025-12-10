@@ -1,4 +1,4 @@
-using DMFT
+using RAS_DMFT
 using Fermions
 using Fermions.Wavefunctions
 using LinearAlgebra
@@ -29,9 +29,9 @@ using Test
         v2 = q_dag * ψ0
         V0 = [v1 v2]
         # Löwdin orthonormalization
-        W, S_sqrt = DMFT._orthonormalize_SVD(V0)
+        W, S_sqrt = RAS_DMFT._orthonormalize_SVD(V0)
         # Block Lanczos
-        a, b = DMFT.block_lanczos(H, W, n_kryl)
+        a, b = RAS_DMFT.block_lanczos(H, W, n_kryl)
         @test length(a) == n_kryl
         @test length(b) == n_kryl - 1
         @test all(ishermitian, a)

@@ -3,7 +3,7 @@
 # We first load necessary packages.
 
 using CairoMakie
-using DMFT
+using RAS_DMFT
 using Fermions
 using LinearAlgebra
 
