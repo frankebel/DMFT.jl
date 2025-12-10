@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- rename package to `RAS_DMFT` ([#161](https://github.com/frankebel/RAS_DMFT.jl/pull/161)) ([fb3e137](https://github.com/frankebel/RAS_DMFT.jl/commit/fb3e137dabb8152441b1fa6cd8466b582e0643dc))
+
 ## [0.9.0] - 2025-12-04
 
 ### Added
